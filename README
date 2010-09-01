@@ -1,0 +1,65 @@
+THIS README COPIED FROM THE diagrams PACKAGE
+
+Graphics.Rendering.Figures provides an embedded domain-specific
+language (EDSL) for creating figures rendered with Cairo
+
+For some examples of use, see http://code.haskell.org/figures/ .
+
+------------------------------------------------------------------------
+
+To install the Figures library:
+
+1. Get the dependencies
+
+    The figures library uses Haskell bindings to the Cairo vector
+    graphics library.  In order to build the figures library, you
+    will first need the following:
+
+    * The Cairo library itself.  This is probably available through
+      your system's package manager and may even already be installed.
+      On Ubuntu, for example, it is available from the 'libcairo'
+      package.
+
+    * The Haskell cairo bindings, which are packaged as part of
+      gtk2hs.  Unfortunately, for various technical reasons, gtk2hs is
+      not cabalized and cannot be downloaded and installed from
+      Hackage.  To get gtk2hs you will need to go to the gtk2hs
+      website (http://www.haskell.org/gtk2hs/) and follow the
+      instructions to download and build it.
+
+    * The colour library, which is available from Hackage.  If you use
+      the cabal-install build option described below, the colour
+      library will be downloaded and installed for you automatically.
+
+2. Build
+
+   * Option 1: use cabal-install
+
+     If you have cabal-install, *after* installing gtk2hs, you can
+     install figures and the remaining dependencies with
+     cabal-install:
+
+       cabal install figures
+
+     Optionally, you can also pass options such as --user
+     --prefix=$HOME to install locally.
+
+  * Option 2: manual build
+
+    Once all the dependencies are built and installed, you can build
+    and install figures as follows:
+      
+      runhaskell Setup.lhs configure --prefix=$HOME --user
+      runhaskell Setup.lhs build
+      runhaskell Setup.lhs install
+
+    (Optionally, you can omit the --prefix and --user arguments to the
+    configure step, and run the install step with 'sudo' in order to
+    install the library systemwide.)
+
+3. Building Haddock documentation (recommended)
+
+     runhaskell Setup.lhs haddock
+
+   Once the documentation has been built, you can access it by 
+   pointing your browser to dist/doc/html/figures/index.html.

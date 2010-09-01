@@ -1,0 +1,12 @@
+ * text labels for major ticks
+ * columns
+ * bars
+ * impulses
+ * steps
+ * legend
+ * annotations
+
+| * pad side opposite of axis label only if there is no label on that side
+ * using padding functions not raw data structure pdFoo, pdBar
+
+ * simple interface

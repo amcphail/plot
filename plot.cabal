@@ -1,0 +1,88 @@
+Name:                plot
+Version:             0.1
+License:             BSD3
+License-file:        LICENSE
+Copyright:           (c) A.V.H. McPhail 2010
+Author:              Vivian McPhail
+Maintainer:          haskell.vivian.mcphail <at> gmail <dot> com
+Stability:           experimental
+Homepage:            http://code.haskell.org/plot
+Synopsis:            A library for creating plots, exportable as eps/pdf/svg/png or renderable with gtk
+Description:         
+     A package for creating plots, built on top of the Cairo rendering engine.  
+     .
+     An ambitious attempt to replace gnuplot.
+     .
+     Monadic actions are used to configure a figure, which is a (rxc) array of subplots.
+     Each plot displays a graph with optional heading, labels, legend, and annotations.
+     The annotations themselves may be used to draw diagrams.
+     .
+     A figure is preprocessed in preparation for rendering by the Cairo renderer.
+     The Cairo library can be used to output the figure to PS, PDF, SVG, and PNG file formats,
+     or to display the figure in a GTK Drawable context.  (see package 'plot-gtk').
+     .
+     The preprocessed figure can be embedded as an arbitrary Cairo render, including in a diagram
+     created with the diagram package.  Conversely, arbitrary Cairo renders can be embedded in
+     the data region of a 'Figure'.
+     .
+     The data series are type "Data.Packed.Vector" from hmatrix, which, when hmatrix
+     is compiled with '-fvector', is a synonym for "Data.Vector.Storable" from the
+     vector package and are thus compatible with packages such as statistics.
+     .
+     The example in Graphics.Rendering.Plot can be viewed at 
+     <http://code.haskell.org/plot/examples/perturbed-sine.png>
+
+
+Category:            Graphics
+
+Tested-with:         GHC==6.12.1
+Cabal-version:       >= 1.8
+Build-type:          Simple
+
+Extra-source-files:  README, CHANGES, LICENSE,
+                     examples/perturbed-sine.hs,
+                     examples/perturbed-sine.png
+
+library
+
+  Build-Depends:     base >= 4 && < 5,
+                     mtl, array,
+                     MaybeT,
+                     pango >= 0.11.2 && < 0.12, cairo >= 0.11.1 && < 0.12,
+                     colour >= 2.2.1 && < 2.4,
+                     hmatrix >= 0.10
+
+  Extensions:        MultiParamTypeClasses
+                     GeneralizedNewtypeDeriving
+                     TypeSynonymInstances
+                     FlexibleInstances
+                     FlexibleContexts
+                     UndecidableInstances
+
+  hs-source-dirs:    lib
+  Exposed-Modules:   Graphics.Rendering.Plot
+                     Graphics.Rendering.Plot.Figure
+                     Graphics.Rendering.Plot.Render
+
+  Other-modules:     Graphics.Rendering.Plot.Types
+                     Graphics.Rendering.Plot.Defaults
+                     Graphics.Rendering.Plot.Figure.Line
+                     Graphics.Rendering.Plot.Figure.Point
+                     Graphics.Rendering.Plot.Figure.Text
+                     Graphics.Rendering.Plot.Figure.Plot
+                     Graphics.Rendering.Plot.Figure.Plot.Axis
+                     Graphics.Rendering.Plot.Figure.Plot.Data
+                     Graphics.Rendering.Plot.Render.Types
+                     Graphics.Rendering.Plot.Render.Text
+                     Graphics.Rendering.Plot.Render.Plot
+                     Graphics.Rendering.Plot.Render.Plot.Axis
+                     Graphics.Rendering.Plot.Render.Plot.Data
+                     Control.Monad.Supply
+
+  ghc-options:       -Wall -fno-warn-unused-binds
+
+  ghc-prof-options:  -auto
+
+    source-repository head
+        type:     darcs
+        location: darcs get http://code.haskell.org/plot
