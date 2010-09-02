@@ -5,8 +5,13 @@
  * steps
  * legend
  * annotations
+ * 3d plots
 
 | * pad side opposite of axis label only if there is no label on that side
  * using padding functions not raw data structure pdFoo, pdBar
 
  * simple interface
+ * tick values
+ 
+ * adjustable elements (x,y adjustments)
+ * settable plot sizes (so we can have same plot areas with only bottom one with axis)

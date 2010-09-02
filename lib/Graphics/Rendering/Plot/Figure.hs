@@ -73,7 +73,6 @@ module Graphics.Rendering.Plot.Figure (
                                        -- * Lines
                                       , Line(), LineFormat()
                                       , DashStyle,Dash(..),LineWidth
-                                      , clearLineFormat
                                       , setDashStyle
                                       , setLineWidth
                                       , setLineColour
