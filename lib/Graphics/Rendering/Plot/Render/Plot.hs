@@ -103,7 +103,8 @@ renderPlot (Plot b p hd r a t d l an) = do
       renderBorder b
       cairo C.save
       clipBoundary
-      renderData r t d an
+      renderData r t d
+      renderAnnotations r an
       renderLegend l
       cairo C.restore
 
@@ -120,6 +121,13 @@ renderBorder True  = do
                              C.closePath
                              C.stroke
                                            
+-----------------------------------------------------------------------------
+
+renderAnnotations :: Ranges -> [Annotation] -> Render ()
+renderAnnotations _ _ = return ()
+
+-----------------------------------------------------------------------------
+
 renderLegend :: Maybe Legend -> Render ()
 renderLegend _ = return ()
 

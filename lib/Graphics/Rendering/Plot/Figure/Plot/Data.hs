@@ -190,10 +190,15 @@ class Ordinate a where
 toOrdinates :: Ordinate a => [a] -> [Ordinates]
 toOrdinates = map toOrdinate
 
-instance Ordinate Function                           where toOrdinate f         = OrdFunction f
-instance Ordinate Series                             where toOrdinate s         = OrdPoints (Plain s)
-instance Ordinate (Series,ErrorSeries)               where toOrdinate (s,e)     = OrdPoints (Error s (e,e))
-instance Ordinate (Series,(ErrorSeries,ErrorSeries)) where toOrdinate (s,(l,u)) = OrdPoints (Error s (l,u))
+instance Ordinate Function                           where toOrdinate f         = OrdFunction Lower f
+instance Ordinate Series                             where toOrdinate s         = OrdPoints Lower (Plain s)
+instance Ordinate (Series,ErrorSeries)               where toOrdinate (s,e)     = OrdPoints Lower (Error s (e,e))
+instance Ordinate (Series,(ErrorSeries,ErrorSeries)) where toOrdinate (s,(l,u)) = OrdPoints Lower (Error s (l,u))
+
+instance Ordinate (Function,AxisSide)                         where toOrdinate (f,ax)       = OrdFunction ax f
+instance Ordinate (Series,AxisSide)                           where toOrdinate (s,ax)       = OrdPoints ax (Plain s)
+instance Ordinate (Series,ErrorSeries,AxisSide)               where toOrdinate (s,e,ax)     = OrdPoints ax (Error s (e,e))
+instance Ordinate (Series,(ErrorSeries,ErrorSeries),AxisSide) where toOrdinate (s,(l,u),ax) = OrdPoints ax (Error s (l,u))
 
 class Decorations a where
     toDecoration :: a -> Decoration
@@ -343,49 +348,6 @@ instance (Abscissa a) => Dataset [(a,FormattedSeries)] where
                        ys' <- sequence ys
                        return $ DS_1to1 $ A.listArray (1,ln) (zip (toAbscissae xs) ys')
 
-{-
-instance (Ordinate a, LineFormat b) => Dataset [(a,LineFormat,b)] where 
-    toDataSeries os = do
-                      let ln = length os
-                          (ys,_,ds) = unzip3 os
-                      ds' <- mapM toLine ds
-                      return $ DS_Y $ A.listArray (1,ln) $ zipWith format (toOrdinates ys) (toDecorations ds')
-
-instance (Ordinate a, PointFormat b) => Dataset [(a,PointFormat,b)] where 
-    toDataSeries os = do
-                      let ln = length os
-                          (ys,_,ds) = unzip3 os
-                      ds' <- mapM toPoint ds
-                      return $ DS_Y $ A.listArray (1,ln) $ zipWith format (toOrdinates ys) (toDecorations ds')
-
-instance (Abscissa a, Ordinate b, Decorations c) => Dataset (a,[(b,c)]) where
-    toDataSeries Line (t,os) = do
-                               let ln = length os
-                                   (ys,ds) = unzip os
-                               ds' <- mapM toLine ds
-                               return $ DS_1toN (toAbscissa t) $ A.listArray (1,ln) 
-                                          $ zipWith format (toOrdinates ys) (toDecorations ds')
-    toDataSeries Point (t,os) = do
-                                let ln = length os
-                                    (ys,ds) = unzip os
-                                ds' <- mapM toPoint ds
-                                return $ DS_1toN (toAbscissa t) $ A.listArray (1,ln) 
-                                           $ zipWith format (toOrdinates ys) (toDecorations ds')
-
-instance (Abscissa a, Ordinate b, Decorations c) => Dataset [(a,b,c)] where
-    toDataSeries Line  prs = do
-                             let ln = length prs
-                                 (ts,ys,ds) = unzip3 prs
-                             ds' <- mapM toLine ds
-                             let ys' = zipWith format (toOrdinates ys) (toDecorations ds')
-                             return $ DS_1to1 $ A.listArray (1,ln) $ zip (toAbscissae ts) ys'
-    toDataSeries Point prs = do
-                             let ln = length prs
-                                 (ts,ys,ds) = unzip3 prs
-                             ds' <- mapM toPoint ds
-                             let ys' = zipWith format (toOrdinates ys) (toDecorations ds')
-                             return $ DS_1to1 $ A.listArray (1,ln) $ zip (toAbscissae ts) ys'
--}
 
 -- | set the data set
 setDataSeries :: Dataset a => a -> Data ()

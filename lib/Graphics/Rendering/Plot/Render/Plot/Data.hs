@@ -19,41 +19,26 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 
 -----------------------------------------------------------------------------
 
---import Data.Either
+import Data.List(partition)
 
 import Data.Packed.Vector
 import Data.Packed()
 import Numeric.LinearAlgebra.Linear
 
---import Data.Word
-
---import Data.Maybe
-
---import Data.Colour.SRGB
---import Data.Colour.Names
-
 import qualified Data.Array.IArray as A
 
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Cairo.Matrix as CM
---import qualified Graphics.Rendering.Pango as P
 
 import Control.Monad.Reader
 import Control.Monad.State
---import Control.Monad.Trans
 import Control.Monad.Maybe
 
 import Graphics.Rendering.Plot.Types
---import Graphics.Rendering.Plot.Defaults
-
---import Graphics.Rendering.Plot.Figure.Text
 
 import Graphics.Rendering.Plot.Render.Types
 
---import qualified Text.Printf as Printf
-
 import Prelude hiding(min,max,abs)
---import qualified Prelude(max)
 
 -----------------------------------------------------------------------------
 
@@ -76,33 +61,59 @@ flipVertical = C.transform flipVerticalMatrix
 
 -----------------------------------------------------------------------------
 
-renderData :: Ranges -> PlotType -> DataSeries -> Annotations -> Render ()
-renderData r@(Ranges (Left (Range xmin xmax)) (Left (Range ymin ymax)))
-           Linear
-           (DS_1toN abs ys)
-           an = do
-                (BoundingBox x y w h) <- get
-                let xscale = w/(xmax-xmin) 
-                    yscale = h/(ymax-ymin) 
-                    -- transform to data coordinates
-                cairo $ do 
-                       C.translate x (y+h)
-                       C.scale xscale yscale
-                       C.translate xmin ymin
-                       flipVertical
-                mapM_ (renderSeries r xscale yscale) (zip (repeat abs) (A.elems ys)) 
-                renderAnnotations an
+renderData :: Ranges -> PlotType -> DataSeries -> Render ()
+renderData r Linear ds = do
+                         let aos = case ds of
+                                           (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
+                                           (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 
+                                           (DS_1to1 aos')     -> A.elems aos'
+                         let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
+                         (BoundingBox x y w h) <- get
+                         let (xmin,xmax) = getRanges XAxis Lower r
+                         let xscale = w/(xmax-xmin) 
+                         cairo $ C.save
+                         let (yminl,ymaxl) = getRanges YAxis Lower r
+                         let yscalel = h/(ymaxl-yminl) 
+                         -- transform to data coordinates
+                         cairo $ do 
+                                 C.translate x (y+h)
+                                 C.scale xscale yscalel
+                                 C.translate xmin yminl
+                                 flipVertical
+                         mapM_ (renderSeries xmin xmax xscale yscalel) los
+                         cairo $ C.restore
+                         when (not $ null ups)
+                              (do
+                               cairo $ C.save
+                               let (yminu,ymaxu) = getRanges YAxis Upper r
+                               let yscaleu = h/(ymaxu-yminu) 
+                               -- transform to data coordinates
+                               cairo $ do 
+                                       C.translate x (y+h)
+                                       C.scale xscale yscaleu
+                                       C.translate xmin yminu
+                                       flipVertical
+                               mapM_ (renderSeries xmin xmax xscale yscaleu) ups)
+                         -- could filter annotations as well
+                         return ()
 
-renderSeries :: Ranges -> Double -> Double -> (Abscissae, DecoratedSeries) -> Render ()
-renderSeries (Ranges (Left (Range xmin xmax)) _) 
-             xscale yscale ((AbsPoints t),(DecSeries o d)) = do
+renderSeries :: Double -> Double -> Double -> Double -> (Abscissae,DecoratedSeries) -> Render ()
+renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
        dat <- case o of
-                     (OrdFunction f)              -> do
-                                                     (BoundingBox _ _ w _) <- get
-                                                     let ts = linspace (round w) (xmin,xmax)
-                                                     return $ [(ts,mapVector f ts)]
-                     (OrdPoints (Plain o'))       -> return $ [(t,o')]
-                     (OrdPoints (Error o' (l,h))) -> return $ [(t,o'),(t,o'-l),(t,o'+h)]
+                     (OrdFunction _ f)              -> do
+                                                       (BoundingBox _ _ w _) <- get
+                                                       let t = linspace (round w) (xmin,xmax)
+                                                       return $ [(t,mapVector f t)]
+                     (OrdPoints _ (Plain o'))       -> do
+                                                       let t = case abs of
+                                                                        AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
+                                                                        AbsPoints t'     -> t'
+                                                       return $ [(t,o')]
+                     (OrdPoints _ (Error o' (l,h))) -> do
+                                                       let t = case abs of
+                                                                        AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
+                                                                        AbsPoints t'     -> t'
+                                                       return $ [(t,o'),(t,o'-l),(t,o'+h)]
        case d of
               (DecLine lt)   -> do
                                 formatLineSeries lt xscale yscale
@@ -196,11 +207,6 @@ renderPointSample xscale yscale g x y = do
 
 endPointSample :: C.Render ()
 endPointSample = return ()
-
------------------------------------------------------------------------------
-
-renderAnnotations :: [Annotation] -> Render ()
-renderAnnotations _ = return ()
 
 -----------------------------------------------------------------------------
 

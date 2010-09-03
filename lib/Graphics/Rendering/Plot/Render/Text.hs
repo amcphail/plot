@@ -63,7 +63,7 @@ import Graphics.Rendering.Plot.Render.Types
 textSize :: P.PangoLayout -> TextXAlign -> TextYAlign -> Double -> Double -> C.Render ((Double,Double),(Double,Double))
 textSize l xa ya x y = do
                        (_,P.PangoRectangle _ _ w h) <- pango $ P.layoutGetExtents l
-                       return ((xStart xa x w h,yStart ya y h h),(w,h))
+                       return ((xStart xa x w h,yStart ya y w h),(w,h))
     where xStart TLeft   x' w' _  = x' - w'
           xStart Centre  x' w' _  = x' - (w'/2)
           xStart TRight  x' _  _  = x'
@@ -76,9 +76,9 @@ textSizeVertical l xa ya x y = do
                        (_,P.PangoRectangle _ _ w h) <- pango $ P.layoutGetExtents l
                        return ((xStart xa x w h,yStart ya y w h),(w,h))
     where xStart TLeft   x' _  w' = x' - w'
-          xStart Centre  x' _  w' = x' - (w'/2) 
-          xStart TRight  x' _  _  = x'
-          yStart TBottom y' _ _  = y'
+          xStart Centre  x' _  w' = x' - (w'/2)
+          xStart TRight  x' _  w' = x'
+          yStart TBottom y' _  _  = y'
           yStart Middle  y' h' _  = y' + (h'/2)
           yStart TTop    y' h' _  = y' + (h')
 
@@ -128,27 +128,24 @@ renderText (FontText to s)     xa ya x y = do
                                                    return twh
 
 renderTextVertical :: TextEntry -> TextXAlign -> TextYAlign -> Double -> Double -> Render (Double,Double)
-renderTextVertical NoText            _  _  _ _ = return (0,0)
-renderTextVertical (BareText s)      xa ya x y = do
-                                         to <- asks (_textoptions . _renderoptions)
-                                         renderTextVertical (FontText to s) xa ya x y
-renderTextVertical (SizeText fz c s) xa ya x y = do
-                                         to <- asks (_textoptions . _renderoptions)
-                                         renderTextVertical (FontText (changeFontSize fz $
-                                                                       changeFontColour c to) s) xa ya x y
-renderTextVertical (FontText to s)   xa ya x y = do
-                                         pc <- asks _pangocontext
-                                         cairo $ do
-                                                 lo <- pango $ P.layoutText pc s
-                                                 setTextOptions to lo
-                                                 C.moveTo x y
-                                                 C.save
-                                                 C.rotate (-pi/2)
-                                                 --P.updateContext pc
-                                                 P.updateLayout lo
-                                                 ((x',y'),twh) <- textSizeVertical lo xa ya x y 
-                                                 showText lo (-y') (-x')
-                                                 C.restore
-                                                 return twh
+renderTextVertical NoText              _  _  _ _ = return (0,0)
+renderTextVertical te@(BareText _)     xa ya x y = do
+                                                 te' <- formatText te
+                                                 renderTextVertical te' xa ya x y
+renderTextVertical te@(SizeText _ _ _) xa ya x y = do
+                                                   te' <- formatText te
+                                                   renderTextVertical te' xa ya x y
+renderTextVertical (FontText to s)     xa ya x y = do
+                                                   pc <- asks _pangocontext
+                                                   cairo $ do
+                                                           lo <- pango $ P.layoutText pc s
+                                                           setTextOptions to lo
+                                                           C.save
+                                                           C.rotate (-pi/2)
+                                                           P.updateLayout lo
+                                                           ((x',y'),twh) <- textSizeVertical lo xa ya x y 
+                                                           showText lo (-y') (x')
+                                                           C.restore
+                                                           return twh
                                                       
 -----------------------------------------------------------------------------

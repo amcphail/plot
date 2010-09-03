@@ -16,4 +16,4 @@
  * adjustable elements (x,y adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with axis)
 
- * option to use upper ranges
+| * option to use upper ranges

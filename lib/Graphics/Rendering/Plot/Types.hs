@@ -72,12 +72,9 @@ type Solid = Bool
 
 type PointSize = Double
 data Glyph = Box | Cross | Diamond | Asterisk | Triangle | Circle | Top | Bot
-               deriving(Show)
 --data GlyphType = Glyph Glyph Solid 
 data PointOptions = PointOptions PointSize Color
-               deriving(Show)
 data PointType = FullPoint PointOptions Glyph
-               deriving(Show)
 
 -----------------------------------------------------------------------------
 
@@ -90,19 +87,16 @@ execPoint m r = execState (runReaderT (runPoint m) r)
 -----------------------------------------------------------------------------
 
 data Dash = Dot | Dash
-               deriving(Show)
 type DashStyle = [Dash]
 type LineWidth = Double
 -- not using line join
 -- not using line cap
 -- do we want arrows?
 data LineOptions = LineOptions DashStyle LineWidth
-               deriving(Show)
 
 data LineType = NoLine
               | ColourLine Color
               | TypeLine LineOptions Color
-               deriving(Show)
 
 -----------------------------------------------------------------------------
 
@@ -133,8 +127,15 @@ data Range = Range { _range_min :: Double, _range_max :: Double }
 
 data Ranges = Ranges (Either Range (Range,Range)) (Either Range (Range,Range))
 
-defaultRanges :: Double -> Double -> Double -> Double -> Ranges
-defaultRanges xmin xmax ymin ymax = Ranges (Left (Range xmin xmax)) (Left (Range ymin ymax))
+getRanges :: AxisType -> AxisSide -> Ranges -> (Double,Double)
+getRanges XAxis Lower (Ranges (Left (Range xmin xmax)) _)    = (xmin,xmax)
+getRanges XAxis Lower (Ranges (Right (Range xmin xmax,_)) _) = (xmin,xmax)
+getRanges XAxis Upper (Ranges (Right (_,Range xmin xmax)) _) = (xmin,xmax)
+getRanges XAxis Upper (Ranges (Left _) _)                    = error "no upper range defined"
+getRanges YAxis Lower (Ranges _ (Left (Range ymin ymax)))    = (ymin,ymax)
+getRanges YAxis Lower (Ranges _ (Right (Range ymin ymax,_))) = (ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Right (_,Range ymin ymax))) = (ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Left _))                    = error "no upper range defined"
 
 -----------------------------------------------------------------------------
 
@@ -207,11 +208,10 @@ type Series = Vector Double
 type ErrorSeries = Series
 type Function = (Double -> Double)
 
-instance Show Function where show _ = "<<function>>"
+--instance Show Function where show _ = "<<function>>"
 
 data OrdSeries = Plain Series
                | Error Series (ErrorSeries,ErrorSeries)
-               deriving(Show)
 
 getOrdData :: OrdSeries -> Series
 getOrdData (Plain o)   = o
@@ -219,25 +219,28 @@ getOrdData (Error o _) = o
 
 data Abscissae = AbsFunction 
                | AbsPoints Series
-                  deriving(Show)
 
-data Ordinates = OrdFunction Function
-               | OrdPoints OrdSeries
-                  deriving(Show)
+data Ordinates = OrdFunction AxisSide Function
+               | OrdPoints   AxisSide OrdSeries
+
+isLower :: Ordinates -> Bool
+isLower (OrdFunction Lower _) = True
+isLower (OrdPoints   Lower _) = True
+isLower _                     = False
+
+isUpper :: Ordinates -> Bool
+isUpper = not . isLower
 
 data Decoration = DecLine  LineType
                 | DecPoint PointType
                 | DecLinPt LineType  PointType
-                  deriving(Show)
 
 data DecoratedSeries = DecSeries Ordinates Decoration
-                  deriving(Show)
 --                     BarSeries   Abscissae Ordinates BarType
 
 data DataSeries = DS_Y    (A.Array Int DecoratedSeries)
                 | DS_1toN Abscissae (A.Array Int DecoratedSeries)
                 | DS_1to1 (A.Array Int (Abscissae,DecoratedSeries))
-                  deriving(Show)
 
 -----------------------------------------------------------------------------
 

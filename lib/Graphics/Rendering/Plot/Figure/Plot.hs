@@ -177,13 +177,13 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 -----------------------------------------------------------------------------
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
-findMinMax AbsFunction (OrdFunction f) = let v = mapVector f (linspace 100 (-1,1))
-                                         in (vectorMin v,vectorMax v)
-findMinMax (AbsPoints x) (OrdFunction f) = let v = mapVector f x
+findMinMax AbsFunction (OrdFunction _ f) = let v = mapVector f (linspace 100 (-1,1))
                                            in (vectorMin v,vectorMax v)
+findMinMax (AbsPoints x) (OrdFunction _ f) = let v = mapVector f x
+                                             in (vectorMin v,vectorMax v)
                                            -- what if errors go beyond plot?
-findMinMax _ (OrdPoints y)    = let o = getOrdData y
-                                in (vectorMin o,vectorMax o)
+findMinMax _ (OrdPoints _ y)    = let o = getOrdData y
+                                  in (vectorMin o,vectorMax o)
 
 abscMinMax :: Abscissae -> (Double,Double)
 abscMinMax AbsFunction        = (-1,1)
@@ -191,8 +191,8 @@ abscMinMax (AbsPoints x)      = (vectorMin x,vectorMax x)
 
 
 ordDim :: Ordinates -> Int
-ordDim (OrdFunction _)  = 1
-ordDim (OrdPoints o)    = dim $ getOrdData o
+ordDim (OrdFunction _ _)  = 1
+ordDim (OrdPoints _ o)    = dim $ getOrdData o
 
 
 calculateRanges :: DataSeries -> ((Double,Double),(Double,Double))
