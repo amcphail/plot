@@ -62,6 +62,7 @@ library
   hs-source-dirs:    lib
   Exposed-Modules:   Graphics.Rendering.Plot
                      Graphics.Rendering.Plot.Figure
+                     Graphics.Rendering.Plot.Figure.Simple
                      Graphics.Rendering.Plot.Render
 
   Other-modules:     Graphics.Rendering.Plot.Types

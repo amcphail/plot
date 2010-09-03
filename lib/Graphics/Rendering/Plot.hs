@@ -13,16 +13,18 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot (
-                                  -- * Example
-                                  -- $example
-                                  -- * re-exported for convenience
-                                  module Graphics.Rendering.Plot.Figure
-                                  , module Graphics.Rendering.Plot.Render
-                          ) where
+                                -- * Example
+                                -- $example
+                                -- * re-exported for convenience
+                                module Graphics.Rendering.Plot.Figure.Simple
+                               , module Graphics.Rendering.Plot.Figure
+                               , module Graphics.Rendering.Plot.Render
+                               ) where
 
 
 -----------------------------------------------------------------------------
 
+import Graphics.Rendering.Plot.Figure.Simple
 import Graphics.Rendering.Plot.Figure
 import Graphics.Rendering.Plot.Render
 
