@@ -52,7 +52,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
 -----------------------------------------------------------------------------
 
 import Data.Packed.Vector
-import Numeric.LinearAlgebra.Linear
+import Numeric.Vector
 
 import qualified Data.Array.IArray as A
 
@@ -178,16 +178,16 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
 findMinMax AbsFunction (OrdFunction _ f) = let v = mapVector f (linspace 100 (-1,1))
-                                           in (vectorMin v,vectorMax v)
+                                           in (minElement v,maxElement v)
 findMinMax (AbsPoints x) (OrdFunction _ f) = let v = mapVector f x
-                                             in (vectorMin v,vectorMax v)
+                                             in (minElement v,maxElement v)
                                            -- what if errors go beyond plot?
 findMinMax _ (OrdPoints _ y)    = let o = getOrdData y
-                                  in (vectorMin o,vectorMax o)
+                                  in (minElement o,maxElement o)
 
 abscMinMax :: Abscissae -> (Double,Double)
 abscMinMax AbsFunction        = (-1,1)
-abscMinMax (AbsPoints x)      = (vectorMin x,vectorMax x)
+abscMinMax (AbsPoints x)      = (minElement x,maxElement x)
 
 
 ordDim :: Ordinates -> Int

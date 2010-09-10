@@ -20,7 +20,7 @@ import Data.Packed()
 
 import qualified Data.Array.IArray as A
 
-import Numeric.LinearAlgebra.Linear
+import Numeric.Vector
 --import Numeric.LinearAlgebra.Instances
 --import Numeric.LinearAlgebra.Interface
 
@@ -49,7 +49,7 @@ figure = do
                        setFontSize 10
         setPlots 1 1
         withPlot (1,1) $ do
-                         setDataset (ts,[point (ds,es) (Cross,red),line fs blue])
+                         setDataset (ts,[point (ds,es) (Bullet,red),line fs blue])
                          addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
                          addAxis XAxis (Value 0) $ return ()

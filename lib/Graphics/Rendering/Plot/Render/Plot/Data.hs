@@ -23,7 +23,7 @@ import Data.List(partition)
 
 import Data.Packed.Vector
 import Data.Packed()
-import Numeric.LinearAlgebra.Linear
+import Numeric.Vector
 
 import qualified Data.Array.IArray as A
 
@@ -119,15 +119,15 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                 formatLineSeries lt xscale yscale
                                 mapM_ (\(t',y') -> renderSamples xmin xmax renderLineSample endLineSample t' y') dat
               (DecPoint pt)  -> do
-                                g <- formatPointSeries pt xscale yscale
+                                (pz,g) <- formatPointSeries pt xscale yscale
                                 let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale g') endPointSample t' y') (zip gs dat)
+                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
               (DecLinPt lt pt) -> do
                                 formatLineSeries lt xscale yscale
                                 mapM_ (\(t',y') -> renderSamples xmin xmax renderLineSample endLineSample t' y') dat
-                                g <- formatPointSeries pt xscale yscale
+                                (pz,g) <- formatPointSeries pt xscale yscale
                                 let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale g') endPointSample t' y') (zip gs dat)
+                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
        return ()
 
 -----------------------------------------------------------------------------
@@ -145,15 +145,13 @@ formatLineSeries (ColourLine c) xscale yscale = do
                                                 cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
 formatLineSeries (TypeLine (LineOptions ds lw) c) xscale yscale = cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
 
-formatPointSeries' :: LineWidth -> Color -> C.Render ()
-formatPointSeries' lw c = do
-                          C.setLineWidth lw
-                          setColour c
+formatPointSeries' :: Color -> C.Render ()
+formatPointSeries' = setColour
 
-formatPointSeries :: PointType -> Double -> Double -> Render Glyph
-formatPointSeries (FullPoint (PointOptions pz c) g) xscale yscale = do
-                                                                    cairo $ formatPointSeries' ((pz)/((xscale+yscale)/2)) c
-                                                                    return g
+formatPointSeries :: PointType -> Double -> Double -> Render (LineWidth,Glyph)
+formatPointSeries (FullPoint (PointOptions pz c) g) _ _ = do
+                                                          cairo $ formatPointSeries' c
+                                                          return (pz,g)
 
 
 -----------------------------------------------------------------------------
@@ -200,10 +198,10 @@ renderLineSample = C.lineTo
 endLineSample :: C.Render ()
 endLineSample = C.stroke
 
-renderPointSample :: Double -> Double -> Glyph -> Double -> Double -> C.Render ()
-renderPointSample xscale yscale g x y = do
-                                        C.moveTo x y
-                                        renderGlyph xscale yscale g
+renderPointSample :: Double -> Double -> LineWidth -> Glyph -> Double -> Double -> C.Render ()
+renderPointSample xscale yscale pz g x y = do
+                                           C.moveTo x y
+                                           renderGlyph xscale yscale pz g
 
 endPointSample :: C.Render ()
 endPointSample = return ()
@@ -213,15 +211,22 @@ endPointSample = return ()
 glyphWidth :: Double
 glyphWidth = 2*pi
 
-renderGlyph :: Double -> Double -> Glyph -> C.Render ()
-renderGlyph xscale yscale Box    = renderGlyphBox xscale yscale 
-renderGlyph xscale yscale Cross  = renderGlyphCross xscale yscale 
-renderGlyph xscale yscale Diamond = renderGlyphDiamond xscale yscale 
-renderGlyph xscale yscale Asterisk = renderGlyphAsterisk xscale yscale 
-renderGlyph xscale yscale Triangle = renderGlyphTriangle xscale yscale 
-renderGlyph xscale yscale Circle = renderGlyphCircle xscale yscale 
-renderGlyph xscale yscale Top    = renderGlyphTop xscale yscale    
-renderGlyph xscale yscale Bot    = renderGlyphBot xscale yscale   
+renderGlyph :: Double -> Double -> LineWidth -> Glyph -> C.Render ()
+renderGlyph xscale yscale pz g = do
+                                 C.save
+                                 C.scale (pz / xscale) (pz / yscale)
+                                 C.setLineWidth 1
+                                 renderGlyph' g
+                                 C.restore
+   where renderGlyph' Box    = renderGlyphBox 
+         renderGlyph' Cross  = renderGlyphCross 
+         renderGlyph' Diamond = renderGlyphDiamond 
+         renderGlyph' Asterisk = renderGlyphAsterisk 
+         renderGlyph' Triangle = renderGlyphTriangle 
+         renderGlyph' Circle = renderGlyphCircle 
+         renderGlyph' Bullet = renderGlyphBullet 
+         renderGlyph' Top    = renderGlyphTop    
+         renderGlyph' Bot    = renderGlyphBot   
 --renderGlyph _      _      _      = return ()
 
 difference :: Num a => [a] -> [a]
@@ -229,98 +234,112 @@ difference [] = []
 difference [_] = []
 difference (x0:x1:xs) = (x1-x0):(difference (x1:xs))
 
-renderGlyphBox :: Double -> Double -> C.Render ()
-renderGlyphBox xscale yscale = do
-                               let x = glyphWidth/xscale
-                                   y = glyphWidth/yscale
-                               C.relMoveTo (-x/2) (-y/2)
-                               C.relLineTo 0 y
-                               C.relLineTo x 0
-                               C.relLineTo 0 (-y)
-                               C.closePath
-                               C.stroke
+renderGlyphBox :: C.Render ()
+renderGlyphBox = do
+                 let x = glyphWidth
+                     y = glyphWidth
+                 C.relMoveTo (-x/2) (-y/2)
+                 C.relLineTo 0 y
+                 C.relLineTo x 0
+                 C.relLineTo 0 (-y)
+                 C.closePath
+                 C.stroke
 
-renderGlyphCross :: Double -> Double -> C.Render ()
-renderGlyphCross xscale yscale = do
-                               let x = glyphWidth/xscale
-                                   y = glyphWidth/yscale
-                               C.relMoveTo (-x/2) 0
-                               C.relLineTo x 0
-                               C.relMoveTo (-x/2) (-y/2)
-                               C.relLineTo 0 y
-                               C.closePath
-                               C.stroke
+renderGlyphCross :: C.Render ()
+renderGlyphCross = do
+                   let x = glyphWidth
+                       y = glyphWidth
+                   C.relMoveTo (-x/2) 0
+                   C.relLineTo x 0
+                   C.relMoveTo (-x/2) (-y/2)
+                   C.relLineTo 0 y
+                   C.closePath
+                   C.stroke
 
-renderGlyphDiamond :: Double -> Double -> C.Render ()
-renderGlyphDiamond xscale yscale = do
-                                   let x = glyphWidth/xscale
-                                       y = glyphWidth/yscale
-                                   C.relMoveTo (-x/2) 0
-                                   C.relLineTo (x/2) y
-                                   C.relLineTo (x/2) (-y)
-                                   C.relLineTo (-x/2) (-y)
-                                   C.closePath
-                                   C.stroke
+renderGlyphDiamond :: C.Render ()
+renderGlyphDiamond = do
+                     let x = glyphWidth
+                         y = glyphWidth
+                     C.relMoveTo (-x/2) 0
+                     C.relLineTo (x/2) y
+                     C.relLineTo (x/2) (-y)
+                     C.relLineTo (-x/2) (-y)
+                     C.closePath
+                     C.stroke
 
-renderGlyphAsterisk :: Double -> Double -> C.Render ()
-renderGlyphAsterisk xscale yscale = do
-                                    let radius = glyphWidth/2
-                                        angles' = map ((+ 90) . (* (360 `div` 5))) [0..4]
-                                        angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
-                                        xs = map ((* (radius/xscale)) . cos) angles
-                                        ys = map ((* (radius/yscale)) . sin) angles
-                                    mapM_ (\(x,y) -> do
-                                                       C.relLineTo x y
-                                                       C.relMoveTo (-x) (-y)) (zip xs ys)
-                                    C.stroke
+renderGlyphAsterisk :: C.Render ()
+renderGlyphAsterisk = do
+                      let radius = glyphWidth/2
+                          angles' = map ((+ 90) . (* (360 `div` 5))) [0..4]
+                          angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
+                          xs = map ((* (radius)) . cos) angles
+                          ys = map ((* (radius)) . sin) angles
+                      mapM_ (\(x,y) -> do
+                                       C.relLineTo x y
+                                       C.relMoveTo (-x) (-y)) (zip xs ys)
+                      C.stroke
 
-renderGlyphTriangle :: Double -> Double -> C.Render ()
-renderGlyphTriangle xscale yscale = do
-                                    let radius = glyphWidth/2
-                                        angles' = [90,210,330]
-                                        --angles' = map ((flip (+) 90) . (* (360 `div` 3))) [0..2]
-                                        angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
-                                        x@(sx:_) = map ((* (radius/xscale)) . cos) angles
-                                        y@(sy:_) = map ((* (radius/yscale)) . sin) angles
-                                        xs = difference x
-                                        ys = difference y
-                                    C.relMoveTo sx sy
-                                    mapM_ (uncurry C.relLineTo) (zip xs ys)
-                                    C.closePath
-                                    C.stroke
+renderGlyphTriangle :: C.Render ()
+renderGlyphTriangle = do
+                      let radius = glyphWidth/2
+                          angles' = [90,210,330]
+                          --angles' = map ((flip (+) 90) . (* (360 `div` 3))) [0..2]
+                          angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
+                          x@(sx:_) = map ((* (radius)) . cos) angles
+                          y@(sy:_) = map ((* (radius)) . sin) angles
+                          xs = difference x
+                          ys = difference y
+                      C.relMoveTo sx sy
+                      mapM_ (uncurry C.relLineTo) (zip xs ys)
+                      C.closePath
+                      C.stroke
 
-renderGlyphCircle :: Double -> Double -> C.Render ()
-renderGlyphCircle xscale yscale = do
-                                  let radius = glyphWidth/2
-                                      angles = map (*(2*pi/36)) [0..35] 
-                                      x@(sx:_) = map ((* (radius/xscale)) . cos) angles
-                                      y@(sy:_) = map ((* (radius/yscale)) . sin) angles
-                                      xs = difference x
-                                      ys = difference y
-                                  C.relMoveTo sx sy
-                                  mapM_ (uncurry C.relLineTo) (zip xs ys)
-                                  C.closePath
-                                  C.stroke
+renderGlyphCircle :: C.Render ()
+renderGlyphCircle = do
+                    let radius = glyphWidth/2
+                        angles = map (*(2*pi/36)) [0..35] 
+                        x@(sx:_) = map ((* (radius)) . cos) angles
+                        y@(sy:_) = map ((* (radius)) . sin) angles
+                        xs = difference x
+                        ys = difference y
+                    C.relMoveTo sx sy
+                    mapM_ (uncurry C.relLineTo) (zip xs ys)
+                    C.closePath
+                    C.stroke
                         
-renderGlyphTop :: Double -> Double -> C.Render ()
-renderGlyphTop xscale yscale = do
-                               let x = glyphWidth/xscale
-                                   y = glyphWidth/yscale
-                               C.relMoveTo (-x/2) 0
-                               C.relLineTo x 0
-                               C.relMoveTo (-x/2) 0
-                               C.relLineTo 0 (-y)
-                               C.stroke
+renderGlyphBullet :: C.Render ()
+renderGlyphBullet = do
+                    let radius = glyphWidth/2
+                        angles = map (*(2*pi/36)) [0..35] 
+                        x@(sx:_) = map ((* (radius)) . cos) angles
+                        y@(sy:_) = map ((* (radius)) . sin) angles
+                        xs = difference x
+                        ys = difference y
+                    C.relMoveTo sx sy
+                    mapM_ (uncurry C.relLineTo) (zip xs ys)
+                    C.closePath
+                    C.fill
+                    C.stroke
+                        
+renderGlyphTop :: C.Render ()
+renderGlyphTop = do
+                 let x = glyphWidth
+                     y = glyphWidth
+                 C.relMoveTo (-x/2) 0
+                 C.relLineTo x 0
+                 C.relMoveTo (-x/2) 0
+                 C.relLineTo 0 (-y)
+                 C.stroke
 
-renderGlyphBot :: Double -> Double -> C.Render ()
-renderGlyphBot xscale yscale = do
-                               let x = glyphWidth/xscale
-                                   y = glyphWidth/yscale
-                               C.relMoveTo (-x/2) 0
-                               C.relLineTo x 0
-                               C.relMoveTo (-x/2) 0
-                               C.relLineTo 0 (y)
-                               C.stroke
+renderGlyphBot :: C.Render ()
+renderGlyphBot = do
+                 let x = glyphWidth
+                     y = glyphWidth
+                 C.relMoveTo (-x/2) 0
+                 C.relLineTo x 0
+                 C.relMoveTo (-x/2) 0
+                 C.relLineTo 0 (y)
+                 C.stroke
 
 
 

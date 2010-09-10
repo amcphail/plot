@@ -71,7 +71,7 @@ execText m r = execState (runReaderT (runText m) r)
 type Solid = Bool
 
 type PointSize = Double
-data Glyph = Box | Cross | Diamond | Asterisk | Triangle | Circle | Top | Bot
+data Glyph = Box | Cross | Diamond | Asterisk | Triangle | Circle | Bullet | Top | Bot
 --data GlyphType = Glyph Glyph Solid 
 data PointOptions = PointOptions PointSize Color
 data PointType = FullPoint PointOptions Glyph

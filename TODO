@@ -1,19 +1,22 @@
  * text labels for major ticks
+ * area
  * columns
  * bars
  * impulses
  * steps
+ * matrix (greyscale)
+ * square plot (tie x and y shapes)
  * legend
  * annotations
  * 3d plots
 
 | * pad side opposite of axis label only if there is no label on that side
- * using padding functions not raw data structure pdFoo, pdBar
+ * using padding functions not raw data structure: pdFoo, pdBar
 
 | * simple interface
  * tick values
  
- * adjustable elements (x,y adjustments/offsets)
- * settable plot sizes (so we can have same plot areas with only bottom one with axis)
+ * adjustable elements ((x,y) adjustments/offsets)
+ * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
 | * option to use upper ranges
