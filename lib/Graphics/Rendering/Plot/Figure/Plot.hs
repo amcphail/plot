@@ -24,6 +24,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , D.Abscissa(), D.Ordinate(), D.Dataset()
                                            , D.FormattedSeries()
                                            , D.line, D.point, D.linepoint
+                                           , D.impulse, D.step
+                                           , D.area
                                            , setDataset
                                            -- ** Plot type
                                            , setSeriesType

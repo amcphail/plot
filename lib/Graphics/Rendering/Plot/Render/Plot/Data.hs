@@ -128,6 +128,18 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                 (pz,g) <- formatPointSeries pt xscale yscale
                                 let gs = g : Bot : Top : []
                                 mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+              (DecImpulse lt) -> do
+                                formatLineSeries lt xscale yscale
+                                mapM_ (\(t',y') -> renderSamples xmin xmax renderImpulseSample endImpulseSample t' y') dat
+              (DecStep lt) -> do
+                              formatLineSeries lt xscale yscale
+                              mapM_ (\(t',y') -> renderSamples xmin xmax renderStepSample endStepSample t' y') dat
+              (DecArea lt) -> do
+                              formatLineSeries lt xscale yscale
+                              let hd = head dat 
+                                  x0 = (fst hd) @> 0
+                                  y0 = (snd hd) @> 0
+                              mapM_ (\(t',y') -> renderSamples xmin xmax renderAreaSample (endAreaSample x0 y0) t' y') dat
        return ()
 
 -----------------------------------------------------------------------------
@@ -205,6 +217,37 @@ renderPointSample xscale yscale pz g x y = do
 
 endPointSample :: C.Render ()
 endPointSample = return ()
+
+renderImpulseSample :: Double -> Double -> C.Render ()
+renderImpulseSample x y = do
+                          C.moveTo x 0
+                          C.lineTo x y
+                          C.stroke
+
+endImpulseSample :: C.Render ()
+endImpulseSample = return ()
+
+renderStepSample :: Double -> Double -> C.Render ()
+renderStepSample x y = do
+                       (x',_) <- C.getCurrentPoint
+                       C.lineTo x' y
+                       C.lineTo x  y
+
+endStepSample :: C.Render ()
+endStepSample = C.stroke
+
+renderAreaSample :: Double -> Double -> C.Render ()
+renderAreaSample = C.lineTo
+
+endAreaSample :: Double -> Double -> C.Render ()
+endAreaSample x0 _ = do
+                     (x',_) <- C.getCurrentPoint
+                     C.lineTo x' 0
+                     C.lineTo x0 0
+                      -- C.lineTo x0 y0
+                     C.closePath
+                     C.fill
+                     C.stroke
 
 -----------------------------------------------------------------------------
 

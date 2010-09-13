@@ -49,7 +49,9 @@ figure = do
                        setFontSize 10
         setPlots 1 1
         withPlot (1,1) $ do
-                         setDataset (ts,[point (ds,es) (Bullet,red),line fs blue])
+                         setDataset (ts,[area ds blue])
+--                         setDataset (ts,[impulse fs blue])
+--                         setDataset (ts,[point (ds,es) (Bullet,green),line fs blue])
                          addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
                          addAxis XAxis (Value 0) $ return ()

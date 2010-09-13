@@ -196,11 +196,8 @@ data Options = Options {
                        }
 
 -----------------------------------------------------------------------------
-{-
-data LineFormat  = LineFormat
-data PointFormat = PointFormat
--}
-data SeriesType = Line | Point | LinePoint -- Impulse 
+
+data SeriesType = Line | Point | LinePoint | Impulse | Step | Area
 
 -----------------------------------------------------------------------------
 
@@ -231,10 +228,12 @@ isLower _                     = False
 isUpper :: Ordinates -> Bool
 isUpper = not . isLower
 
-data Decoration = DecLine  LineType
-                | DecPoint PointType
-                | DecLinPt LineType  PointType
-
+data Decoration = DecLine    LineType
+                | DecPoint   PointType
+                | DecLinPt   LineType  PointType
+                | DecImpulse LineType
+                | DecStep    LineType
+                | DecArea    LineType
 data DecoratedSeries = DecSeries Ordinates Decoration
 --                     BarSeries   Abscissae Ordinates BarType
 

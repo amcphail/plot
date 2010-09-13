@@ -49,6 +49,8 @@ module Graphics.Rendering.Plot.Figure (
                                       , Abscissa(), Ordinate(), Dataset()
                                       , FormattedSeries(), SeriesType(..)
                                       , line, point, linepoint
+                                      , impulse, step
+                                      , area
                                       , setDataset
                                       -- ** Plot type
                                       , setSeriesType

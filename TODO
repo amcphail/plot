@@ -1,9 +1,9 @@
  * text labels for major ticks
- * area
+| * area
  * columns
  * bars
- * impulses
- * steps
+| * impulses
+| * steps
  * matrix (greyscale)
  * square plot (tie x and y shapes)
  * legend
@@ -20,3 +20,7 @@
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
 | * option to use upper ranges
+
+ * directly to impulse, step, area, not via line (performance)
+
+ * expand Simple interface: xlabel, ylabel, etc...
