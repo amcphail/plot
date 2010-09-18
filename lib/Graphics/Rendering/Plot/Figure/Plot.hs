@@ -40,9 +40,15 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            -- * Axes
                                            , AX.Axis
                                            , AxisType(..),AxisSide(..),AxisPosn(..)
-                                           , clearAxes
+--                                           , clearAxes
                                            , addAxis
 --                                           , withAxis
+                                           -- * Legend
+                                           , L.Legend
+                                           , L.LegendBorder
+                                           , L.LegendLocation(..), L.LegendOrientation(..)
+                                           , setLegend
+                                           , withLegendFormat
                                             -- ** Formatting
                                             , Tick(..), TickValues, GridLines
                                            , AX.setTicks
@@ -66,8 +72,10 @@ import Prelude hiding(min,max)
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
+import qualified Graphics.Rendering.Plot.Figure.Text as T
 import qualified Graphics.Rendering.Plot.Figure.Plot.Data as D
 import qualified Graphics.Rendering.Plot.Figure.Plot.Axis as AX
+import qualified Graphics.Rendering.Plot.Figure.Plot.Legend as L
 
 -----------------------------------------------------------------------------
 
@@ -133,6 +141,20 @@ withAxis at axp m = do
 
 -----------------------------------------------------------------------------
 
+-- | set the legend location and orientation
+setLegend :: L.LegendBorder -> L.LegendLocation -> L.LegendOrientation -> Plot()
+setLegend b l o = withLegend $ L.setLegend b l o
+
+-- | format the legend text
+withLegendFormat :: T.Text () -> Plot ()
+withLegendFormat f = withLegend $ L.withLegendFormat f
+
+-- | operate on the legend
+withLegend :: L.Legend () -> Plot ()
+withLegend = legendInPlot
+
+-----------------------------------------------------------------------------
+
 -- | set the type of the subplot
 setPlotType :: PlotType -> Plot ()
 setPlotType pt = modify $ \s -> s { _type = pt }
@@ -179,12 +201,12 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 -----------------------------------------------------------------------------
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
-findMinMax AbsFunction (OrdFunction _ f) = let v = mapVector f (linspace 100 (-1,1))
+findMinMax AbsFunction (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
                                            in (minElement v,maxElement v)
-findMinMax (AbsPoints x) (OrdFunction _ f) = let v = mapVector f x
+findMinMax (AbsPoints x) (OrdFunction _ f _) = let v = mapVector f x
                                              in (minElement v,maxElement v)
                                            -- what if errors go beyond plot?
-findMinMax _ (OrdPoints _ y)    = let o = getOrdData y
+findMinMax _ (OrdPoints _ y _)    = let o = getOrdData y
                                   in (minElement o,maxElement o)
 
 abscMinMax :: Abscissae -> (Double,Double)
@@ -193,8 +215,8 @@ abscMinMax (AbsPoints x)      = (minElement x,maxElement x)
 
 
 ordDim :: Ordinates -> Int
-ordDim (OrdFunction _ _)  = 1
-ordDim (OrdPoints _ o)    = dim $ getOrdData o
+ordDim (OrdFunction _ _ _)  = 1
+ordDim (OrdPoints _ o _)    = dim $ getOrdData o
 
 
 calculateRanges :: DataSeries -> ((Double,Double),(Double,Double))

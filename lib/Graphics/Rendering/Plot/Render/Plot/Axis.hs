@@ -82,7 +82,7 @@ isZeroPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = do
                                                           return $ Padding l r b t
 
 
-renderAxes :: Padding -> Ranges -> [AxisData] -> Render ()
+renderAxes :: Padding -> Ranges -> [AxisData] -> Render Padding
 renderAxes p r axes = do
                       lp <- foldM shiftForAxisLabel (Padding 0 0 0 0) axes
                       tp <- foldM (shiftForTicks r) (Padding 0 0 0 0) axes
@@ -90,7 +90,7 @@ renderAxes p r axes = do
                       p' <- isZeroPadding p apd
                       mapM_ (renderAxisLabel p') axes
                       mapM_ (renderAxis r) axes
-                      return ()
+                      return p'
 
 shiftForAxisLabel :: Padding -> AxisData -> Render Padding
 shiftForAxisLabel p (Axis _  _   _ _ _ _ NoText) = return p
@@ -220,13 +220,9 @@ renderAxis r (Axis ax sd
              min maj tf l) = do
                              lo <- asks (_lineoptions . _renderoptions)
                              renderAxis r (Axis ax sd (TypeLine lo c) min maj tf l)
-renderAxis r (Axis ax sd 
-             (TypeLine (LineOptions ds lw) c) 
+renderAxis r (Axis ax sd lt
              min maj tf _) = do
-                             cairo $ do
-                                     setColour c
-                                     setDashes ds
-                                     C.setLineWidth lw
+                             cairo $ setLineStyle lt
                              renderAxisLine r ax sd
                              cairo $ do
                                      lw' <- C.getLineWidth
@@ -243,39 +239,39 @@ renderAxisLine (Ranges _ yr) XAxis (Value v) = do
                                     let (Range min max) = lowerRange yr                          
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                            C.moveTo x     (y+h*((v-min)/(max-min)))
-                                            C.lineTo (x+w) (y+h*((v-min)/(max-min)))
+                                            C.moveTo x     (y+h*((v-min)/(max-min))+0.5)
+                                            C.lineTo (x+w) (y+h*((v-min)/(max-min))+0.5)
                                             C.stroke
 renderAxisLine (Ranges xr _) YAxis (Value v) = do
                                     let (Range min max) = lowerRange xr                          
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                            C.moveTo (x+w*((v-min)/(max-min))) y
-                                            C.lineTo (x+w*((v-min)/(max-min))) (y+h)
+                                            C.moveTo (x+w*((v-min)/(max-min))+0.5) y
+                                            C.lineTo (x+w*((v-min)/(max-min))+0.5) (y+h)
                                             C.stroke
 renderAxisLine _ XAxis (Side Lower) = do
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                           C.moveTo x     (y+h)
-                                           C.lineTo (x+w) (y+h)
+                                           C.moveTo x     (y+h+0.5)
+                                           C.lineTo (x+w) (y+h+0.5)
                                            C.stroke
 renderAxisLine _ XAxis (Side Upper) = do
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                           C.moveTo x     y
-                                           C.lineTo (x+w) y
+                                           C.moveTo x     (y+0.5)
+                                           C.lineTo (x+w) (y+0.5)
                                            C.stroke
 renderAxisLine _ YAxis (Side Lower) = do
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                           C.moveTo x y
-                                           C.lineTo x (y+h)
+                                           C.moveTo (x+0.5) y
+                                           C.lineTo (x+0.5) (y+h)
                                            C.stroke
 renderAxisLine _ YAxis (Side Upper) = do
                                     (BoundingBox x y w h) <- get
                                     cairo $ do
-                                           C.moveTo (x+w) (y)
-                                           C.lineTo (x+w) (y+h)
+                                           C.moveTo (x+w+0.5) (y)
+                                           C.lineTo (x+w+0.5) (y+h)
                                            C.stroke
 
 tickPosition :: Double -> Double -> Int -> [Double]
@@ -356,25 +352,25 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                                    XAxis -> case sd of
                                                     (Side Lower) -> let xt x' = x + x'*w/(max-min)
                                                                         ys = if gl then y else y + h
-                                                                    in (xt p,ys,xt p,y+h+tl)
+                                                                    in (xt p+0.5,ys,xt p+0.5,y+h+tl)
                                                     (Side Upper) -> let xt x' = x + x'*w/(max-min)
                                                                         ys = if gl then y + h else y
-                                                                    in (xt p,ys,xt p,y-tl)
+                                                                    in (xt p+0.5,ys,xt p+0.5,y-tl)
                                                     (Value v)    -> let xt x' = x + x'*w/(max-min)
                                                                         yb = if gl then y else v-tl
                                                                         yt = if gl then y+h else v+tl
-                                                                    in (xt p,yb,xt p,yt)
+                                                                    in (xt p+0.5,yb,xt p+0.5,yt)
                                    YAxis -> case sd of
                                                     (Side Lower) -> let xf = if gl then x + w else x
                                                                         yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (x-tl,yt p,xf,yt p)
+                                                                    in (x-tl,yt p+0.5,xf,yt p+0.5)
                                                     (Side Upper) -> let xf = if gl then x else x + w
                                                                         yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (x+w+tl,yt p,xf,yt p)
+                                                                    in (x+w+tl,yt p+0.5,xf,yt p+0.5)
                                                     (Value v)    -> let xb = if gl then x else v-tl
                                                                         xt = if gl then x+h else v+tl
                                                                         yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (xb,yt p,xt,yt p)
+                                                                    in (xb,yt p+0.5,xt,yt p+0.5)
        C.moveTo x1 y1
        C.lineTo x2 y2
        C.stroke
@@ -403,4 +399,6 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                                                      ((x',y'),_) <- textSize lo TRight Middle (x1) y1
                                                      showText lo x' y'
             return ()
+
+-----------------------------------------------------------------------------
 

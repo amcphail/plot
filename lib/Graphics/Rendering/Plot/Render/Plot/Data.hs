@@ -37,6 +37,7 @@ import Control.Monad.Maybe
 import Graphics.Rendering.Plot.Types
 
 import Graphics.Rendering.Plot.Render.Types
+import Graphics.Rendering.Plot.Render.Plot.Glyph
 
 import Prelude hiding(min,max,abs)
 
@@ -100,16 +101,16 @@ renderData r Linear ds = do
 renderSeries :: Double -> Double -> Double -> Double -> (Abscissae,DecoratedSeries) -> Render ()
 renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
        dat <- case o of
-                     (OrdFunction _ f)              -> do
+                     (OrdFunction _ f _)            -> do
                                                        (BoundingBox _ _ w _) <- get
                                                        let t = linspace (round w) (xmin,xmax)
                                                        return $ [(t,mapVector f t)]
-                     (OrdPoints _ (Plain o'))       -> do
+                     (OrdPoints _ (Plain o') _)     -> do
                                                        let t = case abs of
                                                                         AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
                                                                         AbsPoints t'     -> t'
                                                        return $ [(t,o')]
-                     (OrdPoints _ (Error o' (l,h))) -> do
+                     (OrdPoints _ (Error o' (l,h)) _) -> do
                                                        let t = case abs of
                                                                         AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
                                                                         AbsPoints t'     -> t'
@@ -136,9 +137,11 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                               mapM_ (\(t',y') -> renderSamples xmin xmax renderStepSample endStepSample t' y') dat
               (DecArea lt) -> do
                               formatLineSeries lt xscale yscale
-                              let hd = head dat 
-                                  x0 = (fst hd) @> 0
-                                  y0 = (snd hd) @> 0
+                              let hd = head dat
+                                  ln = dim $ fst hd
+                                  xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
+                                  x0 = (fst hd) @> xmin_ix
+                                  y0 = (snd hd) @> xmin_ix
                               mapM_ (\(t',y') -> renderSamples xmin xmax renderAreaSample (endAreaSample x0 y0) t' y') dat
        return ()
 
@@ -248,147 +251,6 @@ endAreaSample x0 _ = do
                      C.closePath
                      C.fill
                      C.stroke
-
------------------------------------------------------------------------------
-
-glyphWidth :: Double
-glyphWidth = 2*pi
-
-renderGlyph :: Double -> Double -> LineWidth -> Glyph -> C.Render ()
-renderGlyph xscale yscale pz g = do
-                                 C.save
-                                 C.scale (pz / xscale) (pz / yscale)
-                                 C.setLineWidth 1
-                                 renderGlyph' g
-                                 C.restore
-   where renderGlyph' Box    = renderGlyphBox 
-         renderGlyph' Cross  = renderGlyphCross 
-         renderGlyph' Diamond = renderGlyphDiamond 
-         renderGlyph' Asterisk = renderGlyphAsterisk 
-         renderGlyph' Triangle = renderGlyphTriangle 
-         renderGlyph' Circle = renderGlyphCircle 
-         renderGlyph' Bullet = renderGlyphBullet 
-         renderGlyph' Top    = renderGlyphTop    
-         renderGlyph' Bot    = renderGlyphBot   
---renderGlyph _      _      _      = return ()
-
-difference :: Num a => [a] -> [a]
-difference [] = []
-difference [_] = []
-difference (x0:x1:xs) = (x1-x0):(difference (x1:xs))
-
-renderGlyphBox :: C.Render ()
-renderGlyphBox = do
-                 let x = glyphWidth
-                     y = glyphWidth
-                 C.relMoveTo (-x/2) (-y/2)
-                 C.relLineTo 0 y
-                 C.relLineTo x 0
-                 C.relLineTo 0 (-y)
-                 C.closePath
-                 C.stroke
-
-renderGlyphCross :: C.Render ()
-renderGlyphCross = do
-                   let x = glyphWidth
-                       y = glyphWidth
-                   C.relMoveTo (-x/2) 0
-                   C.relLineTo x 0
-                   C.relMoveTo (-x/2) (-y/2)
-                   C.relLineTo 0 y
-                   C.closePath
-                   C.stroke
-
-renderGlyphDiamond :: C.Render ()
-renderGlyphDiamond = do
-                     let x = glyphWidth
-                         y = glyphWidth
-                     C.relMoveTo (-x/2) 0
-                     C.relLineTo (x/2) y
-                     C.relLineTo (x/2) (-y)
-                     C.relLineTo (-x/2) (-y)
-                     C.closePath
-                     C.stroke
-
-renderGlyphAsterisk :: C.Render ()
-renderGlyphAsterisk = do
-                      let radius = glyphWidth/2
-                          angles' = map ((+ 90) . (* (360 `div` 5))) [0..4]
-                          angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
-                          xs = map ((* (radius)) . cos) angles
-                          ys = map ((* (radius)) . sin) angles
-                      mapM_ (\(x,y) -> do
-                                       C.relLineTo x y
-                                       C.relMoveTo (-x) (-y)) (zip xs ys)
-                      C.stroke
-
-renderGlyphTriangle :: C.Render ()
-renderGlyphTriangle = do
-                      let radius = glyphWidth/2
-                          angles' = [90,210,330]
-                          --angles' = map ((flip (+) 90) . (* (360 `div` 3))) [0..2]
-                          angles = map ((* (2*pi/360)) . fromInteger . (`mod` 360)) angles'
-                          x@(sx:_) = map ((* (radius)) . cos) angles
-                          y@(sy:_) = map ((* (radius)) . sin) angles
-                          xs = difference x
-                          ys = difference y
-                      C.relMoveTo sx sy
-                      mapM_ (uncurry C.relLineTo) (zip xs ys)
-                      C.closePath
-                      C.stroke
-
-renderGlyphCircle :: C.Render ()
-renderGlyphCircle = do
-                    let radius = glyphWidth/2
-                        angles = map (*(2*pi/36)) [0..35] 
-                        x@(sx:_) = map ((* (radius)) . cos) angles
-                        y@(sy:_) = map ((* (radius)) . sin) angles
-                        xs = difference x
-                        ys = difference y
-                    C.relMoveTo sx sy
-                    mapM_ (uncurry C.relLineTo) (zip xs ys)
-                    C.closePath
-                    C.stroke
-                        
-renderGlyphBullet :: C.Render ()
-renderGlyphBullet = do
-                    let radius = glyphWidth/2
-                        angles = map (*(2*pi/36)) [0..35] 
-                        x@(sx:_) = map ((* (radius)) . cos) angles
-                        y@(sy:_) = map ((* (radius)) . sin) angles
-                        xs = difference x
-                        ys = difference y
-                    C.relMoveTo sx sy
-                    mapM_ (uncurry C.relLineTo) (zip xs ys)
-                    C.closePath
-                    C.fill
-                    C.stroke
-                        
-renderGlyphTop :: C.Render ()
-renderGlyphTop = do
-                 let x = glyphWidth
-                     y = glyphWidth
-                 C.relMoveTo (-x/2) 0
-                 C.relLineTo x 0
-                 C.relMoveTo (-x/2) 0
-                 C.relLineTo 0 (-y)
-                 C.stroke
-
-renderGlyphBot :: C.Render ()
-renderGlyphBot = do
-                 let x = glyphWidth
-                     y = glyphWidth
-                 C.relMoveTo (-x/2) 0
-                 C.relLineTo x 0
-                 C.relMoveTo (-x/2) 0
-                 C.relLineTo 0 (y)
-                 C.stroke
-
-
-
-
-
-
 
 -----------------------------------------------------------------------------
 

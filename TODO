@@ -6,7 +6,7 @@
 | * steps
  * matrix (greyscale)
  * square plot (tie x and y shapes)
- * legend
+| * legend
  * annotations
  * 3d plots
 
@@ -24,3 +24,8 @@
  * directly to impulse, step, area, not via line (performance)
 
  * expand Simple interface: xlabel, ylabel, etc...
+
+ * refactor Legend (LegendLocation)
+ * replace with utility functions common code in Render/Data.hs
+
+| * fix linewidths (as per cairo FAQ) by adding 0.5 to rectangle start / line (borders/axes)

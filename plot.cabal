@@ -32,7 +32,6 @@ Description:
      The example in Graphics.Rendering.Plot can be viewed at 
      <http://code.haskell.org/plot/examples/perturbed-sine.png>
 
-
 Category:            Graphics
 
 Tested-with:         GHC==6.12.1
@@ -73,11 +72,14 @@ library
                      Graphics.Rendering.Plot.Figure.Plot
                      Graphics.Rendering.Plot.Figure.Plot.Axis
                      Graphics.Rendering.Plot.Figure.Plot.Data
+                     Graphics.Rendering.Plot.Figure.Plot.Legend
                      Graphics.Rendering.Plot.Render.Types
                      Graphics.Rendering.Plot.Render.Text
                      Graphics.Rendering.Plot.Render.Plot
                      Graphics.Rendering.Plot.Render.Plot.Axis
                      Graphics.Rendering.Plot.Render.Plot.Data
+                     Graphics.Rendering.Plot.Render.Plot.Legend
+                     Graphics.Rendering.Plot.Render.Plot.Glyph
                      Control.Monad.Supply
 
   ghc-options:       -Wall -fno-warn-unused-binds

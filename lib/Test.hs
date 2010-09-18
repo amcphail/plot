@@ -49,14 +49,17 @@ figure = do
                        setFontSize 10
         setPlots 1 1
         withPlot (1,1) $ do
-                         setDataset (ts,[area ds blue])
+--                         setDataset (ts,[area ds blue])
 --                         setDataset (ts,[impulse fs blue])
---                         setDataset (ts,[point (ds,es) (Bullet,green),line fs blue])
+                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
+                                        ,line (fs,"15 Hz sinusoid") blue])
                          addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
                          addAxis XAxis (Value 0) $ return ()
                          setRangeFromData XAxis Lower
                          setRange YAxis Lower (-1.25) 1.25
+                         setLegend True NorthEast Inside
+--                         withLegendFormat $ setFontSize 6
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do

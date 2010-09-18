@@ -174,13 +174,29 @@ execAxis m r = execState (runReaderT (runAxis m) r)
 
 -----------------------------------------------------------------------------
 
+type LegendBorder = Bool
+
+data LegendLocation = North | NorthEast | East | SouthEast | South 
+                    | SouthWest | West | NorthWest
+                      deriving(Eq)
+data LegendOrientation = Inside | Outside
+
 -- need to have same number of entries as data series
-data Legend = Legend {
+data LegendData = Legend {
                       _bounded    :: Bool   -- is there a box around the legend?
-                      , _location :: Location 
-                      , _labels   :: (A.Array Int TextEntry)
+                      , _location :: LegendLocation
+                      , _orient   :: LegendOrientation
+                      , _leg_fmt  :: TextOptions
                      }
 -- do we want a toggle for legends so the labels don't get destroyed?
+
+-----------------------------------------------------------------------------
+
+newtype Legend a = FE { runLegend :: ReaderT TextOptions (State (Maybe LegendData)) a}
+    deriving(Monad, MonadReader TextOptions, MonadState (Maybe LegendData))
+
+execLegend :: Legend a -> TextOptions -> (Maybe LegendData) -> (Maybe LegendData)
+execLegend m r = execState (runReaderT (runLegend m) r) 
 
 -----------------------------------------------------------------------------
 
@@ -205,6 +221,8 @@ type Series = Vector Double
 type ErrorSeries = Series
 type Function = (Double -> Double)
 
+type SeriesLabel = String
+
 --instance Show Function where show _ = "<<function>>"
 
 data OrdSeries = Plain Series
@@ -217,13 +235,33 @@ getOrdData (Error o _) = o
 data Abscissae = AbsFunction 
                | AbsPoints Series
 
-data Ordinates = OrdFunction AxisSide Function
-               | OrdPoints   AxisSide OrdSeries
+data Ordinates = OrdFunction AxisSide Function  (Maybe SeriesLabel)
+               | OrdPoints   AxisSide OrdSeries (Maybe SeriesLabel)
 
+getOrdLabel :: Ordinates -> (Maybe SeriesLabel)
+getOrdLabel (OrdFunction _ _ sl) = sl
+getOrdLabel (OrdPoints   _ _ sl) = sl
+
+decorationGetLineType :: Decoration -> Maybe LineType
+decorationGetLineType (DecLine lt)    = Just lt
+decorationGetLineType (DecPoint _)    = Nothing
+decorationGetLineType (DecLinPt lt _) = Just lt
+decorationGetLineType (DecImpulse lt) = Just lt
+decorationGetLineType (DecStep lt)    = Just lt
+decorationGetLineType (DecArea lt)    = Just lt
+                        
+decorationGetPointType :: Decoration -> Maybe PointType
+decorationGetPointType (DecLine _)     = Nothing
+decorationGetPointType (DecPoint pt)   = Just pt
+decorationGetPointType (DecLinPt _ pt) = Just pt
+decorationGetPointType (DecImpulse _)  = Nothing
+decorationGetPointType (DecStep _)     = Nothing
+decorationGetPointType (DecArea _)     = Nothing
+                        
 isLower :: Ordinates -> Bool
-isLower (OrdFunction Lower _) = True
-isLower (OrdPoints   Lower _) = True
-isLower _                     = False
+isLower (OrdFunction Lower _ _) = True
+isLower (OrdPoints   Lower _ _) = True
+isLower _                       = False
 
 isUpper :: Ordinates -> Bool
 isUpper = not . isLower
@@ -287,7 +325,7 @@ data PlotData = Plot {
                   , _axes      :: [AxisData]
                   , _type      :: PlotType
                   , _data      :: DataSeries
-                  , _legend    :: Maybe Legend
+                  , _legend    :: Maybe LegendData
                   , _annote    :: Annotations
                  }
 
@@ -311,6 +349,16 @@ dataInPlot' m = State $ \s -> let (a,d') = runState m (_data s)
 
 dataInPlot :: Data a -> Plot a
 dataInPlot m = FP $ mapSupplyT (mapReaderT dataInPlot') (runData m)
+
+-----------------------------------------------------------------------------
+
+legendInPlot' :: State (Maybe LegendData) a -> State PlotData a
+legendInPlot' m = State $ \s -> let l = _legend s
+                                    (a,legend) = runState m l
+                                in (a,s { _legend = legend})
+
+legendInPlot :: Legend a -> Plot a
+legendInPlot m = FP $ lift $ (withReaderT _textoptions . mapReaderT legendInPlot') (runLegend m)
 
 -----------------------------------------------------------------------------
 

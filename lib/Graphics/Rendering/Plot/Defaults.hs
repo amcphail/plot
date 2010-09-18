@@ -22,6 +22,8 @@ import qualified Data.Array.IArray as A
 
 import qualified Graphics.Rendering.Pango as P
 
+import Graphics.Rendering.Plot.Figure.Text
+
 import Graphics.Rendering.Plot.Types
 
 -----------------------------------------------------------------------------
@@ -145,6 +147,17 @@ defaultAxis at axp = Axis at axp defaultLineType defaultMinorTicks defaultMajorT
 defaultXAxis, defaultYAxis :: AxisData
 defaultXAxis = defaultAxis XAxis (Side Lower)
 defaultYAxis = defaultAxis YAxis (Side Lower)
+
+-----------------------------------------------------------------------------
+
+defaultLegend :: LegendData
+defaultLegend = Legend True East Outside (scaleFontSize legendLabelScale defaultTextOptions) 
+
+legendLabelScale :: Double
+legendLabelScale = 0.7
+
+legendSampleWidth :: Double
+legendSampleWidth = 10
 
 -----------------------------------------------------------------------------
 

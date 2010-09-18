@@ -50,6 +50,7 @@ import Graphics.Rendering.Plot.Render.Types
 import Graphics.Rendering.Plot.Render.Text
 import Graphics.Rendering.Plot.Render.Plot.Axis
 import Graphics.Rendering.Plot.Render.Plot.Data
+import Graphics.Rendering.Plot.Render.Plot.Legend
 
 --import qualified Text.Printf as Printf
 
@@ -99,14 +100,16 @@ renderPlot (Plot b p hd r a t d l an) = do
              C.fill
              C.paint
 -}
-      renderAxes p r a
+      
+      legend <- renderLegend l d
+      padding <- renderAxes p r a
       renderBorder b
       cairo C.save
       clipBoundary
       renderData r t d
       renderAnnotations r an
-      renderLegend l
       cairo C.restore
+      legend padding
 
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
@@ -114,22 +117,13 @@ renderBorder True  = do
                      (BoundingBox x y w h) <- get
                      cairo $ do
                              C.setLineWidth 0.5
-                             C.moveTo x     y
-                             C.lineTo x     (y+h)
-                             C.lineTo (x+w) (y+h)
-                             C.lineTo (x+w) y
-                             C.closePath
+                             C.rectangle (x+0.5) (y+0.5) w h
                              C.stroke
                                            
 -----------------------------------------------------------------------------
 
 renderAnnotations :: Ranges -> [Annotation] -> Render ()
 renderAnnotations _ _ = return ()
-
------------------------------------------------------------------------------
-
-renderLegend :: Maybe Legend -> Render ()
-renderLegend _ = return ()
 
 -----------------------------------------------------------------------------
 

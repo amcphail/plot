@@ -66,6 +66,11 @@ module Graphics.Rendering.Plot.Figure (
                                       , Axis
                                       , AxisType(..),AxisSide(..),AxisPosn(..)
                                       , addAxis
+                                      -- * Legend
+                                      , Legend
+                                      , LegendLocation(..), LegendOrientation(..)
+                                      , setLegend
+                                      , withLegendFormat
                                       -- ** Formatting
                                       , Tick(..), TickValues, GridLines
                                       , setTicks

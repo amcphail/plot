@@ -109,11 +109,7 @@ clipBoundary :: Render ()
 clipBoundary = do
                (BoundingBox x y w h) <- get
                cairo $ do
-                       C.moveTo x     y
-                       C.lineTo x     (y+h)
-                       C.lineTo (x+w) (y+h)
-                       C.lineTo (x+w) y
-                       C.closePath
+                       C.rectangle x y w h
                        C.clip
 
 -----------------------------------------------------------------------------
@@ -186,5 +182,32 @@ data TextXAlign = TLeft | Centre | TRight
 data TextYAlign = TBottom | Middle | TTop
 
 -----------------------------------------------------------------------------
+
+setLineOptions :: LineOptions -> C.Render ()
+setLineOptions (LineOptions ds lw) = do
+                                     setDashes ds
+                                     C.setLineWidth lw
+
+setLineStyle :: LineType -> C.Render ()
+setLineStyle NoLine          = return ()
+setLineStyle (ColourLine c)  = setColour c
+setLineStyle (TypeLine lo c) = do
+                               setLineOptions lo
+                               setColour c
+
+-----------------------------------------------------------------------------
+
+setPointOptions :: PointOptions -> C.Render ()
+setPointOptions (PointOptions pz c) = do
+                                      setColour c
+                                      C.scale pz pz
+
+setPointStyle :: PointType -> C.Render Glyph
+setPointStyle (FullPoint po g) = do
+                                 setPointOptions po
+                                 return g
+
+-----------------------------------------------------------------------------
+
 
 
