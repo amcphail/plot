@@ -350,13 +350,13 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
            tl = tl' * l
            (x1,y1,x2,y2) = case xa of
                                    XAxis -> case sd of
-                                                    (Side Lower) -> let xt x' = x + x'*w/(max-min)
+                                                    (Side Lower) -> let xt x' = x + (x'-min)*w/(max-min)
                                                                         ys = if gl then y else y + h
                                                                     in (xt p+0.5,ys,xt p+0.5,y+h+tl)
-                                                    (Side Upper) -> let xt x' = x + x'*w/(max-min)
+                                                    (Side Upper) -> let xt x' = x + (x'-min)*w/(max-min)
                                                                         ys = if gl then y + h else y
                                                                     in (xt p+0.5,ys,xt p+0.5,y-tl)
-                                                    (Value v)    -> let xt x' = x + x'*w/(max-min)
+                                                    (Value v)    -> let xt x' = x + (x'-min)*w/(max-min)
                                                                         yb = if gl then y else v-tl
                                                                         yt = if gl then y+h else v+tl
                                                                     in (xt p+0.5,yb,xt p+0.5,yt)
@@ -385,18 +385,18 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                     XAxis -> do
                              case sd of
                                      (Side Lower) -> do
-                                                     ((x',y'),_) <- textSize lo Centre TTop x1 (y2)
+                                                     ((x',y'),_) <- textSize lo Centre TTop x1 y2
                                                      showText lo x' y'
                                      (Side Upper) -> do
-                                                     ((x',y'),_) <- textSize lo Centre TBottom x1 (y2)
+                                                     ((x',y'),_) <- textSize lo Centre TBottom x1 y2
                                                      showText lo x' y'
                     YAxis -> do
                              case sd of
                                      (Side Lower) -> do
-                                                     ((x',y'),_) <- textSize lo TLeft Middle (x1) y1
+                                                     ((x',y'),_) <- textSize lo TLeft Middle x1 y1
                                                      showText lo x' y'
                                      (Side Upper) -> do
-                                                     ((x',y'),_) <- textSize lo TRight Middle (x1) y1
+                                                     ((x',y'),_) <- textSize lo TRight Middle x1 y1
                                                      showText lo x' y'
             return ()
 
