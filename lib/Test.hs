@@ -41,7 +41,7 @@ fs :: Double -> Double
 fs = sin . (15*2*pi*)
 
 ms :: Matrix Double
-ms = buildMatrix 64 64 (\(x,y) -> sin (15*2*pi*(fromIntegral x)/64) * cos (15*2*pi*(fromIntegral y)/64))
+ms = buildMatrix 64 64 (\(x,y) -> sin (2*2*pi*(fromIntegral x)/64) * cos (5*2*pi*(fromIntegral y)/64))
 
 figure = do
         withTextDefaults $ setFontFamily "OpenSymbol"

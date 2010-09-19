@@ -73,10 +73,11 @@ greySurfaceFromMatrix s m = do
                             (l,h) <- M.getBounds s
                             let fm = flatten m
                                 mx = maxElement m
+                                mn = minElement m
                             mapM_ (\i -> do
-                                         when (i < (r*c-1)) (do
-                                                             let e = round . (* 255) . (/ mx) $ (fm @> i)
-                                                             M.writeArray s i e)
+                                         when (i < (r*c)) (do
+                                                           let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> i)
+                                                           M.writeArray s i e)
                                          return ()) [l..h]
 
 
