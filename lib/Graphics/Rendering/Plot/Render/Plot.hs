@@ -63,8 +63,8 @@ bbPlot :: Int -> Int -> (Int,Int) -> Render ()
 bbPlot r c (px,py) = modify (\(BoundingBox x y w h) -> let w' = w/(fromIntegral c)
                                                            h' = h/(fromIntegral r)
                                                        in (BoundingBox
-                                                           (x+w'*((fromIntegral px)-1))
-                                                           (y+h'*((fromIntegral py)-1))
+                                                           (x+w'*((fromIntegral py)-1))
+                                                           (y+h'*((fromIntegral px)-1))
                                                            w' h'))
 
 renderPlots :: Plots -> Render ()

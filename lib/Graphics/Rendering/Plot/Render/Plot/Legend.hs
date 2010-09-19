@@ -252,7 +252,7 @@ renderLegendInside b l w h to ln ls = do
                                               C.rectangle (x+0.5) (y+0.5) w' h''
                                               C.fill
                                               C.stroke
-                                      renderLegendEntries (x+3*textPad) (y+textPad) 0 h' w' h' to ls 
+                                      renderLegendEntries (x+3*textPad) (y+textPad) 0 h' w' (h'-textPad) to ls 
 
 renderLegendEntries :: Double -> Double -> Double -> Double -> Double -> Double 
                     -> TextOptions
@@ -304,5 +304,6 @@ getLabels (DS_1to1 d)   = let mls = map (\(_,(DecSeries o d)) -> (maybe "" id $ 
                               ln = length mls
                           in (ln,mls)
 getLabels (DS_Surf _)   = (0,[])
+
 -----------------------------------------------------------------------------
 

@@ -49,8 +49,8 @@ figure = do
         withSubTitle $ do
                        setText "with 1 second of a 15Hz sine wave"
                        setFontSize 10
-        setPlots 1 1
-{-        withPlot (1,1) $ do
+        setPlots 1 2
+        withPlot (1,1) $ do
 --                         setDataset (ts,[area ds blue])
 --                         setDataset (ts,[impulse fs blue])
                          setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
@@ -62,8 +62,8 @@ figure = do
                          setRange YAxis Lower (-1.25) 1.25
                          setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
--}
-        withPlot (1,1) $ do 
+
+        withPlot (1,2) $ do 
                          setDataset ms
                          addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
                          addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
