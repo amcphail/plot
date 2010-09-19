@@ -77,7 +77,7 @@ textSizeVertical l xa ya x y = do
                        return ((xStart xa x w h,yStart ya y w h),(w,h))
     where xStart TLeft   x' _  w' = x' - w'
           xStart Centre  x' _  w' = x' - (w'/2)
-          xStart TRight  x' _  w' = x'
+          xStart TRight  x' _  _  = x'
           yStart TBottom y' _  _  = y'
           yStart Middle  y' h' _  = y' + (h'/2)
           yStart TTop    y' h' _  = y' + (h')

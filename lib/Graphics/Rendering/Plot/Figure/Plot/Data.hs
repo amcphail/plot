@@ -57,6 +57,7 @@ dataSeriesNum :: DataSeries -> Int
 dataSeriesNum (DS_Y a)      = A.rangeSize $ A.bounds $ a
 dataSeriesNum (DS_1toN _ a) = A.rangeSize $ A.bounds $ a
 dataSeriesNum (DS_1to1 a)   = A.rangeSize $ A.bounds $ a
+dataSeriesNum (DS_Surf _)   = 1
 
 -----------------------------------------------------------------------------
 

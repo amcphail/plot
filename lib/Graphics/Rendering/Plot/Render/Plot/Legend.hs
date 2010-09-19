@@ -19,7 +19,6 @@ module Graphics.Rendering.Plot.Render.Plot.Legend (
 
 -----------------------------------------------------------------------------
 
-import Data.Either
 import Data.List(maximumBy)
 
 import Data.Colour.Names
@@ -29,12 +28,9 @@ import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
 import Control.Monad.Reader
-import Control.Monad.State
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
-
-import Graphics.Rendering.Plot.Figure.Text
 
 import Graphics.Rendering.Plot.Render.Types
 import Graphics.Rendering.Plot.Render.Text
@@ -167,11 +163,11 @@ renderLegendOutside b l w h to ln ls
                                     let w' = textPad + legendSampleWidth 
                                              + legendSampleWidth + textPad + w + textPad
                                     bbShiftLeft $ w' + 4*textPad
-                                    return $ \(Padding l _ _ _) -> do
+                                    return $ \(Padding l' _ _ _) -> do
                                              x' <- bbLeftWidth
                                              y' <- bbCentreHeight
                                              let h' = (fromIntegral ln)*(h+textPad) + 5*textPad
-                                             let x = x' - w' - 4*textPad - l
+                                             let x = x' - w' - 4*textPad - l'
                                                  y = y'-(h'/2)
                                              when b (cairo $ renderBorder 1.0 black (x+0.5) (y+0.5) w' h')
                                              renderLegendEntries (x+2*textPad) (y+3*textPad) 0 (h+textPad) 0 h to ls 
@@ -262,7 +258,7 @@ renderLegendEntries x y wa ha w h to ls = do
                               return ()
 
 renderLegendEntry :: Double -> Double -> Double -> Double -> TextOptions -> (Double,Double) -> (SeriesLabel,Decoration) -> Render (Double,Double)
-renderLegendEntry wa ha w h to (x,y) (l,d) = do
+renderLegendEntry wa ha _ h to (x,y) (l,d) = do
                             renderLegendSample x y legendSampleWidth h d
                             pc <- asks _pangocontext
                             cairo $ do
@@ -294,13 +290,13 @@ renderLegendSample x y w h d = do
 -----------------------------------------------------------------------------
 
 getLabels :: DataSeries -> (Int,[(SeriesLabel,Decoration)])
-getLabels (DS_Y d)      = let mls = map (\(DecSeries o d) -> (maybe "" id $ getOrdLabel o,d)) $ A.elems d
+getLabels (DS_Y d)      = let mls = map (\(DecSeries o d') -> (maybe "" id $ getOrdLabel o,d')) $ A.elems d
                               ln = length mls
                           in (ln,mls)
-getLabels (DS_1toN _ d) = let mls = map (\(DecSeries o d) -> (maybe "" id $ getOrdLabel o,d)) $ A.elems d
+getLabels (DS_1toN _ d) = let mls = map (\(DecSeries o d') -> (maybe "" id $ getOrdLabel o,d')) $ A.elems d
                               ln = length mls
                           in (ln,mls)
-getLabels (DS_1to1 d)   = let mls = map (\(_,(DecSeries o d)) -> (maybe "" id $ getOrdLabel o,d)) $ A.elems d
+getLabels (DS_1to1 d)   = let mls = map (\(_,(DecSeries o d')) -> (maybe "" id $ getOrdLabel o,d')) $ A.elems d
                               ln = length mls
                           in (ln,mls)
 getLabels (DS_Surf _)   = (0,[])

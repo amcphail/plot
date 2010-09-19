@@ -110,6 +110,7 @@ renderData r Linear ds = do
                                            (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
                                            (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 
                                            (DS_1to1 aos')     -> A.elems aos'
+                                           _                  -> error "renderData: DataSeries not handled"
                          let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
                          (BoundingBox x y w h) <- get
                          let (xmin,xmax) = getRanges XAxis Lower r

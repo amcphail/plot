@@ -259,13 +259,13 @@ renderAxisLine _ XAxis (Side Lower) = do
                                            C.lineTo (x+w) (y+h+0.5)
                                            C.stroke
 renderAxisLine _ XAxis (Side Upper) = do
-                                    (BoundingBox x y w h) <- get
+                                    (BoundingBox x y w _) <- get
                                     cairo $ do
                                            C.moveTo x     (y+0.5)
                                            C.lineTo (x+w) (y+0.5)
                                            C.stroke
 renderAxisLine _ YAxis (Side Lower) = do
-                                    (BoundingBox x y w h) <- get
+                                    (BoundingBox x y _ h) <- get
                                     cairo $ do
                                            C.moveTo (x+0.5) y
                                            C.lineTo (x+0.5) (y+h)
@@ -346,7 +346,7 @@ renderAxisTick :: P.PangoContext -> TextOptions
                -> Double -> Double -> Double -> Double -> Double -> Double
                -> AxisType -> AxisPosn -> TickFormat -> Tick -> GridLines
                -> (Double,Double) -> C.Render ()
-renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
+renderAxisTick pc to x y w h min max xa sd tf t _ (p,l) = do
        let tl' = case t of
                         Minor -> minorTickLength
                         Major -> majorTickLength
@@ -385,6 +385,7 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                                      (Side Upper) -> do
                                                      ((x',y'),_) <- textSize lo Centre TBottom x1 (y1-2*textPad)
                                                      showText lo x' y'
+                                     (Value _)    -> error "renderAxisTicks: unreachable code (when majlab)"
                     YAxis -> do
                              case sd of
                                      (Side Lower) -> do
@@ -393,6 +394,7 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                                      (Side Upper) -> do
                                                      ((x',y'),_) <- textSize lo TRight Middle (x1+2*textPad) y1
                                                      showText lo x' y'
+                                     (Value _)    -> error "renderAxisTicks: unreachable code (when majlab)"
             return ()
 
 -----------------------------------------------------------------------------

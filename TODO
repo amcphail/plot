@@ -29,3 +29,5 @@
  * replace with utility functions common code in Render/Data.hs
 
 | * fix linewidths (as per cairo FAQ) by adding 0.5 to rectangle start / line (borders/axes)
+
+ * no ticks for greyscale?
