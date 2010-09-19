@@ -164,7 +164,7 @@ setSeriesType' i t (DS_1to1 a)   = do
                                       let (x,s) = a A.! i
                                       s' <- setSeriesType'' t s
                                       return $ DS_1to1 $ a A.// [(i,(x,s'))] 
-
+setSeriesType' _ _ d@(DS_Surf _) = return d 
 -- | set the series type of a given data series
 setSeriesType :: SeriesType -> Int -> Data ()
 setSeriesType t i = do
@@ -238,6 +238,7 @@ withSeriesFormat i f = do
                                                        let (x,d) = a A.! i
                                                        d' <- modifyFormat f d
                                                        return $ DS_1to1 $ a A.// [(i,(x,d'))]
+                                      d@(DS_Surf _) -> return d
                        put ds'
 
 -- | format the plot elements of all series
@@ -370,6 +371,10 @@ getNTypes n st = mapM getType (replicate n st)
 
 class Dataset a where
     toDataSeries :: a -> Data DataSeries
+
+instance Dataset Surface where
+    toDataSeries m = return $ DS_Surf m
+                              
 
 instance (Ordinate a) => Dataset (SeriesType,[a]) where 
     toDataSeries (Line,os) = do

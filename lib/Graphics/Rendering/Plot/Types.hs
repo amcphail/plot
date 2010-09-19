@@ -22,6 +22,7 @@ module Graphics.Rendering.Plot.Types where
 -----------------------------------------------------------------------------
 
 import Data.Packed.Vector
+import Data.Packed.Matrix
 
 import Data.Colour.SRGB
 import Data.Colour()
@@ -218,6 +219,7 @@ data SeriesType = Line | Point | LinePoint | Impulse | Step | Area
 -----------------------------------------------------------------------------
 
 type Series = Vector Double
+type Surface = Matrix Double
 type ErrorSeries = Series
 type Function = (Double -> Double)
 
@@ -278,6 +280,7 @@ data DecoratedSeries = DecSeries Ordinates Decoration
 data DataSeries = DS_Y    (A.Array Int DecoratedSeries)
                 | DS_1toN Abscissae (A.Array Int DecoratedSeries)
                 | DS_1to1 (A.Array Int (Abscissae,DecoratedSeries))
+                | DS_Surf Surface
 
 -----------------------------------------------------------------------------
 

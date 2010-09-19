@@ -303,6 +303,6 @@ getLabels (DS_1toN _ d) = let mls = map (\(DecSeries o d) -> (maybe "" id $ getO
 getLabels (DS_1to1 d)   = let mls = map (\(_,(DecSeries o d)) -> (maybe "" id $ getOrdLabel o,d)) $ A.elems d
                               ln = length mls
                           in (ln,mls)
-
+getLabels (DS_Surf _)   = (0,[])
 -----------------------------------------------------------------------------
 

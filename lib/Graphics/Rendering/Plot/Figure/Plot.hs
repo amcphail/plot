@@ -60,6 +60,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
 -----------------------------------------------------------------------------
 
 import Data.Packed.Vector
+import Data.Packed.Matrix
 import Numeric.Vector
 
 import qualified Data.Array.IArray as A
@@ -197,9 +198,6 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 
 -----------------------------------------------------------------------------
 
-
------------------------------------------------------------------------------
-
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
 findMinMax AbsFunction (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
                                            in (minElement v,maxElement v)
@@ -234,6 +232,7 @@ calculateRanges (DS_1to1 ys)   = let (xm',ym') = unzip $ A.elems ys
                                      xm = unzip $ map abscMinMax xm'
                                      xmm = (minimum $ fst xm,maximum $ snd ym) 
                                  in (xmm,ymm)
+calculateRanges (DS_Surf m)     = ((0,fromIntegral $ rows m),(fromIntegral $ cols m,0))
 
 -----------------------------------------------------------------------------
                           

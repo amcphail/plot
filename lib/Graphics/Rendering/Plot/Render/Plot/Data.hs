@@ -22,10 +22,14 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 import Data.List(partition)
 
 import Data.Packed.Vector
-import Data.Packed()
+import Data.Packed.Matrix
+--import Data.Packed()
 import Numeric.Vector
 
 import qualified Data.Array.IArray as A
+import qualified Data.Array.MArray as M
+
+import Data.Word
 
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Cairo.Matrix as CM
@@ -62,7 +66,44 @@ flipVertical = C.transform flipVerticalMatrix
 
 -----------------------------------------------------------------------------
 
+greySurfaceFromMatrix :: C.SurfaceData Int Word8 -> Surface -> IO ()
+greySurfaceFromMatrix s m = do
+                            let r = rows m
+                                c = cols m
+                            (l,h) <- M.getBounds s
+                            let fm = flatten m
+                                mx = maxElement m
+                            mapM_ (\i -> do
+                                         when (i < (r*c-1)) (do
+                                                             let e = round . (* 255) . (/ mx) $ (fm @> i)
+                                                             M.writeArray s i e)
+                                         return ()) [l..h]
+
+
+-----------------------------------------------------------------------------
+
 renderData :: Ranges -> PlotType -> DataSeries -> Render ()
+renderData _ _      (DS_Surf m) = do
+                                  (BoundingBox x y w h) <- get
+                                  let r = rows m
+                                      c = cols m
+                                  cairo $ do
+                                          C.save
+                                          s <- liftIO $ C.createImageSurface C.FormatA8 r c
+                                          p <- liftIO $ C.imageSurfaceGetPixels s
+                                          C.surfaceFlush s
+                                          liftIO $ greySurfaceFromMatrix p m
+                                          C.surfaceMarkDirty s
+                                          C.setSourceSurface s x y
+                                          pa <- C.getSource
+                                          pm <- liftIO $ C.patternGetMatrix pa
+                                          let pm' = CM.scale ((fromIntegral c)/w) ((fromIntegral r)/h) pm
+                                          liftIO $ C.patternSetMatrix pa pm'
+                                          C.rectangle x y w h --(fromIntegral c) (fromIntegral r)
+                                          C.paint
+                                          C.stroke
+                                          C.restore
+                                  return ()
 renderData r Linear ds = do
                          let aos = case ds of
                                            (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')

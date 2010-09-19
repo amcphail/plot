@@ -21,8 +21,7 @@ import Data.Packed()
 import qualified Data.Array.IArray as A
 
 import Numeric.Vector
---import Numeric.LinearAlgebra.Instances
---import Numeric.LinearAlgebra.Interface
+import Numeric.Matrix
 
 import Numeric.GSL.Statistics
 
@@ -41,6 +40,9 @@ es = constant (0.25*(stddev rs)) ln
 fs :: Double -> Double
 fs = sin . (15*2*pi*)
 
+ms :: Matrix Double
+ms = buildMatrix 64 64 (\(x,y) -> sin (15*2*pi*(fromIntegral x)/64) * cos (15*2*pi*(fromIntegral y)/64))
+
 figure = do
         withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
@@ -48,7 +50,7 @@ figure = do
                        setText "with 1 second of a 15Hz sine wave"
                        setFontSize 10
         setPlots 1 1
-        withPlot (1,1) $ do
+{-        withPlot (1,1) $ do
 --                         setDataset (ts,[area ds blue])
 --                         setDataset (ts,[impulse fs blue])
                          setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
@@ -60,6 +62,13 @@ figure = do
                          setRange YAxis Lower (-1.25) 1.25
                          setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
+-}
+        withPlot (1,1) $ do 
+                         setDataset ms
+                         addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
+                         addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
+                         setRangeFromData XAxis Lower
+                         setRangeFromData YAxis Lower
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do

@@ -60,12 +60,12 @@ import Graphics.Rendering.Plot.Render.Plot.Legend
 -----------------------------------------------------------------------------
 
 bbPlot :: Int -> Int -> (Int,Int) -> Render ()
-bbPlot r c (px,py) = modify (\(BoundingBox x y w h) -> let rs = w/(fromIntegral r)
-                                                           cs = h/(fromIntegral c)
+bbPlot r c (px,py) = modify (\(BoundingBox x y w h) -> let w' = w/(fromIntegral c)
+                                                           h' = h/(fromIntegral r)
                                                        in (BoundingBox
-                                                           (x+rs*((fromIntegral px)-1))
-                                                           (y+cs*((fromIntegral py)-1))
-                                                           rs cs))
+                                                           (x+w'*((fromIntegral px)-1))
+                                                           (y+h'*((fromIntegral py)-1))
+                                                           w' h'))
 
 renderPlots :: Plots -> Render ()
 renderPlots d = do
