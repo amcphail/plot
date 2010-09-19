@@ -74,6 +74,7 @@ module Graphics.Rendering.Plot.Figure (
                                       -- ** Formatting
                                       , Tick(..), TickValues, GridLines
                                       , setTicks
+                                      , setGridlines
                                       , setTickLabelFormat
                                       , withAxisLabel
                                       , withAxisLine

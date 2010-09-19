@@ -55,8 +55,12 @@ figure = do
 --                         setDataset (ts,[impulse fs blue])
                          setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
                                         ,line (fs,"15 Hz sinusoid") blue])
-                         addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
-                         addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
+                         addAxis XAxis (Side Lower) $ do
+                                                      setGridlines Major True
+                                                      withAxisLabel $ setText "time (s)"
+                         addAxis YAxis (Side Lower) $ do
+                                                      setGridlines Major True
+                                                      withAxisLabel $ setText "amplitude"
                          addAxis XAxis (Value 0) $ return ()
                          setRangeFromData XAxis Lower
                          setRange YAxis Lower (-1.25) 1.25

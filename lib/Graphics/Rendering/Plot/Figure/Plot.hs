@@ -52,6 +52,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                             -- ** Formatting
                                             , Tick(..), TickValues, GridLines
                                            , AX.setTicks
+                                           , AX.setGridlines
                                            , AX.setTickLabelFormat
                                            , AX.withAxisLabel
                                            , AX.withAxisLine

@@ -17,6 +17,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                            , AxisType(..),AxisSide(..),AxisPosn(..)
                                            , Tick(..), TickValues, GridLines
                                            , setTicks
+                                           , setGridlines
                                            , setTickLabelFormat
                                            , withAxisLabel
                                            , withAxisLine
@@ -34,11 +35,11 @@ import Graphics.Rendering.Plot.Types
 changeLineType :: LineType -> AxisData -> AxisData
 changeLineType lt ax = ax { _line_type = lt }
 
-changeMinorTicks :: Ticks -> AxisData -> AxisData
-changeMinorTicks t ax = ax { _minor_ticks = t }
+changeMinorTicks :: (Ticks -> Ticks) -> AxisData -> AxisData
+changeMinorTicks t ax = ax { _minor_ticks = t (_minor_ticks ax) }
 
-changeMajorTicks :: Ticks -> AxisData -> AxisData
-changeMajorTicks t ax = ax { _major_ticks = t }
+changeMajorTicks :: (Ticks -> Ticks) -> AxisData -> AxisData
+changeMajorTicks t ax = ax { _major_ticks = t (_major_ticks ax) }
 
 changeTickFormat :: TickFormat -> AxisData -> AxisData
 changeTickFormat tf ax = ax { _tick_format = tf }
@@ -57,9 +58,14 @@ withAxisLine m = do
                  modify $ \s -> s { _line_type = lt }
 
 -- | format the axis ticks
-setTicks :: Tick -> GridLines -> TickValues -> Axis ()
-setTicks Minor g ts = modify $ \s -> changeMinorTicks (Ticks g ts) s
-setTicks Major g ts = modify $ \s -> changeMajorTicks (Ticks g ts) s
+setTicks :: Tick -> TickValues -> Axis ()
+setTicks Minor ts = modify $ \s -> changeMinorTicks (setTickValues ts) s
+setTicks Major ts = modify $ \s -> changeMajorTicks (setTickValues ts) s
+
+-- | should gridlines be displayed?
+setGridlines :: Tick -> GridLines -> Axis ()
+setGridlines Minor gl = modify $ \s -> changeMinorTicks (setTickGridlines gl) s
+setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines gl) s
 
 -- | printf format that takes one argument, the tick value
 setTickLabelFormat :: String -> Axis ()

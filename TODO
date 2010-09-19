@@ -1,25 +1,19 @@
  * text labels for major ticks
-| * area
+
  * columns
  * bars
-| * impulses
-| * steps
-| * matrix (greyscale)
  * square plot (tie x and y shapes) (lockAspectRatio)
-| * legend
+
  * annotations
+
  * 3d plots
 
-| * pad side opposite of axis label only if there is no label on that side
  * using padding functions not raw data structure: pdFoo, pdBar
 
-| * simple interface
  * tick values
  
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
-
-| * option to use upper ranges
 
  * directly to impulse, step, area, not via line (performance)
 
@@ -28,6 +22,17 @@
  * refactor Legend (LegendLocation)
  * replace with utility functions common code in Render/Data.hs
 
+ * no ticks for greyscale?
+
+ * log/semilog plots
+
+| * area
+| * impulses
+| * steps
+| * matrix (greyscale)
+| * legend
+| * pad side opposite of axis label only if there is no label on that side
+| * simple interface
+| * option to use upper ranges
 | * fix linewidths (as per cairo FAQ) by adding 0.5 to rectangle start / line (borders/axes)
 
- * no ticks for greyscale?

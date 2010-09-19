@@ -346,7 +346,7 @@ renderAxisTick :: P.PangoContext -> TextOptions
                -> Double -> Double -> Double -> Double -> Double -> Double
                -> AxisType -> AxisPosn -> TickFormat -> Tick -> GridLines
                -> (Double,Double) -> C.Render ()
-renderAxisTick pc to x y w h min max xa sd tf t _ (p,l) = do
+renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
        let tl' = case t of
                         Minor -> minorTickLength
                         Major -> majorTickLength
@@ -369,6 +369,29 @@ renderAxisTick pc to x y w h min max xa sd tf t _ (p,l) = do
        C.moveTo x1 y1
        C.lineTo x2 y2
        C.stroke
+       when gl (do
+                let (x3,y3,x4,y4) = case xa of
+                                   XAxis -> case sd of
+                                                    (Side Lower) -> let xt x' = x + (x'-min)*w/(max-min)
+                                                                    in (xt p+0.5,y,xt p+0.5,y+h)
+                                                    (Side Upper) -> let xt x' = x + (x'-min)*w/(max-min)
+                                                                    in (xt p+0.5,y,xt p+0.5,y+h)
+                                                    (Value _)    -> let xt x' = x + (x'-min)*w/(max-min)
+                                                                    in (xt p+0.5,y,xt p+0.5,y+h)
+                                   YAxis -> case sd of
+                                                    (Side Lower) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
+                                                                    in (x,yt p+0.5,x+w,yt p+0.5)
+                                                    (Side Upper) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
+                                                                    in (x,yt p+0.5,x+w,yt p+0.5)
+                                                    (Value _)    -> let yt y' = (y + h) - (y'-min)*h/(max-min)
+                                                                    in (x,yt p+0.5,x+w,yt p+0.5)
+                C.save
+                C.setDash [2,2] 0
+                C.setSourceRGBA 0 0 0 0.6
+                C.moveTo x3 y3
+                C.lineTo x4 y4
+                C.stroke
+                C.restore)
        let majlab = case sd of 
                             (Side _)  -> True
                             (Value _) -> False

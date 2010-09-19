@@ -152,6 +152,12 @@ type GridLines = Bool
 type TickValues = Either Int (Vector Double) -- ^ Either (number of ticks) (tick values)
 data Ticks = Ticks GridLines TickValues
 
+setTickGridlines :: GridLines -> Ticks -> Ticks
+setTickGridlines gl (Ticks _ tv) = Ticks gl tv
+
+setTickValues :: TickValues -> Ticks -> Ticks
+setTickValues tv (Ticks gl _) = Ticks gl tv
+
 type TickFormat = String
 
 data AxisData = Axis {
