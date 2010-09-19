@@ -4,8 +4,8 @@
  * bars
 | * impulses
 | * steps
- * matrix (greyscale)
- * square plot (tie x and y shapes)
+| * matrix (greyscale)
+ * square plot (tie x and y shapes) (lockAspectRatio)
 | * legend
  * annotations
  * 3d plots

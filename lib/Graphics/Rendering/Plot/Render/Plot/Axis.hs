@@ -177,6 +177,8 @@ shiftForTicks _ p (Axis _ (Value _) _ _ _ _ _)
 
 shiftForTicks' :: Padding -> Ticks -> Ticks -> AxisType -> AxisPosn -> TickFormat -> Double -> Render Padding
 shiftForTicks' p (Ticks _ (Left 0)) (Ticks _ (Left 0)) _     _            _  _ = return p
+shiftForTicks' p (Ticks _ (Left _)) (Ticks _ (Left 0)) _     _            _  _ = return p
+{-
 shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Lower) _  _ = do
                  bbRaiseBottom minorTickLength
                  return $ Padding l r (b+minorTickLength) t
@@ -189,6 +191,7 @@ shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Si
 shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) YAxis (Side Upper) _  _ = do
                  bbShiftRight minorTickLength
                  return $ Padding l (r+minorTickLength) b t
+-}
 shiftForTicks' p                 (Ticks _ _)        (Ticks _ _)        ax    sd           tf v = do
                          to <- asks (_textoptions . _renderoptions)
                          pc <- asks _pangocontext
@@ -200,17 +203,17 @@ shiftForTicks' p                 (Ticks _ _)        (Ticks _ _)        ax    sd 
                                            return twh
                          shiftForTicks'' p (tw,th) ax sd
     where shiftForTicks'' (Padding l r b t) (_,th) XAxis (Side Lower) = do
-               bbRaiseBottom (majorTickLength+th+2*textPad)
-               return $ Padding l r (b+majorTickLength+th+2*textPad) t
+               bbRaiseBottom (th+2*textPad)
+               return $ Padding l r (b+th+2*textPad) t
           shiftForTicks'' (Padding l r b t) (tw,_) YAxis (Side Lower) = do
-               bbShiftLeft (majorTickLength+tw+2*textPad)
-               return $ Padding (l+majorTickLength+tw+2*textPad) r b t
+               bbShiftLeft (tw+2*textPad)
+               return $ Padding (l+tw+2*textPad) r b t
           shiftForTicks'' (Padding l r b t) (_,th) XAxis (Side Upper) = do
-               bbLowerTop (majorTickLength+th+2*textPad)
-               return $ Padding l r b (t+majorTickLength+th+2*textPad)
+               bbLowerTop (th+2*textPad)
+               return $ Padding l r b (t+th+2*textPad)
           shiftForTicks'' (Padding l r b t) (tw,_) YAxis (Side Upper) = do
-               bbShiftRight (majorTickLength+tw+2*textPad)
-               return $ Padding l (r+majorTickLength+tw+2*textPad) b t
+               bbShiftRight (tw+2*textPad)
+               return $ Padding l (r+tw+2*textPad) b t
           shiftForTicks'' p' (_,_)  _     (Value _) = return p'
 
 renderAxis :: Ranges -> AxisData -> Render ()
@@ -351,26 +354,18 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
            (x1,y1,x2,y2) = case xa of
                                    XAxis -> case sd of
                                                     (Side Lower) -> let xt x' = x + (x'-min)*w/(max-min)
-                                                                        ys = if gl then y else y + h
-                                                                    in (xt p+0.5,ys,xt p+0.5,y+h+tl)
+                                                                    in (xt p+0.5,y+h,xt p+0.5,y+h-tl)
                                                     (Side Upper) -> let xt x' = x + (x'-min)*w/(max-min)
-                                                                        ys = if gl then y + h else y
-                                                                    in (xt p+0.5,ys,xt p+0.5,y-tl)
+                                                                    in (xt p+0.5,y,xt p+0.5,y+tl)
                                                     (Value v)    -> let xt x' = x + (x'-min)*w/(max-min)
-                                                                        yb = if gl then y else v-tl
-                                                                        yt = if gl then y+h else v+tl
-                                                                    in (xt p+0.5,yb,xt p+0.5,yt)
+                                                                    in (xt p+0.5,v-tl,xt p+0.5,v+tl)
                                    YAxis -> case sd of
-                                                    (Side Lower) -> let xf = if gl then x + w else x
-                                                                        yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (x-tl,yt p+0.5,xf,yt p+0.5)
-                                                    (Side Upper) -> let xf = if gl then x else x + w
-                                                                        yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (x+w+tl,yt p+0.5,xf,yt p+0.5)
-                                                    (Value v)    -> let xb = if gl then x else v-tl
-                                                                        xt = if gl then x+h else v+tl
-                                                                        yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (xb,yt p+0.5,xt,yt p+0.5)
+                                                    (Side Lower) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
+                                                                    in (x,yt p+0.5,x+tl,yt p+0.5)
+                                                    (Side Upper) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
+                                                                    in (x+w,yt p+0.5,x+w-tl,yt p+0.5)
+                                                    (Value v)    -> let yt y' = (y + h) - (y'-min)*h/(max-min)
+                                                                    in (v-tl,yt p+0.5,v+tl,yt p+0.5)
        C.moveTo x1 y1
        C.lineTo x2 y2
        C.stroke
@@ -385,18 +380,18 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                     XAxis -> do
                              case sd of
                                      (Side Lower) -> do
-                                                     ((x',y'),_) <- textSize lo Centre TTop x1 y2
+                                                     ((x',y'),_) <- textSize lo Centre TTop x1 (y1+2*textPad)
                                                      showText lo x' y'
                                      (Side Upper) -> do
-                                                     ((x',y'),_) <- textSize lo Centre TBottom x1 y2
+                                                     ((x',y'),_) <- textSize lo Centre TBottom x1 (y1-2*textPad)
                                                      showText lo x' y'
                     YAxis -> do
                              case sd of
                                      (Side Lower) -> do
-                                                     ((x',y'),_) <- textSize lo TLeft Middle x1 y1
+                                                     ((x',y'),_) <- textSize lo TLeft Middle (x1-2*textPad) y1
                                                      showText lo x' y'
                                      (Side Upper) -> do
-                                                     ((x',y'),_) <- textSize lo TRight Middle x1 y1
+                                                     ((x',y'),_) <- textSize lo TRight Middle (x1+2*textPad) y1
                                                      showText lo x' y'
             return ()
 
