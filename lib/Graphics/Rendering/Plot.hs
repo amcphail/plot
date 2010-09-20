@@ -13,12 +13,12 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot (
-                                -- * Example
-                                -- $example
-                                -- * re-exported for convenience
+                                -- * Re-exported for convenience
                                 module Graphics.Rendering.Plot.Figure.Simple
                                , module Graphics.Rendering.Plot.Figure
                                , module Graphics.Rendering.Plot.Render
+                                -- * Example
+                                -- $example
                                ) where
 
 
@@ -68,6 +68,20 @@ and height of the drawing area
 > test_render = render test_graph
 
 The 'Render a' action can be used in GTK or with Cairo to write to file in PS, PDF, SVG, or PNG
+
+Display a greyscale matrix
+
+> ms :: Matrix Double
+> ms = buildMatrix 64 64 (\(x,y) -> sin (2*2*pi*(fromIntegral x)/64) * cos (5*2*pi*(fromIntegral y)/64))
+
+> mat_fig = do
+>         setPlots 1 1
+>         withPlot (1,1) $ do 
+>                          setDataset ms
+>                          addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
+>                          addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
+>                          setRangeFromData XAxis Lower
+>                          setRangeFromData YAxis Lower
 
 -}
 

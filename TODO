@@ -1,30 +1,38 @@
- * text labels for major ticks
-
- * columns
- * bars
- * square plot (tie x and y shapes) (lockAspectRatio)
+FEATURES
 
  * annotations
 
- * 3d plots
+ * square plot (tie x and y shapes) (lockAspectRatio)
 
- * using padding functions not raw data structure: pdFoo, pdBar
+ * log/semilog plots
 
+ * text labels for major ticks
  * tick values
  
+ * columns
+ * bars
+
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
- * directly to impulse, step, area, not via line (performance)
-
  * expand Simple interface: xlabel, ylabel, etc...
+
+ * 3d plots
+
+BUGS
+
+ * no ticks for greyscale?
+
+REFACTOR
+
+ * using padding functions not raw data structure: pdFoo, pdBar
+
+ * directly to impulse, step, area, not via line (performance)
 
  * refactor Legend (LegendLocation)
  * replace with utility functions common code in Render/Data.hs
 
- * no ticks for greyscale?
-
- * log/semilog plots
+COMPLETE
 
 | * area
 | * impulses

@@ -1,18 +1,18 @@
 THIS README COPIED FROM THE diagrams PACKAGE
 
-Graphics.Rendering.Figures provides an embedded domain-specific
-language (EDSL) for creating figures rendered with Cairo
+Graphics.Rendering.Plot provides an embedded domain-specific
+language (EDSL) for creating plots rendered with Cairo
 
-For some examples of use, see http://code.haskell.org/figures/ .
+For some examples of use, see http://code.haskell.org/plot/examples .
 
 ------------------------------------------------------------------------
 
-To install the Figures library:
+To install the Plots library:
 
 1. Get the dependencies
 
-    The figures library uses Haskell bindings to the Cairo vector
-    graphics library.  In order to build the figures library, you
+    The plots library uses Haskell bindings to the Cairo vector
+    graphics library.  In order to build the plots library, you
     will first need the following:
 
     * The Cairo library itself.  This is probably available through
@@ -36,10 +36,10 @@ To install the Figures library:
    * Option 1: use cabal-install
 
      If you have cabal-install, *after* installing gtk2hs, you can
-     install figures and the remaining dependencies with
+     install plots and the remaining dependencies with
      cabal-install:
 
-       cabal install figures
+       cabal install plot
 
      Optionally, you can also pass options such as --user
      --prefix=$HOME to install locally.
@@ -47,7 +47,7 @@ To install the Figures library:
   * Option 2: manual build
 
     Once all the dependencies are built and installed, you can build
-    and install figures as follows:
+    and install plots as follows:
       
       runhaskell Setup.lhs configure --prefix=$HOME --user
       runhaskell Setup.lhs build
@@ -62,4 +62,4 @@ To install the Figures library:
      runhaskell Setup.lhs haddock
 
    Once the documentation has been built, you can access it by 
-   pointing your browser to dist/doc/html/figures/index.html.
+   pointing your browser to dist/doc/html/plot/index.html.

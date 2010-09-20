@@ -46,6 +46,8 @@ module Graphics.Rendering.Plot.Figure (
                                       , withHeading
                                       -- ** Series data
                                       , Function(), Series(), ErrorSeries()
+                                      , Surface()
+                                      , SeriesLabel()
                                       , Abscissa(), Ordinate(), Dataset()
                                       , FormattedSeries(), SeriesType(..)
                                       , line, point, linepoint
@@ -66,8 +68,10 @@ module Graphics.Rendering.Plot.Figure (
                                       , Axis
                                       , AxisType(..),AxisSide(..),AxisPosn(..)
                                       , addAxis
+                                      , withAxis
                                       -- * Legend
                                       , Legend
+                                      , LegendBorder
                                       , LegendLocation(..), LegendOrientation(..)
                                       , setLegend
                                       , withLegendFormat

@@ -22,6 +22,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , withHeading
                                            -- * Series data
                                            , D.Abscissa(), D.Ordinate(), D.Dataset()
+                                           , SeriesLabel
                                            , D.FormattedSeries()
                                            , D.line, D.point, D.linepoint
                                            , D.impulse, D.step
@@ -42,10 +43,10 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , AxisType(..),AxisSide(..),AxisPosn(..)
 --                                           , clearAxes
                                            , addAxis
---                                           , withAxis
+                                           , withAxis
                                            -- * Legend
                                            , L.Legend
-                                           , L.LegendBorder
+                                           , LegendBorder
                                            , L.LegendLocation(..), L.LegendOrientation(..)
                                            , setLegend
                                            , withLegendFormat
@@ -190,9 +191,9 @@ withSeriesFormat i f = withData $ D.withSeriesFormat i f
       This allows, for example, colours to be selected from a list
       that gets indexed by the argument
  
-> setColour i = withAllSeriesFormats (\i -> do
->                                           setLineColour $ [black,blue,red,green,yellow] !! i
->                                           setLineWidth 1.0
+> setColour = withAllSeriesFormats (\i -> do
+>                                         setLineColour $ [black,blue,red,green,yellow] !! i
+>                                         setLineWidth 1.0)
 -}
 withAllSeriesFormats :: D.PlotFormats m => (Int -> m ()) -> Plot ()
 withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
