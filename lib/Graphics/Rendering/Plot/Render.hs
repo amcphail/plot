@@ -16,6 +16,10 @@
 module Graphics.Rendering.Plot.Render (
                                        -- * Rendering
                                        render
+                                       -- ** Access to 'FigureState'
+                                       , newFigureState
+                                       , updateFigureState
+                                       , renderFigureState
                                        -- ** Outputting to file
                                        , OutputType(..)
                                        , writeFigure
@@ -49,7 +53,7 @@ import qualified Graphics.Rendering.Pango as P
 
 --import Control.Monad.Reader
 --import Control.Monad.State
---import Control.Monad.Trans
+import Control.Monad.Trans
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
@@ -73,10 +77,32 @@ render :: Figure ()    -- ^ the figure to be rendered
        -> C.Render ()  -- ^ a Cairo operation
 render g = (\(w,h) -> do
                       pc <- pango $ P.cairoCreateContext Nothing
-                      to <- getDefaultTextOptions pc
+                      to <- pango $ getDefaultTextOptions pc
                       let options' = Options defaultLineOptions defaultPointOptions to
                       let (FigureState options _ figure) = execFigure g (FigureState options' defaultSupply emptyFigure)
                       evalRender (renderFigure figure) (RenderEnv pc options) (BoundingBox 0 0 (fromIntegral w) (fromIntegral h)))
+
+-----------------------------------------------------------------------------
+
+-- | create 'FigureState' from a series of 'Figure' actions
+newFigureState :: Figure () -> IO FigureState
+newFigureState f = do
+              pc <- P.cairoCreateContext Nothing
+              to <- getDefaultTextOptions pc
+              let options' = Options defaultLineOptions defaultPointOptions to
+              return $ execFigure f (FigureState options' defaultSupply emptyFigure)
+            
+-- | modify a 'FigureState' with some new actions  
+updateFigureState :: FigureState -> Figure () -> FigureState
+updateFigureState s f = execFigure f s
+
+-- | render a 'FigureState'
+renderFigureState :: FigureState  -- ^ the figure state
+                -> (Int,Int)    -- ^ (width,height)
+                -> C.Render ()  -- ^ a Cairo operation
+renderFigureState (FigureState options _ figure) = (\(w,h) -> do
+                                                              pc <- pango $ P.cairoCreateContext Nothing
+                                                              evalRender (renderFigure figure) (RenderEnv pc options) (BoundingBox 0 0 (fromIntegral w) (fromIntegral h)))    
 
 -----------------------------------------------------------------------------
 

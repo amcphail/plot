@@ -132,19 +132,19 @@ setDashes xs = do
                      
 -----------------------------------------------------------------------------
 
-getDefaultTextOptions :: P.PangoContext -> C.Render TextOptions
+getDefaultTextOptions :: P.PangoContext -> IO TextOptions
 getDefaultTextOptions pc = do
-                 fd <- pango $ P.contextGetFontDescription pc
+                 fd <- P.contextGetFontDescription pc
                  getTextOptionsFD fd
 
-getTextOptionsFD :: P.FontDescription -> C.Render TextOptions
+getTextOptionsFD :: P.FontDescription -> IO TextOptions
 getTextOptionsFD fd = do
-                     ff' <- pango $ P.fontDescriptionGetFamily fd
-                     fs' <- pango $ P.fontDescriptionGetStyle fd
-                     fv' <- pango $ P.fontDescriptionGetVariant fd
-                     fw' <- pango $ P.fontDescriptionGetWeight fd
-                     fc' <- pango $ P.fontDescriptionGetStretch fd
-                     fz' <- pango $ P.fontDescriptionGetSize fd
+                     ff' <- P.fontDescriptionGetFamily fd
+                     fs' <- P.fontDescriptionGetStyle fd
+                     fv' <- P.fontDescriptionGetVariant fd
+                     fw' <- P.fontDescriptionGetWeight fd
+                     fc' <- P.fontDescriptionGetStretch fd
+                     fz' <- P.fontDescriptionGetSize fd
                      let ff = fromMaybe defaultFontFamily ff'
                          fs = fromMaybe defaultFontStyle fs'
                          fv = fromMaybe defaultFontVariant fv'

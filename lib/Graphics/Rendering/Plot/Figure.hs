@@ -24,7 +24,8 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot.Figure (
-                                       Figure()
+                                       -- * Top level operation
+                                       Figure(), FigureState()
                                        -- * Default options
                                       , withTextDefaults
                                       , withLineDefaults 
