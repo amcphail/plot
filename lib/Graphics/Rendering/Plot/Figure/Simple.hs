@@ -13,14 +13,17 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot.Figure.Simple (
-                                              -- | All function in this module
-                                              --   assume a single plot
                                               -- * Plotting
                                               plot
                                              , parametric
                                               -- * Formatting
                                              , title
                                              , subtitle
+                                             -- | The following functions can
+                                             --   be applied to a figure or a plot.
+                                             --   When applied in 'Figure' context
+                                             --   a single plot is assumed
+                                             , Simple()
                                              , grid
                                              , xrange, yrange
                                              , xlabel, ylabel
@@ -69,24 +72,37 @@ title s = withTitle $ setText s
 subtitle :: String -> Figure ()
 subtitle s = withSubTitle $ setText s
 
+-----------------------------------------------------------------------------
+
+class Simple m where
+    simple :: Plot () -> m ()
+
+instance Simple Plot where
+    simple m = m
+
+instance Simple Figure where
+    simple m = withPlot (1,1) m
+
 -- | set the gridlines
-grid :: Bool -> Figure ()
-grid b = withPlot (1,1) $ do
-                          withAxis XAxis (Side Lower) $ setGridlines Major b
-                          withAxis YAxis (Side Lower) $ setGridlines Major b
+grid :: Simple m => Bool -> m ()
+grid b = simple $ do
+                  withAxis XAxis (Side Lower) $ setGridlines Major b
+                  withAxis YAxis (Side Lower) $ setGridlines Major b
 
 -- | set the x range
-xrange :: Double -> Double -> Figure ()
-xrange l h = withPlot (1,1) $ setRange XAxis Lower l h 
+xrange :: Simple m => Double -> Double -> m ()
+xrange l h = simple $ setRange XAxis Lower l h 
 
 -- | set the y range
-yrange :: Double -> Double -> Figure ()
-yrange l h = withPlot (1,1) $ setRange YAxis Lower l h 
+yrange :: Simple m => Double -> Double -> m ()
+yrange l h = simple $ setRange YAxis Lower l h 
 
 -- | set the x label
-xlabel :: String -> Figure ()
-xlabel s = withPlot (1,1) $ withAxis XAxis (Side Lower) $ withAxisLabel $ setText s
+xlabel :: Simple m => String -> m ()
+xlabel s = simple $ withAxis XAxis (Side Lower) $ withAxisLabel $ setText s
 
 -- | set the y label
-ylabel :: String -> Figure ()
-ylabel s = withPlot (1,1) $ withAxis YAxis (Side Lower) $ withAxisLabel $ setText s
+ylabel :: Simple m => String -> m ()
+ylabel s = simple $ withAxis YAxis (Side Lower) $ withAxisLabel $ setText s
+
+-----------------------------------------------------------------------------
