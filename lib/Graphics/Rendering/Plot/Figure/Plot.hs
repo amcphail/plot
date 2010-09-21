@@ -41,13 +41,15 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            -- * Axes
                                            , AX.Axis
                                            , AxisType(..),AxisSide(..),AxisPosn(..)
---                                           , clearAxes
+                                           , clearAxes
+                                           , clearAxis
                                            , addAxis
                                            , withAxis
                                            -- * Legend
                                            , L.Legend
                                            , LegendBorder
                                            , L.LegendLocation(..), L.LegendOrientation(..)
+                                           , clearLegend
                                            , setLegend
                                            , withLegendFormat
                                             -- ** Formatting
@@ -126,6 +128,12 @@ setRangeFromData ax sd = do
 clearAxes :: Plot ()
 clearAxes = modify $ \s -> s { _axes = [] }
 
+-- | clear an axis of a subplot
+clearAxis :: AxisType -> AxisPosn -> Plot ()
+clearAxis at axp = do
+                   ax <- gets _axes
+                   modify $ \s -> s { _axes = filter (\(Axis at' axp' _ _ _ _ _) -> not (at == at' && axp == axp')) ax } 
+
 -- | add an axis to the subplot
 addAxis :: AxisType -> AxisPosn -> AX.Axis () -> Plot ()
 addAxis at axp m  = do
@@ -143,6 +151,10 @@ withAxis at axp m = do
                                                     -> if at == at' && axp == ap' then execAxis m o a else a) axes' }
 
 -----------------------------------------------------------------------------
+
+-- | clear the legend
+clearLegend :: Plot ()
+clearLegend = withLegend $ L.clearLegend
 
 -- | set the legend location and orientation
 setLegend :: L.LegendBorder -> L.LegendLocation -> L.LegendOrientation -> Plot()

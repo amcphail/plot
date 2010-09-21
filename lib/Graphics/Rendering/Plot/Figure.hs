@@ -31,6 +31,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , withLineDefaults 
                                       , withPointDefaults 
                                       -- * Figures
+                                      , newFigure
                                       -- ** Formatting
                                       , setFigurePadding
                                       , withTitle
@@ -68,12 +69,15 @@ module Graphics.Rendering.Plot.Figure (
                                       -- * Axes
                                       , Axis
                                       , AxisType(..),AxisSide(..),AxisPosn(..)
+                                      , clearAxes
+                                      , clearAxis
                                       , addAxis
                                       , withAxis
                                       -- * Legend
                                       , Legend
                                       , LegendBorder
                                       , LegendLocation(..), LegendOrientation(..)
+                                      , clearLegend
                                       , setLegend
                                       , withLegendFormat
                                       -- ** Formatting
@@ -100,6 +104,8 @@ module Graphics.Rendering.Plot.Figure (
                                       , Text()
                                       , FontFamily,FontSize,Color
                                       -- | A text element must exist for formatting to work
+                                      , clearText
+                                      , clearTextFormat
                                       , setText
                                       , setFontFamily
                                       , setFontStyle

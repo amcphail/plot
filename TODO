@@ -15,7 +15,7 @@ FEATURES
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
- * expand Simple interface: xlabel, ylabel, etc...
+| * expand Simple interface: xlabel, ylabel, etc...
 
  * 3d plots
 

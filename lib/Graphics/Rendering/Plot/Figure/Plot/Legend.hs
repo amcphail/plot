@@ -16,6 +16,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Legend (
                                                    Legend
                                                   , LegendBorder
                                                   , LegendLocation(..), LegendOrientation(..)
+                                                  , clearLegend
                                                   , setLegend
                                                   , withLegendFormat
                                                   ) where
@@ -31,6 +32,10 @@ import Graphics.Rendering.Plot.Defaults
 import Graphics.Rendering.Plot.Figure.Text
 
 -----------------------------------------------------------------------------
+
+-- | clear the legend
+clearLegend :: Legend ()
+clearLegend = put Nothing
 
 -- | set the legend location (required for there to be a legend)
 setLegend :: LegendBorder -> LegendLocation -> LegendOrientation -> Legend ()
