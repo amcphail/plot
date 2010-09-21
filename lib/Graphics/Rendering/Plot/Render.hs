@@ -23,6 +23,7 @@ module Graphics.Rendering.Plot.Render (
                                        -- ** Outputting to file
                                        , OutputType(..)
                                        , writeFigure
+                                       , writeFigureState
                                        -- * Notes
                                        -- $notes
                                        ) where
@@ -53,7 +54,7 @@ import qualified Graphics.Rendering.Pango as P
 
 --import Control.Monad.Reader
 --import Control.Monad.State
-import Control.Monad.Trans
+--import Control.Monad.Trans
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
@@ -128,6 +129,23 @@ writeSurfaceToPNG fn r s = do
 writeSurface :: (FilePath -> Double -> Double -> (C.Surface -> IO ()) -> IO ()) 
             -> FilePath -> (Int,Int) -> Figure () -> IO ()
 writeSurface rw fn (w,h) f = rw fn (fromIntegral w) (fromIntegral h) (flip C.renderWith (render f (w,h))) 
+ 
+-----------------------------------------------------------------------------
+
+-- | output the 'FigureState'
+writeFigureState :: OutputType    -- ^ output file type
+            -> FilePath      -- ^ file path
+            -> (Int,Int)     -- ^ (width,height)
+            -> FigureState   -- ^ a FigureState
+            -> IO ()
+writeFigureState PNG fn wh f = withImageSurface wh (writeSurfaceToPNG fn (renderFigureState f wh))
+writeFigureState PS  fn wh f = writeSurfaceFS C.withPSSurface fn wh f
+writeFigureState PDF fn wh f = writeSurfaceFS C.withPDFSurface fn wh f
+writeFigureState SVG fn wh f = writeSurfaceFS C.withSVGSurface fn wh f
+
+writeSurfaceFS :: (FilePath -> Double -> Double -> (C.Surface -> IO ()) -> IO ()) 
+            -> FilePath -> (Int,Int) -> FigureState -> IO ()
+writeSurfaceFS rw fn (w,h) f = rw fn (fromIntegral w) (fromIntegral h) (flip C.renderWith (renderFigureState f (w,h))) 
  
 -----------------------------------------------------------------------------
 
