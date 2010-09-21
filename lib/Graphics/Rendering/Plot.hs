@@ -67,6 +67,16 @@ and height of the drawing area
 > test_render :: (Double,Double) -> Render ()
 > test_render = render test_graph
 
+The same graph using the 'Simple' interface
+
+> test_graph2 = do
+>         plot (ts,[point (ds,es) (Cross,red),line fs blue])
+>         title "Testing plot package:"
+>         subtitle "with 1 second of a 15Hz sine wave"
+>         xlabel "time (s)"
+>         ylabel "amplitude"
+>         yrange (-1.25) 1.25
+
 The 'Render a' action can be used in GTK or with Cairo to write to file in PS, PDF, SVG, or PNG
 
 Display a greyscale matrix
@@ -84,6 +94,7 @@ Display a greyscale matrix
 >                          setRangeFromData YAxis Lower
 
 -}
+
 
 
 -----------------------------------------------------------------------------

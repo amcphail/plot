@@ -26,6 +26,7 @@ module Graphics.Rendering.Plot.Figure.Simple (
                                              , Simple()
                                              , grid
                                              , xrange, yrange
+                                             , xautorange, yautorange
                                              , xlabel, ylabel
                                              ) where
 
@@ -96,6 +97,14 @@ xrange l h = simple $ setRange XAxis Lower l h
 -- | set the y range
 yrange :: Simple m => Double -> Double -> m ()
 yrange l h = simple $ setRange YAxis Lower l h 
+
+-- | set the x range from data
+xautorange :: Simple m => m ()
+xautorange = simple $ setRangeFromData XAxis Lower
+
+-- | set the y range from data
+yautorange :: Simple m => m ()
+yautorange = simple $ setRangeFromData YAxis Lower
 
 -- | set the x label
 xlabel :: Simple m => String -> m ()
