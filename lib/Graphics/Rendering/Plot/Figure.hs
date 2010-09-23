@@ -30,6 +30,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , withTextDefaults
                                       , withLineDefaults 
                                       , withPointDefaults 
+                                      , withBarDefaults 
                                       -- * Figures
                                       , newFigure
                                       -- ** Formatting
@@ -55,6 +56,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , line, point, linepoint
                                       , impulse, step
                                       , area
+                                      , bar
                                       , setDataset
                                       -- ** Plot type
                                       , setSeriesType
@@ -90,6 +92,7 @@ module Graphics.Rendering.Plot.Figure (
                                        -- * Lines
                                       , Line(), LineFormat()
                                       , DashStyle,Dash(..),LineWidth
+                                      , clearLineFormat
                                       , setDashStyle
                                       , setLineWidth
                                       , setLineColour
@@ -100,6 +103,13 @@ module Graphics.Rendering.Plot.Figure (
                                       , setGlyph
                                       , setPointSize
                                       , setPointColour
+                                      -- * Bars
+                                      , Bar(), BarFormat()
+                                      , clearBarFormat
+                                      , setBarWidth
+                                      , setBarColour
+                                      , setBarBorderWidth
+                                      , setBarBorderColour
                                       -- * Text labels
                                       , Text()
                                       , FontFamily,FontSize,Color
@@ -138,6 +148,7 @@ import Prelude hiding(min,max)
 import Graphics.Rendering.Plot.Figure.Text
 import Graphics.Rendering.Plot.Figure.Line
 import Graphics.Rendering.Plot.Figure.Point
+import Graphics.Rendering.Plot.Figure.Bar
 import Graphics.Rendering.Plot.Figure.Plot
 
 import Graphics.Rendering.Plot.Types
@@ -168,6 +179,14 @@ withPointDefaults m = do
                      let po' = _pointoptions o
                      let (FullPoint po _) = execPoint m po' (FullPoint po' defaultGlyph)
                      modifyDefaults $ \s -> s { _pointoptions = po }
+
+-- | perform some actions on the bar defaults, must be run before other point modifications
+withBarDefaults :: Bar () -> Figure ()
+withBarDefaults m = do
+                    o <- getDefaults
+                    let bo' = _baroptions o
+                    let (TypeBar bo _) = execBar m bo' (TypeBar bo' black)
+                    modifyDefaults $ \s -> s { _baroptions = bo }
                      
 -----------------------------------------------------------------------------
 

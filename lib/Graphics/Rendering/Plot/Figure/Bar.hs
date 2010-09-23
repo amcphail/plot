@@ -111,10 +111,10 @@ instance Real a => BarFormat (Width,Colour a) where toBar (w,c)    = do
 instance Real a => BarFormat (Width,Colour a,LineWidth) where toBar (bw,c,lw) = do
                                                                     bo <- asks _baroptions
                                                                     return $ TypeBar (changeBarWidth bw $ changeBarBorderWidth lw bo) $ colourConvert c
-instance Real a => BarFormat (Width,Colour a,Colour a) where toBar (bw,c,bc) = do
-                                                                    bo <- asks _baroptions
-                                                                    return $ TypeBar (changeBarWidth bw $ changeBarBorderColour (colourConvert bc) bo) $ colourConvert c
-instance Real a => BarFormat (Width,Colour a,LineWidth,Colour a) where toBar (bw,c,lw,bc) = return $ TypeBar (BarOptions bw lw (colourConvert bc)) $ colourConvert c
+instance (Real a, Real b) => BarFormat (Width,Colour a,Colour b) where toBar (bw,c,bc) = do
+                                                                                         bo <- asks _baroptions
+                                                                                         return $ TypeBar (changeBarWidth bw $ changeBarBorderColour (colourConvert bc) bo) $ colourConvert c
+instance (Real a, Real b) => BarFormat (Width,Colour a,LineWidth,Colour b) where toBar (bw,c,lw,bc) = return $ TypeBar (BarOptions bw lw (colourConvert bc)) $ colourConvert c
 
 -----------------------------------------------------------------------------
 

@@ -186,6 +186,9 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                   x0 = (fst hd) @> xmin_ix
                                   y0 = (snd hd) @> xmin_ix
                               mapM_ (\(t',y') -> renderSamples xmin xmax renderAreaSample (endAreaSample x0 y0) t' y') dat
+              (DecBar bt)   -> do
+                               (bw,bc,c) <- formatBarSeries bt xscale yscale
+                               mapM_ (\(t',y') -> renderSamples xmin xmax (renderBarSample bw bc c) endBarSample t' y') dat
        return ()
 
 -----------------------------------------------------------------------------
@@ -211,6 +214,19 @@ formatPointSeries (FullPoint (PointOptions pz c) g) _ _ = do
                                                           cairo $ formatPointSeries' c
                                                           return (pz,g)
 
+formatBarSeries' :: LineWidth -> C.Render ()
+formatBarSeries' lw = C.setLineWidth lw
+
+formatBarSeries :: BarType -> Double -> Double -> Render (Width,Color,Color)
+formatBarSeries (ColourBar c) xscale yscale = do
+                                let sc = (xscale+yscale)/2
+                                (BarOptions bw lw bc) <- asks (_baroptions . _renderoptions)
+                                cairo $ formatBarSeries' (lw/sc)
+                                return (bw/sc,c,bc)
+formatBarSeries (TypeBar (BarOptions bw lw bc) c) xscale yscale = do
+                                let sc = (xscale+yscale)/2
+                                cairo $ formatBarSeries' (lw/sc)
+                                return (bw/sc,c,bc)
 
 -----------------------------------------------------------------------------
 
@@ -294,6 +310,23 @@ endAreaSample x0 _ = do
                      C.closePath
                      C.fill
                      C.stroke
+
+renderBarSample :: Width -> Color -> Color -> Double -> Double -> C.Render ()
+renderBarSample bw c bc x y = do
+                              setColour bc
+                              C.moveTo (x-bw/2) 0
+                              C.lineTo (x-bw/2) y
+                              C.lineTo (x+bw/2) y
+                              C.lineTo (x+bw/2) 0
+                              C.closePath
+                              C.strokePreserve
+                              setColour c
+                              C.fill
+                                 
+
+endBarSample :: C.Render ()
+endBarSample = return ()
+
 
 -----------------------------------------------------------------------------
 

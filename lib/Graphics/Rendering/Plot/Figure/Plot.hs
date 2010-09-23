@@ -27,6 +27,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , D.line, D.point, D.linepoint
                                            , D.impulse, D.step
                                            , D.area
+                                           , D.bar
                                            , setDataset
                                            -- ** Plot type
                                            , setSeriesType

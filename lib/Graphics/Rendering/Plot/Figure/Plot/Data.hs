@@ -23,6 +23,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Data (
                                                 , line, point, linepoint
                                                 , impulse, step
                                                 , area
+                                                , bar
                                                 , setDataSeries
                                                 -- * Plot type
                                                 , setSeriesType
