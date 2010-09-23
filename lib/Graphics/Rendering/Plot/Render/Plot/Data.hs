@@ -44,6 +44,7 @@ import Graphics.Rendering.Plot.Render.Types
 import Graphics.Rendering.Plot.Render.Plot.Glyph
 
 import Prelude hiding(min,max,abs)
+import qualified Prelude
 
 -----------------------------------------------------------------------------
 
@@ -66,19 +67,18 @@ flipVertical = C.transform flipVerticalMatrix
 
 -----------------------------------------------------------------------------
 
-greySurfaceFromMatrix :: C.SurfaceData Int Word8 -> Surface -> IO ()
-greySurfaceFromMatrix s m = do
+greySurfaceFromMatrix :: C.SurfaceData Int Word8 -> Surface -> Int -> Int -> Int -> IO ()
+greySurfaceFromMatrix s m stride r' c' = do
                             let r = rows m
                                 c = cols m
-                            (l,h) <- M.getBounds s
                             let fm = flatten m
                                 mx = maxElement m
                                 mn = minElement m
-                            mapM_ (\i -> do
-                                         when (i < (r*c)) (do
-                                                           let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> i)
-                                                           M.writeArray s i e)
-                                         return ()) [l..h]
+                            mapM_ (\ri -> mapM_ (\(rj,ci) -> do
+                                                             let mi = ((rj `div` r')*c) + (ci `div` c')
+                                                             let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
+                                                             let si = (rj*stride) + ci
+                                                             M.writeArray s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
 
 
 -----------------------------------------------------------------------------
@@ -90,16 +90,21 @@ renderData _ _      (DS_Surf m) = do
                                       c = cols m
                                   cairo $ do
                                           C.save
-                                          s <- liftIO $ C.createImageSurface C.FormatA8 r c
+                                          --C.setAntialias C.AntialiasNone
+                                          let r' = Prelude.min 4 ((round h) `div` r)
+                                              c' = Prelude.min 4 ((round w) `div` c) 
+                                          s <- liftIO $ C.createImageSurface C.FormatA8 (c*c') (r*r')
                                           p <- liftIO $ C.imageSurfaceGetPixels s
                                           C.surfaceFlush s
-                                          liftIO $ greySurfaceFromMatrix p m
+                                          stride <- liftIO $ C.imageSurfaceGetStride s
+                                          liftIO $ greySurfaceFromMatrix p m stride r' c'
                                           C.surfaceMarkDirty s
                                           C.setSourceSurface s x y
                                           pa <- C.getSource
                                           pm <- liftIO $ C.patternGetMatrix pa
-                                          let pm' = CM.scale ((fromIntegral c)/w) ((fromIntegral r)/h) pm
+                                          let pm' = CM.scale ((fromIntegral (c*c'))/w) ((fromIntegral (r*r'))/h) pm
                                           liftIO $ C.patternSetMatrix pa pm'
+                                          --C.patternSetFilter pa C.FilterBest
                                           C.rectangle x y w h --(fromIntegral c) (fromIntegral r)
                                           C.paint
                                           C.stroke

@@ -10,7 +10,9 @@ FEATURES
  * tick values
  
  * columns
- * bars
+ * histogram (variable width bars)
+
+ * bars/columns adjust for multiple data series (data creation)
 
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
@@ -45,4 +47,5 @@ COMPLETE
 | * simple interface
 | * option to use upper ranges
 | * fix linewidths (as per cairo FAQ) by adding 0.5 to rectangle start / line (borders/axes)
+| * bars
 

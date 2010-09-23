@@ -245,7 +245,7 @@ calculateRanges (DS_1to1 ys)   = let (xm',ym') = unzip $ A.elems ys
                                      ym = unzip $ map (\(x,(DecSeries o _)) -> findMinMax x o) (zip xm' ym')
                                      ymm = (minimum $ fst ym,maximum $ snd ym)
                                      xm = unzip $ map abscMinMax xm'
-                                     xmm = (minimum $ fst xm,maximum $ snd ym) 
+                                     xmm = (minimum $ fst xm,maximum $ snd xm) 
                                  in (xmm,ymm)
 calculateRanges (DS_Surf m)     = ((0,fromIntegral $ rows m),(fromIntegral $ cols m,0))
 

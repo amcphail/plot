@@ -43,18 +43,36 @@ fs = sin . (15*2*pi*)
 ms :: Matrix Double
 ms = buildMatrix 64 64 (\(x,y) -> sin (2*2*pi*(fromIntegral x)/64) * cos (5*2*pi*(fromIntegral y)/64))
 
+pts = linspace 1000 (0 :: Double,10*pi)
+fx = (\t -> t * sin t) pts
+fy = (\t -> t * cos t) pts
+
 figure = do
-        withTextDefaults $ setFontFamily "OpenSymbol"
+         setPlots 1 1
+{-         withPlot (1,1) $ do
+                          setDataset (Line,fx,[fx,fy])
+                          addAxis XAxis (Side Lower) $ return ()
+                          addAxis YAxis (Side Lower) $ return ()
+                          setRangeFromData XAxis Lower
+                          setRangeFromData YAxis Lower
+-}
+{-        withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
         withSubTitle $ do
                        setText "with 1 second of a 15Hz sine wave"
                        setFontSize 10
-        setPlots 1 2
+        setPlots 1 1
+
         withPlot (1,1) $ do
+-}
 --                         setDataset (ts,[area ds blue])
 --                         setDataset (ts,[impulse fs blue])
-                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
-                                        ,line (fs,"15 Hz sinusoid") blue])
+--                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
+--                                        ,line (fs,"15 Hz sinusoid") blue])
+--                         setDataset [(Line,fx,fy)]
+--                         setDataset (ts,[bar (ds,"Sampled data") (10 :: Double,green,3:: Double,blue)
+--                                        ,line (fs,"15 Hz sinusoid") blue])
+{-
                          addAxis XAxis (Side Lower) $ do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "time (s)"
@@ -64,15 +82,16 @@ figure = do
                          addAxis XAxis (Value 0) $ return ()
                          setRangeFromData XAxis Lower
                          setRange YAxis Lower (-1.25) 1.25
-                         setLegend True NorthEast Inside
+-}
+--                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
+         withPlot (1,1) $ do 
+                          setDataset (ident 13 :: Matrix Double) --ms
+                          addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
+                          addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
+                          setRangeFromData XAxis Lower
+                          setRangeFromData YAxis Lower
 
-        withPlot (1,2) $ do 
-                         setDataset ms
-                         addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
-                         addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
-                         setRangeFromData XAxis Lower
-                         setRangeFromData YAxis Lower
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do
