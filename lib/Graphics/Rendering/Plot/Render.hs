@@ -79,7 +79,7 @@ render :: Figure ()    -- ^ the figure to be rendered
 render g = (\(w,h) -> do
                       pc <- pango $ P.cairoCreateContext Nothing
                       to <- pango $ getDefaultTextOptions pc
-                      let options' = Options defaultLineOptions defaultPointOptions to
+                      let options' = Options defaultLineOptions defaultPointOptions defaultBarOptions to
                       let (FigureState options _ figure) = execFigure g (FigureState options' defaultSupply emptyFigure)
                       evalRender (renderFigure figure) (RenderEnv pc options) (BoundingBox 0 0 (fromIntegral w) (fromIntegral h)))
 
@@ -90,7 +90,7 @@ newFigureState :: Figure () -> IO FigureState
 newFigureState f = do
               pc <- P.cairoCreateContext Nothing
               to <- getDefaultTextOptions pc
-              let options' = Options defaultLineOptions defaultPointOptions to
+              let options' = Options defaultLineOptions defaultPointOptions defaultBarOptions to
               return $ execFigure f (FigureState options' defaultSupply emptyFigure)
             
 -- | modify a 'FigureState' with some new actions  

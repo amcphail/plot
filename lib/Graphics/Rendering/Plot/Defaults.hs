@@ -67,6 +67,23 @@ defaultLineType = ColourLine black
 
 -----------------------------------------------------------------------------
 
+defaultBarWidth :: Double
+defaultBarWidth = 5
+
+defaultBarBorderWidth :: Double
+defaultBarBorderWidth = 1
+
+defaultBarBorderColour :: Color
+defaultBarBorderColour = black
+
+defaultBarOptions :: BarOptions
+defaultBarOptions = BarOptions defaultBarWidth defaultBarBorderWidth defaultBarBorderColour
+
+defaultBarType :: BarType
+defaultBarType = ColourBar red
+
+-----------------------------------------------------------------------------
+
 defaultFontFamily :: FontFamily 
 defaultFontFamily = "Sans"
              
@@ -122,7 +139,10 @@ empty = False
 -----------------------------------------------------------------------------
 
 defaultOptions :: Options
-defaultOptions = Options defaultLineOptions defaultPointOptions defaultTextOptions
+defaultOptions = Options defaultLineOptions 
+                         defaultPointOptions 
+                         defaultBarOptions
+                         defaultTextOptions
 
 -----------------------------------------------------------------------------
 
@@ -138,7 +158,7 @@ defaultMajorTicks :: Ticks
 defaultMajorTicks = Ticks False (Left 5)
 
 defaultTickFormat :: TickFormat
-defaultTickFormat = "%1f"
+defaultTickFormat = "%.1f"
 
 defaultAxis :: AxisType -> AxisPosn -> AxisData
 defaultAxis at axp = Axis at axp defaultLineType defaultMinorTicks defaultMajorTicks

@@ -68,6 +68,7 @@ library
                      Graphics.Rendering.Plot.Defaults
                      Graphics.Rendering.Plot.Figure.Line
                      Graphics.Rendering.Plot.Figure.Point
+                     Graphics.Rendering.Plot.Figure.Bar
                      Graphics.Rendering.Plot.Figure.Text
                      Graphics.Rendering.Plot.Figure.Plot
                      Graphics.Rendering.Plot.Figure.Plot.Axis

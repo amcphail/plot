@@ -109,6 +109,22 @@ execLine m r = execState (runReaderT (runLine m) r)
 
 -----------------------------------------------------------------------------
 
+type Width = Double
+data BarOptions = BarOptions Width LineWidth Color
+
+data BarType = ColourBar Color
+             | TypeBar BarOptions Color
+
+-----------------------------------------------------------------------------
+
+newtype Bar a = FB { runBar :: ReaderT BarOptions (State BarType) a}
+    deriving(Monad, MonadReader BarOptions, MonadState BarType)
+
+execBar :: Bar a -> BarOptions -> BarType -> BarType
+execBar m r = execState (runReaderT (runBar m) r) 
+
+-----------------------------------------------------------------------------
+
 type Length = Double
 type Location = (Double,Double)
 type Orientation = Double -- angle
@@ -215,12 +231,13 @@ data Padding = Padding Double Double Double Double
 data Options = Options {
                         _lineoptions    :: LineOptions
                         , _pointoptions :: PointOptions 
+                        , _baroptions   :: BarOptions
                         , _textoptions  :: TextOptions
                        }
 
 -----------------------------------------------------------------------------
 
-data SeriesType = Line | Point | LinePoint | Impulse | Step | Area
+data SeriesType = Line | Point | LinePoint | Impulse | Step | Area | Bar
 
 -----------------------------------------------------------------------------
 
@@ -257,6 +274,7 @@ decorationGetLineType (DecLinPt lt _) = Just lt
 decorationGetLineType (DecImpulse lt) = Just lt
 decorationGetLineType (DecStep lt)    = Just lt
 decorationGetLineType (DecArea lt)    = Just lt
+decorationGetLineType (DecBar _)      = Nothing
                         
 decorationGetPointType :: Decoration -> Maybe PointType
 decorationGetPointType (DecLine _)     = Nothing
@@ -265,6 +283,16 @@ decorationGetPointType (DecLinPt _ pt) = Just pt
 decorationGetPointType (DecImpulse _)  = Nothing
 decorationGetPointType (DecStep _)     = Nothing
 decorationGetPointType (DecArea _)     = Nothing
+decorationGetPointType (DecBar _)      = Nothing
+                        
+decorationGetBarType :: Decoration -> Maybe BarType
+decorationGetBarType (DecLine _)     = Nothing
+decorationGetBarType (DecPoint _)    = Nothing
+decorationGetBarType (DecLinPt _ _)  = Nothing
+decorationGetBarType (DecImpulse _)  = Nothing
+decorationGetBarType (DecStep _)     = Nothing
+decorationGetBarType (DecArea _)     = Nothing
+decorationGetBarType (DecBar bt)     = Just bt
                         
 isLower :: Ordinates -> Bool
 isLower (OrdFunction Lower _ _) = True
@@ -280,6 +308,7 @@ data Decoration = DecLine    LineType
                 | DecImpulse LineType
                 | DecStep    LineType
                 | DecArea    LineType
+                | DecBar     BarType
 data DecoratedSeries = DecSeries Ordinates Decoration
 --                     BarSeries   Abscissae Ordinates BarType
 

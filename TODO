@@ -19,6 +19,8 @@ FEATURES
 
  * 3d plots
 
+ * Graphics.Plot replacement
+
 BUGS
 
  * no ticks for greyscale?
