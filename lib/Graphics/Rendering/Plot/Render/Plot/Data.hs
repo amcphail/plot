@@ -127,7 +127,7 @@ renderData r Linear ds = do
                          cairo $ do 
                                  C.translate x (y+h)
                                  C.scale xscale yscalel
-                                 C.translate xmin yminl
+                                 C.translate (-xmin) yminl
                                  flipVertical
                          mapM_ (renderSeries xmin xmax xscale yscalel) los
                          cairo $ C.restore
@@ -241,18 +241,24 @@ renderSamples :: Double -> Double
 renderSamples xmin xmax f e t y = do
                                   (BoundingBox _ _ w _) <- get
                                   let ln = dim t
-                                      xmin_ix = findMinIdx t xmin 0 (ln-1)
-                                      xmax_ix = findMaxIdx t xmax (ln-1) 0
-                                      num_pts = xmax_ix - xmin_ix + 1
-                                      diff' = (fromIntegral num_pts)/w
-                                      diff = round $ if diff' <= 1 then 1 else diff'
+                                      m = isMonotoneIncreasing t
+                                      (xmin_ix,xmax_ix,num_pts) = if m
+                                                                     then (findMinIdx t xmin 0 (ln-1)
+                                                                           ,findMaxIdx t xmax (ln-1) 0
+                                                                           ,xmax_ix - xmin_ix + 1)
+                                                                     else (0,ln-1,1)
+                                      diff'' = (fromIntegral num_pts)/w
+                                      diff' = round $ if diff'' <= 1 then 1 else diff''
+                                      diff = if m then diff' else 1
                                   cairo $ do
                                          C.moveTo (t @> xmin_ix) (y @> xmin_ix)
                                          _ <- runMaybeT $ mapVectorWithIndexM_ (\i y' -> do
+                                                      renderSample i xmax_ix t f e y'
+                                                      return ()) y {-
                                             when (i >= xmin_ix && i `mod` diff == 0)
                                                      (do
                                                       renderSample i xmax_ix t f e y')
-                                            return ()) y
+                                            return ()) y -}
                                          return ()
 
 -----------------------------------------------------------------------------
@@ -332,6 +338,21 @@ renderBarSample bw c bc x y = do
 endBarSample :: C.Render ()
 endBarSample = return ()
 
+
+-----------------------------------------------------------------------------
+
+monoStep :: Double -> MaybeT (State Double) ()
+monoStep d = do
+             dp <- get
+             if d >= dp 
+                then do
+                     put d
+                     return ()
+                else fail "negative difference"
+{-# INLINE monoStep #-}
+
+isMonotoneIncreasing :: Vector Double -> Bool
+isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep v)) (v @> 0)
 
 -----------------------------------------------------------------------------
 

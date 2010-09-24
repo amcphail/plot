@@ -28,6 +28,11 @@ import Graphics.Rendering.Plot.Types
 
 -----------------------------------------------------------------------------
 
+defaultXAxisSideLowerRange :: (Double,Double)
+defaultXAxisSideLowerRange = (-1,1)
+
+-----------------------------------------------------------------------------
+
 defaultColourList :: [Color]
 defaultColourList = [blue,red,green,yellow,violet,sienna,royalblue
                     ,pink,tomato,lavender,cyan,crimson,darkgreen

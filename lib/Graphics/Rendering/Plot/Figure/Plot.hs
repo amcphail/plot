@@ -223,7 +223,7 @@ findMinMax _ (OrdPoints _ y _)    = let o = getOrdData y
                                   in (minElement o,maxElement o)
 
 abscMinMax :: Abscissae -> (Double,Double)
-abscMinMax AbsFunction        = (-1,1)
+abscMinMax AbsFunction        = defaultXAxisSideLowerRange
 abscMinMax (AbsPoints x)      = (minElement x,maxElement x)
 
 

@@ -20,8 +20,7 @@ import Data.Packed()
 
 import qualified Data.Array.IArray as A
 
-import Numeric.Vector
-import Numeric.Matrix
+import Numeric.LinearAlgebra
 
 import Numeric.GSL.Statistics
 
@@ -49,13 +48,14 @@ fy = (\t -> t * cos t) pts
 
 figure = do
          setPlots 1 1
-{-         withPlot (1,1) $ do
-                          setDataset (Line,fx,[fx,fy])
+         withPlot (1,1) $ do
+                          setDataset [(Line,fx,fy)]
                           addAxis XAxis (Side Lower) $ return ()
                           addAxis YAxis (Side Lower) $ return ()
+{-                          setRange XAxis Lower (-4*pi) (1*pi)
+                          setRange YAxis Lower (-4*pi) (1*pi) -}
                           setRangeFromData XAxis Lower
                           setRangeFromData YAxis Lower
--}
 {-        withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
         withSubTitle $ do
@@ -85,13 +85,14 @@ figure = do
 -}
 --                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
+{-
          withPlot (1,1) $ do 
                           setDataset (ident 13 :: Matrix Double) --ms
                           addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
                           addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
                           setRangeFromData XAxis Lower
                           setRangeFromData YAxis Lower
-
+-}
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do
