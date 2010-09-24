@@ -21,10 +21,10 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 
 import Data.List(partition)
 
-import Data.Packed.Vector
-import Data.Packed.Matrix
+--import Data.Packed.Vector
+--import Data.Packed.Matrix
 --import Data.Packed()
-import Numeric.Vector
+import Numeric.LinearAlgebra
 
 import qualified Data.Array.IArray as A
 import qualified Data.Array.MArray as M

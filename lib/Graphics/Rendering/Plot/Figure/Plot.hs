@@ -64,9 +64,9 @@ module Graphics.Rendering.Plot.Figure.Plot (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
-import Data.Packed.Matrix
-import Numeric.Vector
+--import Data.Packed.Vector
+--import Data.Packed.Matrix
+import Numeric.Container
 
 import qualified Data.Array.IArray as A
 

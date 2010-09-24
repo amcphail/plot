@@ -32,7 +32,7 @@ module Graphics.Rendering.Plot.Figure.Simple (
 
 -----------------------------------------------------------------------------
 
-import Numeric.Vector(linspace,mapVector)
+import Numeric.Container
 
 import Graphics.Rendering.Plot.Figure
 
