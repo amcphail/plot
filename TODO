@@ -23,6 +23,8 @@ FEATURES
 
  * Graphics.Plot replacement
 
+ * ticks selectable inside/outside
+
 BUGS
 
  * no ticks for greyscale?

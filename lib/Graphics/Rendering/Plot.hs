@@ -93,8 +93,17 @@ Display a greyscale matrix
 >                          setRangeFromData XAxis Lower
 >                          setRangeFromData YAxis Lower
 
+The ODE example from hmatrix:
+
+> import Numeric.GSL
+> import Numeric.LinearAlgebra
+
+> xdot t [x,v] = [v, -0.95*x - 0.1*v]
+> ts = linspace 100 (0,20)
+> sol = odeSolve xdot [10,0] ts
+
+> ode_fig = plot (Line,ts,[sol])
+
 -}
-
-
 
 -----------------------------------------------------------------------------

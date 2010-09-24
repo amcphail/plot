@@ -196,7 +196,7 @@ shiftForTicks' p                 (Ticks _ _)        (Ticks _ _)        ax    sd 
                          to <- asks (_textoptions . _renderoptions)
                          pc <- asks _pangocontext
                          (tw,th) <- cairo $ do
-                                           let s = Printf.printf tf v
+                                           let s = formatTick tf v
                                            lt <- pango $ P.layoutText pc s
                                            setTextOptions (scaleFontSize tickLabelScale to) lt
                                            (_,twh) <- textSize lt Centre Middle 0 0
@@ -396,7 +396,7 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
                             (Side _)  -> True
                             (Value _) -> False
        when (t == Major && majlab) $ do
-            let s = Printf.printf tf p
+            let s = formatTick tf p
             lo <- pango $ P.layoutText pc s
             setTextOptions (scaleFontSize tickLabelScale to) lo
             case xa of 
@@ -422,3 +422,13 @@ renderAxisTick pc to x y w h min max xa sd tf t gl (p,l) = do
 
 -----------------------------------------------------------------------------
 
+formatTick :: String -> Double -> String
+formatTick tf p
+    | tf /= ""      = Printf.printf tf p 
+    | p == 0.0      = "0"
+    | abs p > 1000  = Printf.printf "%1.1e" p
+    | abs p < 0.001 = Printf.printf "%.3e" p
+    | otherwise     = Printf.printf "%.2f" p
+-- %g uses "whichever of %f, %e is smaller
+
+-----------------------------------------------------------------------------

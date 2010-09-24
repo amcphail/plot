@@ -158,7 +158,7 @@ defaultMajorTicks :: Ticks
 defaultMajorTicks = Ticks False (Left 5)
 
 defaultTickFormat :: TickFormat
-defaultTickFormat = "%.1f"
+defaultTickFormat = ""
 
 defaultAxis :: AxisType -> AxisPosn -> AxisData
 defaultAxis at axp = Axis at axp defaultLineType defaultMinorTicks defaultMajorTicks
