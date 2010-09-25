@@ -155,34 +155,38 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                                        return $ [(t,mapVector f t)]
                      (OrdPoints _ (Plain o') _)     -> do
                                                        let t = case abs of
-                                                                        AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
+                                                                        AbsFunction      -> if isHist d
+                                                                                               then fromList [0.0..(fromIntegral $ dim o')]
+                                                                                               else fromList [1.0..(fromIntegral $ dim o')]
                                                                         AbsPoints t'     -> t'
                                                        return $ [(t,o')]
                      (OrdPoints _ (Error o' (l,h)) _) -> do
                                                        let t = case abs of
-                                                                        AbsFunction      -> fromList [1.0..(fromIntegral $ dim o')]
+                                                                        AbsFunction      -> if isHist d
+                                                                                               then fromList [0.0..(fromIntegral $ dim o')]
+                                                                                               else fromList [1.0..(fromIntegral $ dim o')]
                                                                         AbsPoints t'     -> t'
                                                        return $ [(t,o'),(t,o'-l),(t,o'+h)]
        case d of
               (DecLine lt)   -> do
                                 formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax renderLineSample endLineSample t' y') dat
+                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderLineSample endLineSample t' y') dat
               (DecPoint pt)  -> do
                                 (pz,g) <- formatPointSeries pt xscale yscale
                                 let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
               (DecLinPt lt pt) -> do
                                 formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax renderLineSample endLineSample t' y') dat
+                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderLineSample endLineSample t' y') dat
                                 (pz,g) <- formatPointSeries pt xscale yscale
                                 let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
               (DecImpulse lt) -> do
                                 formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax renderImpulseSample endImpulseSample t' y') dat
+                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderImpulseSample endImpulseSample t' y') dat
               (DecStep lt) -> do
                               formatLineSeries lt xscale yscale
-                              mapM_ (\(t',y') -> renderSamples xmin xmax renderStepSample endStepSample t' y') dat
+                              mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderStepSample endStepSample t' y') dat
               (DecArea lt) -> do
                               formatLineSeries lt xscale yscale
                               let hd = head dat
@@ -190,10 +194,19 @@ renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                   xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
                                   x0 = (fst hd) @> xmin_ix
                                   y0 = (snd hd) @> xmin_ix
-                              mapM_ (\(t',y') -> renderSamples xmin xmax renderAreaSample (endAreaSample x0 y0) t' y') dat
+                              mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderAreaSample (endAreaSample x0 y0) t' y') dat
               (DecBar bt)   -> do
                                (bw,bc,c) <- formatBarSeries bt xscale yscale
-                               mapM_ (\(t',y') -> renderSamples xmin xmax (renderBarSample bw bc c) endBarSample t' y') dat
+                               mapM_ (\(t',y') -> renderSamples xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y') dat
+              (DecHist bt)  -> do
+                               (bw,bc,c) <- formatBarSeries bt xscale yscale
+                               let hd = head dat
+                                   ln = dim $ fst hd
+                                   xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
+                                   rest v = subVector 1 (dim v - 1) v
+                                   x0 = (fst hd) @> xmin_ix
+                                   y0 = 0
+                               mapM_ (\(t',y') -> renderSamples xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y') dat
        return ()
 
 -----------------------------------------------------------------------------
@@ -236,9 +249,10 @@ formatBarSeries (TypeBar (BarOptions bw lw bc) c) xscale yscale = do
 -----------------------------------------------------------------------------
 
 renderSamples :: Double -> Double 
+              -> Maybe (C.Render ())
               -> (Double -> Double -> C.Render ()) -> C.Render ()
               -> Vector Double -> Vector Double -> Render ()
-renderSamples xmin xmax f e t y = do
+renderSamples xmin xmax s f e t y = do
                                   (BoundingBox _ _ w _) <- get
                                   let ln = dim t
                                       m = isMonotoneIncreasing t
@@ -251,14 +265,14 @@ renderSamples xmin xmax f e t y = do
                                       diff' = round $ if diff'' <= 1 then 1 else diff''
                                       diff = if m then diff' else 1
                                   cairo $ do
-                                         C.moveTo (t @> xmin_ix) (y @> xmin_ix)
+                                         case s of
+                                                Nothing -> C.moveTo (t @> xmin_ix) (y @> xmin_ix)
+                                                Just s' -> s'
                                          _ <- runMaybeT $ mapVectorWithIndexM_ (\i y' -> do
-                                                      renderSample i xmax_ix t f e y'
-                                                      return ()) y {-
                                             when (i >= xmin_ix && i `mod` diff == 0)
                                                      (do
                                                       renderSample i xmax_ix t f e y')
-                                            return ()) y -}
+                                            return ()) y
                                          return ()
 
 -----------------------------------------------------------------------------
@@ -338,6 +352,23 @@ renderBarSample bw c bc x y = do
 endBarSample :: C.Render ()
 endBarSample = return ()
 
+renderHistSample :: Width -> Color -> Color -> Double -> Double -> C.Render ()
+renderHistSample bw c bc x y = do
+                               (x',_) <- C.getCurrentPoint
+                               C.stroke
+                               setColour bc
+                               C.moveTo x' 0
+                               C.lineTo x' y
+                               C.lineTo x y
+                               C.lineTo x 0
+                               C.closePath
+                               C.strokePreserve
+                               setColour c
+                               C.fill
+                               C.moveTo x 0
+
+endHistSample :: C.Render ()
+endHistSample = return ()
 
 -----------------------------------------------------------------------------
 

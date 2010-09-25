@@ -80,6 +80,10 @@ instance SeriesTypes Decoration where
                                                  let c = getBarColour bt
                                                  lt <- toLine c
                                                  return $ DecLine lt
+    setSeriesType'' Line      (DecHist bt)     = do
+                                                 let c = getBarColour bt
+                                                 lt <- toLine c
+                                                 return $ DecLine lt
     setSeriesType'' Point     (DecLine lt)     = do
                                                  let c = fromJust $ getLineColour lt
                                                  g <- supply
@@ -103,6 +107,11 @@ instance SeriesTypes Decoration where
                                                  pt <- toPoint (g :: Glyph,c)
                                                  return $ DecPoint pt
     setSeriesType'' Point     (DecBar bt)      = do
+                                                 let c = getBarColour bt
+                                                 g <- supply
+                                                 pt <- toPoint (g :: Glyph,c)
+                                                 return $ DecPoint pt
+    setSeriesType'' Point     (DecHist bt)     = do
                                                  let c = getBarColour bt
                                                  g <- supply
                                                  pt <- toPoint (g :: Glyph,c)
@@ -138,6 +147,12 @@ instance SeriesTypes Decoration where
                                                  g <- supply
                                                  pt <- toPoint (g :: Glyph,c)
                                                  return $ DecLinPt lt pt
+    setSeriesType'' LinePoint (DecHist bt)     = do
+                                                 let c = getBarColour bt
+                                                 lt <- toLine c
+                                                 g <- supply
+                                                 pt <- toPoint (g :: Glyph,c)
+                                                 return $ DecLinPt lt pt
     setSeriesType'' Impulse   (DecLine lt)     = return $ DecImpulse lt
     setSeriesType'' Impulse   (DecPoint pt)    = do
                                                  let c = getPointColour pt
@@ -148,6 +163,10 @@ instance SeriesTypes Decoration where
     setSeriesType'' Impulse   (DecStep lt)     = return $ DecImpulse lt
     setSeriesType'' Impulse   (DecArea lt)     = return $ DecImpulse lt
     setSeriesType'' Impulse   (DecBar bt)      = do
+                                                 let c = getBarColour bt
+                                                 lt <- toLine c
+                                                 return $ DecImpulse lt
+    setSeriesType'' Impulse   (DecHist bt)     = do
                                                  let c = getBarColour bt
                                                  lt <- toLine c
                                                  return $ DecImpulse lt
@@ -164,6 +183,10 @@ instance SeriesTypes Decoration where
                                                  let c = getBarColour bt
                                                  lt <- toLine c
                                                  return $ DecStep lt
+    setSeriesType'' Step      (DecHist bt)     = do
+                                                 let c = getBarColour bt
+                                                 lt <- toLine c
+                                                 return $ DecStep lt
     setSeriesType'' Area      (DecLine lt)     = return $ DecArea lt
     setSeriesType'' Area      (DecPoint pt)    = do
                                                  let c = getPointColour pt
@@ -174,6 +197,10 @@ instance SeriesTypes Decoration where
     setSeriesType'' Area      (DecStep lt)     = return $ DecArea lt 
     setSeriesType'' Area      d@(DecArea _)    = return d
     setSeriesType'' Area      (DecBar bt)      = do
+                                                 let c = getBarColour bt
+                                                 lt <- toLine c
+                                                 return $ DecArea lt
+    setSeriesType'' Area      (DecHist bt)     = do
                                                  let c = getBarColour bt
                                                  lt <- toLine c
                                                  return $ DecArea lt
@@ -202,6 +229,33 @@ instance SeriesTypes Decoration where
                                                  bt <- toBar c
                                                  return $ DecBar bt
     setSeriesType'' Bar      d@(DecBar _)      = return d
+    setSeriesType'' Bar      (DecHist bt)      = return $ DecBar bt
+    setSeriesType'' Hist     (DecLine lt)      = do
+                                                 let c = fromJust $ getLineColour lt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecPoint pt)     = do
+                                                 let c = getPointColour pt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecLinPt lt _)   = do
+                                                 let c = fromJust $ getLineColour lt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecImpulse lt)   = do
+                                                 let c = fromJust $ getLineColour lt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecStep lt)      = do
+                                                 let c = fromJust $ getLineColour lt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecArea lt)      = do
+                                                 let c = fromJust $ getLineColour lt
+                                                 bt <- toBar c
+                                                 return $ DecHist bt
+    setSeriesType'' Hist     (DecBar bt)       = return $ DecHist bt
+    setSeriesType'' Hist     d@(DecHist _)     = return d
 
 instance SeriesTypes DecoratedSeries where
     setSeriesType'' t (DecSeries o d) = do
@@ -219,7 +273,8 @@ setSeriesType' i t (DS_1to1 a)   = do
                                       let (x,s) = a A.! i
                                       s' <- setSeriesType'' t s
                                       return $ DS_1to1 $ a A.// [(i,(x,s'))] 
-setSeriesType' _ _ d@(DS_Surf _) = return d 
+setSeriesType' _ _ d@(DS_Surf _) = return d
+ 
 -- | set the series type of a given data series
 setSeriesType :: SeriesType -> Int -> Data ()
 setSeriesType t i = do
@@ -262,6 +317,7 @@ instance PlotFormats Line where
                                                     let lt' = execLine l lo lt
                                                     return $ DecSeries o (DecArea lt')
     modifyFormat _ d@(DecSeries _ (DecBar _))     = return d
+    modifyFormat _ d@(DecSeries _ (DecHist _))    = return d
 
 instance PlotFormats Point where
     modifyFormat _ d@(DecSeries _ (DecLine _))    = return d
@@ -269,6 +325,7 @@ instance PlotFormats Point where
     modifyFormat _ d@(DecSeries _ (DecStep _))    = return d
     modifyFormat _ d@(DecSeries _ (DecArea _))    = return d
     modifyFormat _ d@(DecSeries _ (DecBar _))     = return d
+    modifyFormat _ d@(DecSeries _ (DecHist _))    = return d
     modifyFormat p (DecSeries o (DecPoint pt))    = do
                                                     po <- asks _pointoptions
                                                     let pt' = execPoint p po pt
@@ -285,10 +342,15 @@ instance PlotFormats Bar where
     modifyFormat _ d@(DecSeries _ (DecArea _))    = return d
     modifyFormat _ d@(DecSeries _ (DecPoint _))   = return d
     modifyFormat _ d@(DecSeries _ (DecLinPt _ _)) = return d
-    modifyFormat p   (DecSeries o (DecBar bt))    = do  
+    modifyFormat b   (DecSeries o (DecBar bt))    = do  
                                                     bo <- asks _baroptions
-                                                    let bt' = execBar p bo bt
+                                                    let bt' = execBar b bo bt
                                                     return $ DecSeries o (DecBar bt')
+    modifyFormat b   (DecSeries o (DecHist bt))   = do  
+                                                    bo <- asks _baroptions
+                                                    let bt' = execBar b bo bt
+                                                    return $ DecSeries o (DecHist bt')
+
 -- | format the plot elements of a given series
 withSeriesFormat :: PlotFormats m => Int -> m () -> Data ()
 withSeriesFormat i f = do
@@ -408,6 +470,11 @@ bar o f = do
           f' <- toBar f
           return $ format o f'
 
+hist :: (Ordinate a, BarFormat b) => a -> b -> FormattedSeries
+hist o f = do
+          f' <- toBar f
+          setSeriesType'' Hist (format o f')
+
 -----------------------------------------------------------------------------
 
 getType :: SeriesType -> Data Decoration
@@ -440,7 +507,11 @@ getType Area = do
 getType Bar  = do
                c <- supply
                bt <- toBar (c :: Color)
-               setSeriesType'' Bar $ toDecoration bt
+               return $ toDecoration bt
+getType Hist = do
+               c <- supply
+               bt <- toBar (c :: Color)
+               setSeriesType'' Hist $ toDecoration bt
 
 getNTypes :: Int -> SeriesType -> Data [Decoration]
 getNTypes n st = mapM getType (replicate n st)
@@ -497,6 +568,12 @@ instance (Ordinate a) => Dataset (SeriesType,[a]) where
                             cs <- supplyN ln
                             bs <- mapM toBar (cs :: [Color])
                             return $ DS_Y $ A.listArray (1,ln) $ zipWith format os bs
+    toDataSeries (Hist,os) = do
+                            let ln = length os
+                            cs <- supplyN ln
+                            bs <- mapM toBar (cs :: [Color])
+                            ds <- mapM (setSeriesType'' Hist) $ toDecorations bs
+                            return $ DS_Y $ A.listArray (1,ln) $ zipWith format os ds
 
 instance (Abscissa a, Ordinate b) => Dataset (SeriesType,a,[b]) where
     toDataSeries (Line,t,os) = do
@@ -548,6 +625,13 @@ instance (Abscissa a, Ordinate b) => Dataset (SeriesType,a,[b]) where
                               bs <- mapM toBar (cs :: [Color])
                               return $ DS_1toN (toAbscissa t) $ A.listArray (1,ln) 
                                          $ zipWith format os bs
+    toDataSeries (Hist,t,os) = do
+                              let ln = length os
+                              cs <- supplyN ln
+                              bs <- mapM toBar (cs :: [Color])
+                              ds <- mapM (setSeriesType'' Hist) $ toDecorations bs
+                              return $ DS_1toN (toAbscissa t) $ A.listArray (1,ln) 
+                                         $ zipWith format os ds
 
 instance (Abscissa a, Ordinate b) => Dataset [(SeriesType,a,b)] where
     toDataSeries prs = do
@@ -593,6 +677,11 @@ toDataSeries' (Bar,o)  = do
                          c <- supply 
                          b <- toBar (c :: Color)
                          return $ format o b
+toDataSeries' (Hist,o)  = do
+                         c <- supply 
+                         b <- toBar (c :: Color)
+                         d <- setSeriesType'' Hist $ toDecoration b
+                         return $ format o d
 
 instance Dataset [FormattedSeries] where 
     toDataSeries ds = do

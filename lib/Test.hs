@@ -46,16 +46,19 @@ pts = linspace 1000 (0 :: Double,10*pi)
 fx = (\t -> t * sin t) pts
 fy = (\t -> t * cos t) pts
 
+hx = fromList [1,3,5,8,11,20,22,26] :: Vector Double
+hy = fromList [10,11,15,17,14,12,9] :: Vector Double
+
 figure = do
          setPlots 1 1
          withPlot (1,1) $ do
-                          setDataset [(Line,fx,fy)]
+                          setDataset [(Hist,hx,hy)]
                           addAxis XAxis (Side Lower) $ return ()
                           addAxis YAxis (Side Lower) $ return ()
 {-                          setRange XAxis Lower (-4*pi) (1*pi)
                           setRange YAxis Lower (-4*pi) (1*pi) -}
-                          setRangeFromData XAxis Lower
-                          setRangeFromData YAxis Lower
+                          setRange XAxis Lower 0 32
+                          setRange YAxis Lower 0 20
 {-        withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
         withSubTitle $ do

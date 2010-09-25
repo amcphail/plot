@@ -237,7 +237,7 @@ data Options = Options {
 
 -----------------------------------------------------------------------------
 
-data SeriesType = Line | Point | LinePoint | Impulse | Step | Area | Bar
+data SeriesType = Line | Point | LinePoint | Impulse | Step | Area | Bar | Hist
 
 -----------------------------------------------------------------------------
 
@@ -267,33 +267,6 @@ getOrdLabel :: Ordinates -> (Maybe SeriesLabel)
 getOrdLabel (OrdFunction _ _ sl) = sl
 getOrdLabel (OrdPoints   _ _ sl) = sl
 
-decorationGetLineType :: Decoration -> Maybe LineType
-decorationGetLineType (DecLine lt)    = Just lt
-decorationGetLineType (DecPoint _)    = Nothing
-decorationGetLineType (DecLinPt lt _) = Just lt
-decorationGetLineType (DecImpulse lt) = Just lt
-decorationGetLineType (DecStep lt)    = Just lt
-decorationGetLineType (DecArea lt)    = Just lt
-decorationGetLineType (DecBar _)      = Nothing
-                        
-decorationGetPointType :: Decoration -> Maybe PointType
-decorationGetPointType (DecLine _)     = Nothing
-decorationGetPointType (DecPoint pt)   = Just pt
-decorationGetPointType (DecLinPt _ pt) = Just pt
-decorationGetPointType (DecImpulse _)  = Nothing
-decorationGetPointType (DecStep _)     = Nothing
-decorationGetPointType (DecArea _)     = Nothing
-decorationGetPointType (DecBar _)      = Nothing
-                        
-decorationGetBarType :: Decoration -> Maybe BarType
-decorationGetBarType (DecLine _)     = Nothing
-decorationGetBarType (DecPoint _)    = Nothing
-decorationGetBarType (DecLinPt _ _)  = Nothing
-decorationGetBarType (DecImpulse _)  = Nothing
-decorationGetBarType (DecStep _)     = Nothing
-decorationGetBarType (DecArea _)     = Nothing
-decorationGetBarType (DecBar bt)     = Just bt
-                        
 isLower :: Ordinates -> Bool
 isLower (OrdFunction Lower _ _) = True
 isLower (OrdPoints   Lower _ _) = True
@@ -309,6 +282,48 @@ data Decoration = DecLine    LineType
                 | DecStep    LineType
                 | DecArea    LineType
                 | DecBar     BarType
+                | DecHist    BarType
+
+isHist :: Decoration -> Bool
+isHist (DecLine _)    = False
+isHist (DecPoint _)   = False
+isHist (DecLinPt _ _) = False
+isHist (DecImpulse _) = False
+isHist (DecStep _)    = False
+isHist (DecArea _)    = False
+isHist (DecBar _)     = False
+isHist (DecHist _)    = True
+
+decorationGetLineType :: Decoration -> Maybe LineType
+decorationGetLineType (DecLine lt)    = Just lt
+decorationGetLineType (DecPoint _)    = Nothing
+decorationGetLineType (DecLinPt lt _) = Just lt
+decorationGetLineType (DecImpulse lt) = Just lt
+decorationGetLineType (DecStep lt)    = Just lt
+decorationGetLineType (DecArea lt)    = Just lt
+decorationGetLineType (DecBar _)      = Nothing
+decorationGetLineType (DecHist _)     = Nothing
+                        
+decorationGetPointType :: Decoration -> Maybe PointType
+decorationGetPointType (DecLine _)     = Nothing
+decorationGetPointType (DecPoint pt)   = Just pt
+decorationGetPointType (DecLinPt _ pt) = Just pt
+decorationGetPointType (DecImpulse _)  = Nothing
+decorationGetPointType (DecStep _)     = Nothing
+decorationGetPointType (DecArea _)     = Nothing
+decorationGetPointType (DecBar _)      = Nothing
+decorationGetPointType (DecHist _)     = Nothing
+                        
+decorationGetBarType :: Decoration -> Maybe BarType
+decorationGetBarType (DecLine _)     = Nothing
+decorationGetBarType (DecPoint _)    = Nothing
+decorationGetBarType (DecLinPt _ _)  = Nothing
+decorationGetBarType (DecImpulse _)  = Nothing
+decorationGetBarType (DecStep _)     = Nothing
+decorationGetBarType (DecArea _)     = Nothing
+decorationGetBarType (DecBar bt)     = Just bt
+decorationGetBarType (DecHist bt)    = Just bt
+                        
 data DecoratedSeries = DecSeries Ordinates Decoration
 --                     BarSeries   Abscissae Ordinates BarType
 

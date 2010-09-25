@@ -121,7 +121,7 @@ data OutputType = PNG | PS | PDF | SVG
 
 setColour :: Color -> C.Render ()
 setColour c = let (RGB r g b) = toSRGB c
-              in C.setSourceRGB r g b
+              in C.setSourceRGBA r g b 1 -- no transparent colours
 
 
 setDashes :: [Dash] -> C.Render ()

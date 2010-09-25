@@ -27,6 +27,8 @@ FEATURES
 
 BUGS
 
+ * fix errors for non-points (esp. bars, hist)
+ 
  * no ticks for greyscale?
 
 REFACTOR
