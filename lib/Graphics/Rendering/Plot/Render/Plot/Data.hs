@@ -339,11 +339,7 @@ endAreaSample x0 _ = do
 renderBarSample :: Width -> Color -> Color -> Double -> Double -> C.Render ()
 renderBarSample bw c bc x y = do
                               setColour bc
-                              C.moveTo (x-bw/2) 0
-                              C.lineTo (x-bw/2) y
-                              C.lineTo (x+bw/2) y
-                              C.lineTo (x+bw/2) 0
-                              C.closePath
+                              C.rectangle (x-bw/2) 0 bw y
                               C.strokePreserve
                               setColour c
                               C.fill
@@ -357,11 +353,7 @@ renderHistSample bw c bc x y = do
                                (x',_) <- C.getCurrentPoint
                                C.stroke
                                setColour bc
-                               C.moveTo x' 0
-                               C.lineTo x' y
-                               C.lineTo x y
-                               C.lineTo x 0
-                               C.closePath
+                               C.rectangle x' 0 (x-x') y
                                C.strokePreserve
                                setColour c
                                C.fill

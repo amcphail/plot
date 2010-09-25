@@ -10,14 +10,12 @@ FEATURES
  * tick values
  
  * columns
- * histogram (variable width bars)
-
- * bars/columns adjust for multiple data series (data creation)
 
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
-| * expand Simple interface: xlabel, ylabel, etc...
+ * Simple interface: nice bars, histograms (see next line)
+ * bars/columns adjust for multiple data series (data creation)
 
  * 3d plots
 
@@ -27,7 +25,7 @@ FEATURES
 
 BUGS
 
- * fix errors for non-points (esp. bars, hist)
+ * fix error bars for non-points (esp. bars, hist)
  
  * no ticks for greyscale?
 
@@ -51,5 +49,7 @@ COMPLETE
 | * simple interface
 | * option to use upper ranges
 | * fix linewidths (as per cairo FAQ) by adding 0.5 to rectangle start / line (borders/axes)
+| * expand Simple interface: xlabel, ylabel, etc...
 | * bars
+| * histogram (variable width bars)
 
