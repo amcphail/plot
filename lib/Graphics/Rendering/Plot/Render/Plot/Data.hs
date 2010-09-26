@@ -91,8 +91,10 @@ renderData _ _      (DS_Surf m) = do
                                   cairo $ do
                                           C.save
                                           --C.setAntialias C.AntialiasNone
-                                          let r' = Prelude.min 4 ((round h) `div` r)
-                                              c' = Prelude.min 4 ((round w) `div` c) 
+                                          let r'' = Prelude.min 4 ((round h) `div` r)
+                                              c'' = Prelude.min 4 ((round w) `div` c)
+                                              r' = if r'' < 1 then 1 else r''
+                                              c' = if c'' < 1 then 1 else c''
                                           s <- liftIO $ C.createImageSurface C.FormatA8 (c*c') (r*r')
                                           p <- liftIO $ C.imageSurfaceGetPixels s
                                           C.surfaceFlush s
@@ -367,11 +369,8 @@ endHistSample = return ()
 monoStep :: Double -> MaybeT (State Double) ()
 monoStep d = do
              dp <- get
-             if d >= dp 
-                then do
-                     put d
-                     return ()
-                else fail "negative difference"
+             when (d < dp) (fail "negative difference")
+             put d
 {-# INLINE monoStep #-}
 
 isMonotoneIncreasing :: Vector Double -> Bool
