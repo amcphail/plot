@@ -343,14 +343,7 @@ newtype Data a = FD { runData :: SupplyT SupplyData (ReaderT Options (State Data
 execData :: Data a -> SupplyData -> Options -> DataSeries -> DataSeries
 execData m r s = execState (runReaderT (runSupplyT (runData m) r) s)
  
-
 type FormattedSeries = Data DecoratedSeries
-
------------------------------------------------------------------------------
-
---data PlotType = Linear --  LogLinear | LinearLog | Log
- 
---data PlotType = PT_Line
 
 -----------------------------------------------------------------------------
 
