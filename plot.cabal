@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.0.99
+Version:             0.1
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010
@@ -58,6 +58,7 @@ library
                      FlexibleInstances
                      FlexibleContexts
                      UndecidableInstances
+                     UnicodeSyntax
 
   hs-source-dirs:    lib
   Exposed-Modules:   Graphics.Rendering.Plot
