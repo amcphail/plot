@@ -7,7 +7,7 @@ Author:              Vivian McPhail
 Maintainer:          haskell.vivian.mcphail <at> gmail <dot> com
 Stability:           experimental
 Homepage:            http://code.haskell.org/plot
-Synopsis:            A library for creating plots, exportable as eps/pdf/svg/png or renderable with gtk
+Synopsis:            A plotting library, exportable as eps/pdf/svg/png or renderable with gtk
 Description:         
      A package for creating plots, built on top of the Cairo rendering engine.  
      .
@@ -45,6 +45,7 @@ Extra-source-files:  README, CHANGES, LICENSE,
 library
 
   Build-Depends:     base >= 4 && < 5,
+                     base-unicode-symbols,
                      mtl, array,
                      MaybeT,
                      pango >= 0.11.2 && < 0.12, cairo >= 0.11.1 && < 0.12,

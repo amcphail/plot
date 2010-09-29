@@ -41,7 +41,6 @@ module Graphics.Rendering.Plot.Figure (
                                       , withPlot, withPlots  
                                       -- * Sub-plots
                                       ,  Plot()
-                                      , PlotType(..)
                                       -- ** Plot elements 
                                       , Border
                                       , setBorder
@@ -57,6 +56,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , impulse, step
                                       , area
                                       , bar
+                                      , hist
                                       , setDataset
                                       -- ** Plot type
                                       , setSeriesType
@@ -66,6 +66,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , withSeriesFormat
                                       , withAllSeriesFormats
                                       -- * Range
+                                      , Scale(..)
                                       , setRange
                                       , setRangeFromData
                                       -- * Axes

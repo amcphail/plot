@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Data
@@ -20,6 +21,7 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 -----------------------------------------------------------------------------
 
 import Data.List(partition)
+import Data.List.Unicode
 
 --import Data.Packed.Vector
 --import Data.Packed.Matrix
@@ -28,6 +30,9 @@ import Numeric.LinearAlgebra
 
 import qualified Data.Array.IArray as A
 import qualified Data.Array.MArray as M
+import qualified Data.Array.Base as B
+
+import Data.Eq.Unicode
 
 import Data.Word
 
@@ -69,147 +74,164 @@ flipVertical = C.transform flipVerticalMatrix
 
 greySurfaceFromMatrix :: C.SurfaceData Int Word8 -> Surface -> Int -> Int -> Int -> IO ()
 greySurfaceFromMatrix s m stride r' c' = do
-                            let r = rows m
-                                c = cols m
-                            let fm = flatten m
-                                mx = maxElement m
-                                mn = minElement m
-                            mapM_ (\ri -> mapM_ (\(rj,ci) -> do
-                                                             let mi = ((rj `div` r')*c) + (ci `div` c')
-                                                             let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
-                                                             let si = (rj*stride) + ci
-                                                             M.writeArray s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
+  let r = rows m
+      c = cols m
+  let fm = flatten m
+      mx = maxElement m
+      mn = minElement m
+  mapM_ (\ri -> mapM_ (\(rj,ci) -> do
+                        let mi = ((rj `div` r')*c) + (ci `div` c')
+                        let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
+                        let si = (rj*stride) + ci
+                        B.unsafeWrite s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
 
 
 -----------------------------------------------------------------------------
 
-renderData :: Ranges -> PlotType -> DataSeries -> Render ()
-renderData _ _      (DS_Surf m) = do
-                                  (BoundingBox x y w h) <- get
-                                  let r = rows m
-                                      c = cols m
-                                  cairo $ do
-                                          C.save
-                                          --C.setAntialias C.AntialiasNone
-                                          let r'' = Prelude.min 4 ((round h) `div` r)
-                                              c'' = Prelude.min 4 ((round w) `div` c)
-                                              r' = if r'' < 1 then 1 else r''
-                                              c' = if c'' < 1 then 1 else c''
-                                          s <- liftIO $ C.createImageSurface C.FormatA8 (c*c') (r*r')
-                                          p <- liftIO $ C.imageSurfaceGetPixels s
-                                          C.surfaceFlush s
-                                          stride <- liftIO $ C.imageSurfaceGetStride s
-                                          liftIO $ greySurfaceFromMatrix p m stride r' c'
-                                          C.surfaceMarkDirty s
-                                          C.setSourceSurface s x y
-                                          pa <- C.getSource
-                                          pm <- liftIO $ C.patternGetMatrix pa
-                                          let pm' = CM.scale ((fromIntegral (c*c'))/w) ((fromIntegral (r*r'))/h) pm
-                                          liftIO $ C.patternSetMatrix pa pm'
-                                          --C.patternSetFilter pa C.FilterBest
-                                          C.rectangle x y w h --(fromIntegral c) (fromIntegral r)
-                                          C.paint
-                                          C.stroke
-                                          C.restore
-                                  return ()
-renderData r Linear ds = do
-                         let aos = case ds of
-                                           (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
-                                           (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 
-                                           (DS_1to1 aos')     -> A.elems aos'
-                                           _                  -> error "renderData: DataSeries not handled"
-                         let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
-                         (BoundingBox x y w h) <- get
-                         let (xmin,xmax) = getRanges XAxis Lower r
-                         let xscale = w/(xmax-xmin) 
-                         cairo $ C.save
-                         let (yminl,ymaxl) = getRanges YAxis Lower r
-                         let yscalel = h/(ymaxl-yminl) 
-                         -- transform to data coordinates
-                         cairo $ do 
-                                 C.translate x (y+h)
-                                 C.scale xscale yscalel
-                                 C.translate (-xmin) yminl
-                                 flipVertical
-                         mapM_ (renderSeries xmin xmax xscale yscalel) los
-                         cairo $ C.restore
-                         when (not $ null ups)
-                              (do
-                               cairo $ C.save
-                               let (yminu,ymaxu) = getRanges YAxis Upper r
-                               let yscaleu = h/(ymaxu-yminu) 
-                               -- transform to data coordinates
-                               cairo $ do 
-                                       C.translate x (y+h)
-                                       C.scale xscale yscaleu
-                                       C.translate xmin yminu
-                                       flipVertical
-                               mapM_ (renderSeries xmin xmax xscale yscaleu) ups)
-                         -- could filter annotations as well
-                         return ()
+renderData :: Ranges -> DataSeries -> Render ()
+renderData _    (DS_Surf m) = do
+  (BoundingBox x y w h) <- get
+  let r = rows m
+      c = cols m
+  cairo $ do
+    C.save
+    --C.setAntialias C.AntialiasNone
+    let r'' = Prelude.min 4 ((round h) `div` r)
+        c'' = Prelude.min 4 ((round w) `div` c)
+        r' = if r'' < 1 then 1 else r''
+        c' = if c'' < 1 then 1 else c''
+    s <- liftIO $ C.createImageSurface C.FormatA8 (c*c') (r*r')
+    p <- liftIO $ C.imageSurfaceGetPixels s
+    C.surfaceFlush s
+    stride <- liftIO $ C.imageSurfaceGetStride s
+    liftIO $ greySurfaceFromMatrix p m stride r' c'
+    C.surfaceMarkDirty s
+    C.setSourceSurface s x y
+    pa <- C.getSource
+    pm <- liftIO $ C.patternGetMatrix pa
+    let pm' = CM.scale ((fromIntegral (c*c'))/w) ((fromIntegral (r*r'))/h) pm
+    liftIO $ C.patternSetMatrix pa pm'
+    --C.patternSetFilter pa C.FilterBest
+    C.rectangle x y w h --(fromIntegral c) (fromIntegral r)
+    C.paint
+    C.stroke
+    C.restore
+    return ()
 
-renderSeries :: Double -> Double -> Double -> Double -> (Abscissae,DecoratedSeries) -> Render ()
-renderSeries xmin xmax xscale yscale (abs,(DecSeries o d)) = do
-       dat <- case o of
-                     (OrdFunction _ f _)            -> do
-                                                       (BoundingBox _ _ w _) <- get
-                                                       let t = linspace (round w) (xmin,xmax)
-                                                       return $ [(t,mapVector f t)]
-                     (OrdPoints _ (Plain o') _)     -> do
-                                                       let t = case abs of
-                                                                        AbsFunction      -> if isHist d
-                                                                                               then fromList [0.0..(fromIntegral $ dim o')]
-                                                                                               else fromList [1.0..(fromIntegral $ dim o')]
-                                                                        AbsPoints t'     -> t'
-                                                       return $ [(t,o')]
-                     (OrdPoints _ (Error o' (l,h)) _) -> do
-                                                       let t = case abs of
-                                                                        AbsFunction      -> if isHist d
-                                                                                               then fromList [0.0..(fromIntegral $ dim o')]
-                                                                                               else fromList [1.0..(fromIntegral $ dim o')]
-                                                                        AbsPoints t'     -> t'
-                                                       return $ [(t,o'),(t,o'-l),(t,o'+h)]
-       case d of
-              (DecLine lt)   -> do
-                                formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderLineSample endLineSample t' y') dat
-              (DecPoint pt)  -> do
-                                (pz,g) <- formatPointSeries pt xscale yscale
-                                let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
-              (DecLinPt lt pt) -> do
-                                formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderLineSample endLineSample t' y') dat
-                                (pz,g) <- formatPointSeries pt xscale yscale
-                                let gs = g : Bot : Top : []
-                                mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
-              (DecImpulse lt) -> do
-                                formatLineSeries lt xscale yscale
-                                mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderImpulseSample endImpulseSample t' y') dat
-              (DecStep lt) -> do
-                              formatLineSeries lt xscale yscale
-                              mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderStepSample endStepSample t' y') dat
-              (DecArea lt) -> do
-                              formatLineSeries lt xscale yscale
-                              let hd = head dat
-                                  ln = dim $ fst hd
-                                  xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
-                                  x0 = (fst hd) @> xmin_ix
-                                  y0 = (snd hd) @> xmin_ix
-                              mapM_ (\(t',y') -> renderSamples xmin xmax Nothing renderAreaSample (endAreaSample x0 y0) t' y') dat
-              (DecBar bt)   -> do
-                               (bw,bc,c) <- formatBarSeries bt xscale yscale
-                               mapM_ (\(t',y') -> renderSamples xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y') dat
-              (DecHist bt)  -> do
-                               (bw,bc,c) <- formatBarSeries bt xscale yscale
-                               let hd = head dat
-                                   ln = dim $ fst hd
-                                   xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
-                                   rest v = subVector 1 (dim v - 1) v
-                                   x0 = (fst hd) @> xmin_ix
-                                   y0 = 0
-                               mapM_ (\(t',y') -> renderSamples xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y') dat
-       return ()
+renderData r ds = do
+  let aos = case ds of
+              (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
+              (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 
+              (DS_1to1 aos')     -> A.elems aos'
+              _                  -> error "renderData: DataSeries not handled"
+  let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
+  (BoundingBox x y w h) <- get
+  let (xsc,xmin',xmax') = getRanges XAxis Lower r
+  let (xmin,xmax) = if xsc ≡ Log then (logBase 10 xmin',logBase 10 xmax') else (xmin',xmax')
+  let xscale = w/(xmax-xmin) 
+  cairo $ C.save
+  let (yscl,yminl',ymaxl') = getRanges YAxis Lower r
+  let (yminl,ymaxl) = if yscl ≡ Log then (logBase 10 yminl',logBase 10 ymaxl') else (yminl',ymaxl')
+  let yscalel = h/(ymaxl-yminl) 
+  -- transform to data coordinates
+  cairo $ do 
+    C.translate x (y+h)
+    C.scale xscale yscalel
+    C.translate (-xmin) yminl
+    flipVertical
+  mapM_ (renderSeries xsc yscl xmin xmax xscale yscalel) los
+  cairo $ C.restore
+  when (not $ null ups)
+           (do
+             cairo $ C.save
+             let (yscu,yminu',ymaxu') = getRanges YAxis Upper r
+             let (yminu,ymaxu) = if yscu ≡ Log then (logBase 10 yminu',logBase 10 ymaxu') else (yminu',ymaxu')
+             let yscaleu = h/(ymaxu-yminu) 
+             -- transform to data coordinates
+             cairo $ do 
+               C.translate x (y+h)
+               C.scale xscale yscaleu
+               C.translate xmin yminu
+               flipVertical
+             mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups)
+             -- could filter annotations as well
+  return ()
+
+renderSeries :: Scale -> Scale 
+             -> Double -> Double -> Double -> Double 
+             -> (Abscissae,DecoratedSeries) -> Render ()
+renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
+  dat' <- case o of
+          (OrdFunction _ f _)            -> do
+                 (BoundingBox _ _ w _) <- get
+                 let t = linspace (round w) (xmin,xmax)
+                 return $ [(t,mapVector f t)]
+          (OrdPoints _ (Plain o') _)     -> do
+                 let t = case abs of
+                           AbsFunction      -> if isHist d
+                                              then fromList [0.0..(fromIntegral $ dim o')]
+                                              else fromList [1.0..(fromIntegral $ dim o')]
+                           AbsPoints t'     -> t'
+                 return $ [(t,o')]
+          (OrdPoints _ (Error o' (l,h)) _) -> do
+                 let t = case abs of
+                           AbsFunction      -> if isHist d
+                                              then fromList [0.0..(fromIntegral $ dim o')]
+                                              else fromList [1.0..(fromIntegral $ dim o')]
+                           AbsPoints t'     -> t'
+                 return $ [(t,o'),(t,o'-l),(t,o'+h)]
+  let dat = map (\(a,b) → (if xsc ≡ Log then (logBase 10 a) else a
+                          ,if ysc == Log then (logBase 10 b) else b)) dat' 
+  case d of
+    (DecLine lt)   -> do
+           formatLineSeries lt xscale yscale
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             renderLineSample endLineSample t' y') dat
+    (DecPoint pt)  -> do
+           (pz,g) <- formatPointSeries pt xscale yscale
+           let gs = g : Bot : Top : []
+           mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing 
+                                  (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+    (DecLinPt lt pt) -> do
+           formatLineSeries lt xscale yscale
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             renderLineSample endLineSample t' y') dat
+           (pz,g) <- formatPointSeries pt xscale yscale
+           let gs = g : Bot : Top : []
+           mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing 
+                                  (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+    (DecImpulse lt) -> do
+           formatLineSeries lt xscale yscale
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             renderImpulseSample endImpulseSample t' y') dat
+    (DecStep lt) -> do
+           formatLineSeries lt xscale yscale
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             renderStepSample endStepSample t' y') dat
+    (DecArea lt) -> do
+           formatLineSeries lt xscale yscale
+           let hd = head dat
+               ln = dim $ fst hd
+               xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
+               x0 = (fst hd) @> xmin_ix
+               y0 = (snd hd) @> xmin_ix
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             renderAreaSample (endAreaSample x0 y0) t' y') dat
+    (DecBar bt)   -> do
+           (bw,bc,c) <- formatBarSeries bt xscale yscale
+           mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
+                             (renderBarSample bw bc c) endBarSample t' y') dat
+    (DecHist bt)  -> do
+           (bw,bc,c) <- formatBarSeries bt xscale yscale
+           let hd = head dat
+               ln = dim $ fst hd
+               xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
+               rest v = subVector 1 (dim v - 1) v
+               x0 = (fst hd) @> xmin_ix
+               y0 = 0
+           mapM_ (\(t',y') -> renderSamples xmin xmax (Just $ C.moveTo x0 y0) 
+                             (renderHistSample bw bc c) endHistSample (rest t') y') dat
+  return ()
 
 -----------------------------------------------------------------------------
 

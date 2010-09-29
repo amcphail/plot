@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure.Plot
@@ -14,7 +15,6 @@
 
 module Graphics.Rendering.Plot.Figure.Plot (
                                             Plot
-                                           , PlotType(..)
                                            -- * Plot elements 
                                            , Border
                                            , setBorder
@@ -28,6 +28,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , D.impulse, D.step
                                            , D.area
                                            , D.bar
+                                           , D.hist
                                            , setDataset
                                            -- ** Plot type
                                            , setSeriesType
@@ -37,6 +38,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , withSeriesFormat
                                            , withAllSeriesFormats
                                            -- * Range
+                                           , Scale(..)
                                            , setRange
                                            , setRangeFromData
                                            -- * Axes
@@ -63,6 +65,10 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            ) where
 
 -----------------------------------------------------------------------------
+
+import Data.Eq.Unicode
+import Data.Bool.Unicode
+import Data.Ord.Unicode
 
 --import Data.Packed.Vector
 --import Data.Packed.Matrix
@@ -102,26 +108,32 @@ withHeading m = do
 -----------------------------------------------------------------------------
 
 -- | set the axis range
-setRange :: AxisType -> AxisSide -> Double -> Double -> Plot ()
-setRange XAxis sd min max = modify $ \s -> s { _ranges = setXRanges sd min max (_ranges s) }
-    where setXRanges Lower min' max' (Ranges (Left _) yr)       = Ranges (Left (Range min' max')) yr
-          setXRanges Lower min' max' (Ranges (Right (_,xr)) yr) = Ranges (Right ((Range min' max',xr))) yr
-          setXRanges Upper min' max' (Ranges (Left xr) yr)      = Ranges (Right (xr,Range min' max')) yr
-          setXRanges Upper min' max' (Ranges (Right (_,xr)) yr) = Ranges (Right (Range min' max',xr)) yr
-setRange YAxis sd min max = modify $ \s -> s { _ranges = setYRanges sd min max (_ranges s) }
-    where setYRanges Lower min' max' (Ranges xr (Left _))       = Ranges xr (Left (Range min' max'))
-          setYRanges Lower min' max' (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range min' max',yr)))
-          setYRanges Upper min' max' (Ranges xr (Left yr))      = Ranges xr (Right (yr,Range min' max'))
-          setYRanges Upper min' max' (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range min' max',yr)))
+setRange :: AxisType -> AxisSide -> Scale → Double -> Double -> Plot ()
+setRange XAxis sd sc min max = modify $ \s -> s { _ranges = setXRanges' sd (_ranges s) }
+    where setXRanges' sd r
+              | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
+              | otherwise          = setXRanges sd r
+          setXRanges Lower (Ranges (Left _) yr)       = Ranges (Left (Range sc min max)) yr
+          setXRanges Lower (Ranges (Right (_,xr)) yr) = Ranges (Right ((Range sc min max,xr))) yr
+          setXRanges Upper (Ranges (Left xr) yr)      = Ranges (Right (xr,Range sc min max)) yr
+          setXRanges Upper (Ranges (Right (_,xr)) yr) = Ranges (Right (Range sc min max,xr)) yr
+setRange YAxis sd sc min max = modify $ \s -> s { _ranges = setYRanges' sd (_ranges s) }
+    where setYRanges' sd r
+              | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
+              | otherwise          = setYRanges sd r
+          setYRanges Lower (Ranges xr (Left _))       = Ranges xr (Left (Range sc min max))
+          setYRanges Lower (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range sc min max,yr)))
+          setYRanges Upper (Ranges xr (Left yr))      = Ranges xr (Right (yr,Range sc min max))
+          setYRanges Upper (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range sc min max,yr)))
 
 -- | set the axis ranges to values based on dataset
-setRangeFromData :: AxisType -> AxisSide -> Plot ()
-setRangeFromData ax sd = do
-                         ds <- gets _data
-                         let ((xmin,xmax),(ymin,ymax)) = calculateRanges ds
-                         case ax of
-                                 XAxis -> setRange ax sd xmin xmax
-                                 YAxis -> setRange ax sd ymin ymax
+setRangeFromData :: AxisType -> AxisSide -> Scale → Plot ()
+setRangeFromData ax sd sc = do
+  ds <- gets _data
+  let ((xmin,xmax),(ymin,ymax)) = calculateRanges ds
+  case ax of
+    XAxis -> setRange ax sd sc xmin xmax
+    YAxis -> setRange ax sd sc ymin ymax
                     
 -----------------------------------------------------------------------------
 
@@ -168,12 +180,6 @@ withLegendFormat f = withLegend $ L.withLegendFormat f
 -- | operate on the legend
 withLegend :: L.Legend () -> Plot ()
 withLegend = legendInPlot
-
------------------------------------------------------------------------------
-
--- | set the type of the subplot
-setPlotType :: PlotType -> Plot ()
-setPlotType pt = modify $ \s -> s { _type = pt }
 
 -----------------------------------------------------------------------------
 

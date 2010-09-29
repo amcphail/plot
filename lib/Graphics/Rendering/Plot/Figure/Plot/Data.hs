@@ -24,12 +24,13 @@ module Graphics.Rendering.Plot.Figure.Plot.Data (
                                                 , impulse, step
                                                 , area
                                                 , bar
+                                                , hist
                                                 , setDataSeries
                                                 -- * Plot type
                                                 , setSeriesType
                                                 , setAllSeriesTypes
                                                 -- * Formatting
-                                                , PlotType(..), PlotFormats(..)
+                                                , PlotFormats(..)
                                                 , withSeriesFormat
                                                 , withAllSeriesFormats
                                                 -- * Internal

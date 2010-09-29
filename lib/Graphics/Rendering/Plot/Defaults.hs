@@ -125,7 +125,7 @@ defaultBounding = BoundingBox 0 0 1 1
 -----------------------------------------------------------------------------
 
 defaultRanges :: Double -> Double -> Double -> Double -> Ranges
-defaultRanges xmin xmax ymin ymax = Ranges (Left (Range xmin xmax)) (Left (Range ymin ymax))
+defaultRanges xmin xmax ymin ymax = Ranges (Left (Range Linear xmin xmax)) (Left (Range Linear ymin ymax))
 
 -----------------------------------------------------------------------------
 
@@ -192,8 +192,8 @@ defaultSupply = SupplyData defaultColourList defaultGlyphList
 -----------------------------------------------------------------------------
 
 emptyPlot :: PlotData
-emptyPlot = Plot False defaultPlotPadding NoText (Ranges (Left (Range (-1) 1)) (Left (Range (-1) 1)))
-                 [] Linear undefined Nothing []
+emptyPlot = Plot False defaultPlotPadding NoText (Ranges (Left (Range Linear (-1) 1)) (Left (Range Linear (-1) 1)))
+                 [] undefined Nothing []
 
 -----------------------------------------------------------------------------
 

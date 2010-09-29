@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure
@@ -15,6 +16,7 @@
 module Graphics.Rendering.Plot.Figure.Simple (
                                               -- * Plotting
                                               plot
+                                             , loglog, linlog, loglin
                                              , parametric
                                               -- * Formatting
                                              , title
@@ -27,6 +29,7 @@ module Graphics.Rendering.Plot.Figure.Simple (
                                              , grid
                                              , xrange, yrange
                                              , xautorange, yautorange
+                                             , xautorangeLog, yautorangeLog
                                              , xlabel, ylabel
                                              ) where
 
@@ -38,7 +41,7 @@ import Graphics.Rendering.Plot.Figure
 
 -----------------------------------------------------------------------------
 
--- | create a figure with a single plot 
+-- | create a figure with a single linear plot 
 --   with lower X and Y axes whose ranges are set from the data
 plot :: Dataset d => d -> Figure ()
 plot ds = do
@@ -47,8 +50,44 @@ plot ds = do
                            setDataset ds
                            addAxis XAxis (Side Lower) $ return ()
                            addAxis YAxis (Side Lower) $ return ()
-                           setRangeFromData XAxis Lower
-                           setRangeFromData YAxis Lower
+                           setRangeFromData XAxis Lower Linear
+                           setRangeFromData YAxis Lower Linear
+
+-- | create a figure with a single log-linear plot 
+--   with lower X and Y axes whose ranges are set from the data
+loglin :: Dataset d => d -> Figure ()
+loglin ds = do
+          setPlots 1 1
+          withPlot (1,1) $ do
+                           setDataset ds
+                           addAxis XAxis (Side Lower) $ return ()
+                           addAxis YAxis (Side Lower) $ return ()
+                           setRangeFromData XAxis Lower Log
+                           setRangeFromData YAxis Lower Linear
+
+-- | create a figure with a single linear-log plot 
+--   with lower X and Y axes whose ranges are set from the data
+linlog :: Dataset d => d -> Figure ()
+linlog ds = do
+          setPlots 1 1
+          withPlot (1,1) $ do
+                           setDataset ds
+                           addAxis XAxis (Side Lower) $ return ()
+                           addAxis YAxis (Side Lower) $ return ()
+                           setRangeFromData XAxis Lower Linear
+                           setRangeFromData YAxis Lower Log
+
+-- | create a figure with a single log-log plot 
+--   with lower X and Y axes whose ranges are set from the data
+loglog :: Dataset d => d -> Figure ()
+loglog ds = do
+          setPlots 1 1
+          withPlot (1,1) $ do
+                           setDataset ds
+                           addAxis XAxis (Side Lower) $ return ()
+                           addAxis YAxis (Side Lower) $ return ()
+                           setRangeFromData XAxis Lower Log
+                           setRangeFromData YAxis Lower Log
 
 -- | create a figure with a single parametric plot over n points
 --   with lower X and Y axes whose ranges are set from the data
@@ -60,8 +99,8 @@ parametric (fx,fy) (l,h) n = do
                                               setDataset (Line,mapVector fx t,[mapVector fy t])
                                               addAxis XAxis (Side Lower) $ return ()
                                               addAxis YAxis (Side Lower) $ return ()
-                                              setRangeFromData XAxis Lower
-                                              setRangeFromData YAxis Lower
+                                              setRangeFromData XAxis Lower Linear
+                                              setRangeFromData YAxis Lower Linear
 
 -----------------------------------------------------------------------------
 
@@ -91,20 +130,28 @@ grid b = simple $ do
                   withAxis YAxis (Side Lower) $ setGridlines Major b
 
 -- | set the x range
-xrange :: Simple m => Double -> Double -> m ()
-xrange l h = simple $ setRange XAxis Lower l h 
+xrange :: Simple m => Scale -> Double -> Double → m ()
+xrange s l h = simple $ setRange XAxis Lower s l h 
 
 -- | set the y range
-yrange :: Simple m => Double -> Double -> m ()
-yrange l h = simple $ setRange YAxis Lower l h 
+yrange :: Simple m => Scale -> Double -> Double → m ()
+yrange s l h = simple $ setRange YAxis Lower s l h
 
 -- | set the x range from data
 xautorange :: Simple m => m ()
-xautorange = simple $ setRangeFromData XAxis Lower
+xautorange = simple $ setRangeFromData XAxis Lower Linear
 
 -- | set the y range from data
 yautorange :: Simple m => m ()
-yautorange = simple $ setRangeFromData YAxis Lower
+yautorange = simple $ setRangeFromData YAxis Lower Linear
+
+-- | set the x range from data
+xautorangeLog :: Simple m => m ()
+xautorangeLog = simple $ setRangeFromData XAxis Lower Log
+
+-- | set the y range from data
+yautorangeLog :: Simple m => m ()
+yautorangeLog = simple $ setRangeFromData YAxis Lower Log
 
 -- | set the x label
 xlabel :: Simple m => String -> m ()

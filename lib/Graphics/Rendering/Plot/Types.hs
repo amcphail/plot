@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Types
@@ -140,19 +141,21 @@ type Annotations = [Annotation]
 
 -----------------------------------------------------------------------------
 
-data Range = Range { _range_min :: Double, _range_max :: Double }
+data Scale = Linear | Log deriving(Eq)
+
+data Range = Range { _range_scale ∷ Scale, _range_min :: Double, _range_max :: Double }
 
 data Ranges = Ranges (Either Range (Range,Range)) (Either Range (Range,Range))
 
-getRanges :: AxisType -> AxisSide -> Ranges -> (Double,Double)
-getRanges XAxis Lower (Ranges (Left (Range xmin xmax)) _)    = (xmin,xmax)
-getRanges XAxis Lower (Ranges (Right (Range xmin xmax,_)) _) = (xmin,xmax)
-getRanges XAxis Upper (Ranges (Right (_,Range xmin xmax)) _) = (xmin,xmax)
-getRanges XAxis Upper (Ranges (Left _) _)                    = error "no upper range defined"
-getRanges YAxis Lower (Ranges _ (Left (Range ymin ymax)))    = (ymin,ymax)
-getRanges YAxis Lower (Ranges _ (Right (Range ymin ymax,_))) = (ymin,ymax)
-getRanges YAxis Upper (Ranges _ (Right (_,Range ymin ymax))) = (ymin,ymax)
-getRanges YAxis Upper (Ranges _ (Left _))                    = error "no upper range defined"
+getRanges :: AxisType -> AxisSide -> Ranges -> (Scale,Double,Double)
+getRanges XAxis Lower (Ranges (Left (Range scale xmin xmax)) _)    = (scale,xmin,xmax)
+getRanges XAxis Lower (Ranges (Right (Range scale xmin xmax,_)) _) = (scale,xmin,xmax)
+getRanges XAxis Upper (Ranges (Right (_,Range scale xmin xmax)) _) = (scale,xmin,xmax)
+getRanges XAxis Upper (Ranges (Left _) _)                          = error "no upper range defined"
+getRanges YAxis Lower (Ranges _ (Left (Range scale ymin ymax)))    = (scale,ymin,ymax)
+getRanges YAxis Lower (Ranges _ (Right (Range scale ymin ymax,_))) = (scale,ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Right (_,Range scale ymin ymax))) = (scale,ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Left _))                          = error "no upper range defined"
 
 -----------------------------------------------------------------------------
 
@@ -345,7 +348,7 @@ type FormattedSeries = Data DecoratedSeries
 
 -----------------------------------------------------------------------------
 
-data PlotType = Linear --  LogLinear | LinearLog | Log
+--data PlotType = Linear --  LogLinear | LinearLog | Log
  
 --data PlotType = PT_Line
 
@@ -376,7 +379,6 @@ data PlotData = Plot {
                   , _heading   :: TextEntry
                   , _ranges    :: Ranges
                   , _axes      :: [AxisData]
-                  , _type      :: PlotType
                   , _data      :: DataSeries
                   , _legend    :: Maybe LegendData
                   , _annote    :: Annotations

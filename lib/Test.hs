@@ -1,4 +1,6 @@
 {-# LANGUAGE OverlappingInstances #-}
+{-# LANGUAGE UnicodeSyntax #-}
+
 -- thanks to http://www.muitovar.com/gtk2hs/app1.html
 
 --module Test where
@@ -17,6 +19,8 @@ import Data.Colour.Names
 import Data.Packed.Vector
 --import Data.Packed.Random
 import Data.Packed()
+
+import Prelude.Unicode
 
 import qualified Data.Array.IArray as A
 
@@ -49,8 +53,14 @@ fy = (\t -> t * cos t) pts
 hx = fromList [1,3,5,8,11,20,22,26] :: Vector Double
 hy = fromList [10,11,15,17,14,12,9] :: Vector Double
 
+lx = fromList [1,2,3,4,5,6,7,8,9,10] ∷ Vector Double
+ly = fromList [50000,10000,5000,1000,500,100,50,10,1] ∷ Vector Double
+
+mx = linspace 100 (1,10) ∷ Vector Double
+my = linspace 100 (1,10000) ∷ Vector Double
+
 figure = do
-         setPlots 1 1
+--         setPlots 1 1
 {-
          withPlot (1,1) $ do
                           setDataset [(Hist,hx,hy)]
@@ -60,7 +70,8 @@ figure = do
                           setRange YAxis Lower (-4*pi) (1*pi) -}
 {-                          setRange XAxis Lower 0 32
                           setRange YAxis Lower 0 20
--}{-        withTextDefaults $ setFontFamily "OpenSymbol"
+-}
+        withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
         withSubTitle $ do
                        setText "with 1 second of a 15Hz sine wave"
@@ -68,7 +79,7 @@ figure = do
         setPlots 1 1
 
         withPlot (1,1) $ do
--}
+
 --                         setDataset (ts,[area ds blue])
 --                         setDataset (ts,[impulse fs blue])
 --                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
@@ -76,27 +87,27 @@ figure = do
 --                         setDataset [(Line,fx,fy)]
 --                         setDataset (ts,[bar (ds,"Sampled data") (10 :: Double,green,3:: Double,blue)
 --                                        ,line (fs,"15 Hz sinusoid") blue])
-{-
+                         setDataset [(Line,mx,my)]
                          addAxis XAxis (Side Lower) $ do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "amplitude"
-                         addAxis XAxis (Value 0) $ return ()
-                         setRangeFromData XAxis Lower
-                         setRange YAxis Lower (-1.25) 1.25
--}
+--                         addAxis XAxis (Value 0) $ return ()
+                         setRange XAxis Lower Linear 1 10
+                         setRange YAxis Lower Log 1 10000 --1 50000
+--                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
-
+{-
          withPlot (1,1) $ do 
                           setDataset (ident 300 :: Matrix Double) --ms
                           addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
                           addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
                           setRangeFromData XAxis Lower
                           setRangeFromData YAxis Lower
-
+-}
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do
