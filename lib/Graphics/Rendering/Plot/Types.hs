@@ -262,6 +262,7 @@ data OrdSeries = Plain Series
 getOrdData :: OrdSeries -> Series
 getOrdData (Plain o)   = o
 getOrdData (Error o _) = o
+getOrdData (MinMax (o,_) _) = o
 
 getMinMaxData ∷ OrdSeries → Either MinMaxSeries (MinMaxSeries,(ErrorSeries,ErrorSeries))
 getMinMaxData (MinMax o Nothing)  = Left o

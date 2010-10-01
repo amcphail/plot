@@ -1,4 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Data
@@ -21,7 +22,10 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 -----------------------------------------------------------------------------
 
 import Data.List(partition)
-import Data.List.Unicode
+import Prelude.Unicode
+
+import Foreign.Storable 
+import Foreign.Ptr
 
 --import Data.Packed.Vector
 --import Data.Packed.Matrix
@@ -29,10 +33,8 @@ import Data.List.Unicode
 import Numeric.LinearAlgebra
 
 import qualified Data.Array.IArray as A
-import qualified Data.Array.MArray as M
+--import qualified Data.Array.MArray as M
 import qualified Data.Array.Base as B
-
-import Data.Eq.Unicode
 
 import Data.Word
 
@@ -165,72 +167,99 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
           (OrdFunction _ f _)            -> do
                  (BoundingBox _ _ w _) <- get
                  let t = linspace (round w) (xmin,xmax)
-                 return $ [(t,mapVector f t)]
+                 return $ Left [(t,mapVector f t)]
           (OrdPoints _ (Plain o') _)     -> do
                  let t = case abs of
                            AbsFunction      -> if isHist d
                                               then fromList [0.0..(fromIntegral $ dim o')]
                                               else fromList [1.0..(fromIntegral $ dim o')]
                            AbsPoints t'     -> t'
-                 return $ [(t,o')]
+                 return $ Left [(t,o')]
           (OrdPoints _ (Error o' (l,h)) _) -> do
                  let t = case abs of
                            AbsFunction      -> if isHist d
                                               then fromList [0.0..(fromIntegral $ dim o')]
                                               else fromList [1.0..(fromIntegral $ dim o')]
                            AbsPoints t'     -> t'
-                 return $ [(t,o'),(t,o'-l),(t,o'+h)]
-  let dat = map (\(a,b) → (if xsc ≡ Log then (logBase 10 a) else a
-                          ,if ysc == Log then (logBase 10 b) else b)) dat' 
+                 return $ Left [(t,o'),(t,o'-l),(t,o'+h)]
+          (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
+                 let t = case abs of
+                           AbsFunction      -> fromList [1.0..(fromIntegral $ dim l)]
+                           AbsPoints t'     -> t'
+                 return $ Right [((t,o'),(t,(l,h)))]
+  let dat = case dat' of
+            Left dat'' → map (\(a,b) → Left (if xsc ≡ Log then (logBase 10 a) else a
+                                            ,if ysc == Log then (logBase 10 b) else b)) dat''
+            Right dat''' → map (\((a,(bl,bu)),(c,(dl,du))) → let (a',c') = if xsc ≡ Log then (logBase 10 a,logBase 10 c) else (a,c)
+                                                                 (bl',bu',dl',du') = if ysc ≡ Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
+                                                             in Right ((a',(bl',bu')),(c',(dl',du')))) dat'''
   case d of
     (DecLine lt)   -> do
            formatLineSeries lt xscale yscale
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             renderLineSample endLineSample t' y') dat
+                             renderLineSample endLineSample t' y') (map (either id (error "MinMax data")) dat)
     (DecPoint pt)  -> do
            (pz,g) <- formatPointSeries pt xscale yscale
            let gs = g : Bot : Top : []
            mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing 
-                                  (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+                                  (renderPointSample xscale yscale pz g') endPointSample t' y') 
+                     (zip gs (map (either id (error "MinMax data")) dat))
     (DecLinPt lt pt) -> do
            formatLineSeries lt xscale yscale
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             renderLineSample endLineSample t' y') dat
+                             renderLineSample endLineSample t' y') (map (either id (error "MinMax data")) dat)
            (pz,g) <- formatPointSeries pt xscale yscale
            let gs = g : Bot : Top : []
            mapM_ (\(g',(t',y')) -> renderSamples xmin xmax Nothing 
-                                  (renderPointSample xscale yscale pz g') endPointSample t' y') (zip gs dat)
+                                  (renderPointSample xscale yscale pz g') endPointSample t' y')
+                     (zip gs (map (either id  (error "MinMax data")) dat))
     (DecImpulse lt) -> do
            formatLineSeries lt xscale yscale
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             renderImpulseSample endImpulseSample t' y') dat
+                             renderImpulseSample endImpulseSample t' y') (map (either id (error "MinMax data")) dat)
     (DecStep lt) -> do
            formatLineSeries lt xscale yscale
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             renderStepSample endStepSample t' y') dat
+                             renderStepSample endStepSample t' y') (map (either id (error "MinMax data")) dat)
     (DecArea lt) -> do
            formatLineSeries lt xscale yscale
-           let hd = head dat
+           let Left hd = head dat
                ln = dim $ fst hd
                xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
                x0 = (fst hd) @> xmin_ix
                y0 = (snd hd) @> xmin_ix
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             renderAreaSample (endAreaSample x0 y0) t' y') dat
+                             renderAreaSample (endAreaSample x0 y0) t' y') (map (either id (error "MinMax data")) dat)
     (DecBar bt)   -> do
            (bw,bc,c) <- formatBarSeries bt xscale yscale
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
-                             (renderBarSample bw bc c) endBarSample t' y') dat
+                             (renderBarSample bw bc c) endBarSample t' y') (map (either id (error "MinMax data")) dat)
     (DecHist bt)  -> do
            (bw,bc,c) <- formatBarSeries bt xscale yscale
-           let hd = head dat
+           let Left hd = head dat
                ln = dim $ fst hd
                xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
                rest v = subVector 1 (dim v - 1) v
                x0 = (fst hd) @> xmin_ix
                y0 = 0
            mapM_ (\(t',y') -> renderSamples xmin xmax (Just $ C.moveTo x0 y0) 
-                             (renderHistSample bw bc c) endHistSample (rest t') y') dat
+                             (renderHistSample bw bc c) endHistSample (rest t') y') (map (either id (error "MinMax data")) dat)
+    (DecCand bt)  → do
+      (bw,bc,c) ← formatBarSeries bt xscale yscale
+      mapM_ (\((t',y'),(_,e')) → do
+               renderMinMaxSamples xmin xmax Nothing
+                          (renderWhiskerSample bw bc c False) endWhiskerSample t' e'
+               renderMinMaxSamples xmin xmax Nothing
+                                 (renderCandleSample bw bc c) endCandleSample t' y'
+            ) (map (either (error "Single data") id) dat)
+    (DecWhisk bt)  → do
+      (bw,bc,c) ← formatBarSeries bt xscale yscale
+      mapM_ (\((t',y'),(_,e')) → do
+               renderMinMaxSamples xmin xmax Nothing
+                          (renderWhiskerSample bw bc c True) endWhiskerSample t' e'
+               renderMinMaxSamples xmin xmax Nothing
+                                 (renderCandleSample bw bc c) endCandleSample t' y'
+            ) (map (either (error "Single data") id) dat)
   return ()
 
 -----------------------------------------------------------------------------
@@ -301,6 +330,35 @@ renderSamples xmin xmax s f e t y = do
 
 -----------------------------------------------------------------------------
 
+renderMinMaxSamples :: Double -> Double 
+              -> Maybe (C.Render ())
+              -> (Double -> (Double,Double) -> C.Render ()) -> C.Render ()
+              -> Vector Double -> (Vector Double,Vector Double) -> Render ()
+renderMinMaxSamples xmin xmax s f e t y = do
+                                  (BoundingBox _ _ w _) <- get
+                                  let ln = dim t
+                                      m = isMonotoneIncreasing t
+                                      (xmin_ix,xmax_ix,num_pts) = if m
+                                                                     then (findMinIdx t xmin 0 (ln-1)
+                                                                           ,findMaxIdx t xmax (ln-1) 0
+                                                                           ,xmax_ix - xmin_ix + 1)
+                                                                     else (0,ln-1,1)
+                                      diff'' = (fromIntegral num_pts)/w
+                                      diff' = round $ if diff'' <= 1 then 1 else diff''
+                                      diff = if m then diff' else 1
+                                  cairo $ do
+                                         case s of
+                                                Nothing -> C.moveTo (t @> xmin_ix) ((fst $ y) @> xmin_ix)
+                                                Just s' -> s'
+                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\i t -> do
+                                            when (i >= xmin_ix && i `mod` diff == 0)
+                                                     (do
+                                                       renderMinMaxSample i xmax_ix t f e y)
+                                            return ()) t
+                                         return ()
+
+-----------------------------------------------------------------------------
+
 renderSample :: Int -> Int -> Vector Double 
              -> (Double -> Double -> C.Render ()) -> C.Render () 
              -> Double -> MaybeT C.Render ()
@@ -312,6 +370,18 @@ renderSample ix xmax_ix t f e y
                                 fail "end of bounded area"
     | otherwise               = do
                                 lift $ f (t @> ix) y
+
+renderMinMaxSample :: Int -> Int -> Double 
+             -> (Double -> (Double,Double) -> C.Render ()) -> C.Render () 
+             -> (Vector Double,Vector Double) -> MaybeT C.Render ()
+renderMinMaxSample ix xmax_ix t f e (yl,yu)
+    | ix >= xmax_ix            = do
+                                lift $ do
+                                       f t (yl @> ix,yu @> ix)
+                                       e
+                                fail "end of bounded area"
+    | otherwise               = do
+                                lift $ f t (yl @> ix,yu @> ix)
 
 -----------------------------------------------------------------------------
 
@@ -373,7 +443,7 @@ endBarSample :: C.Render ()
 endBarSample = return ()
 
 renderHistSample :: Width -> Color -> Color -> Double -> Double -> C.Render ()
-renderHistSample bw c bc x y = do
+renderHistSample _ c bc x y = do
                                (x',_) <- C.getCurrentPoint
                                C.stroke
                                setColour bc
@@ -385,6 +455,39 @@ renderHistSample bw c bc x y = do
 
 endHistSample :: C.Render ()
 endHistSample = return ()
+
+renderCandleSample :: Width -> Color -> Color -> Double -> (Double,Double) -> C.Render ()
+renderCandleSample bw c bc x (yl,yu) = do
+                              setColour bc
+                              C.rectangle (x-bw/2) yl bw (yu-yl)
+                              C.strokePreserve
+                              liftIO $ putStrLn $ (show yl) ++ " " ++ (show yu)
+                              if (yl < yu)
+                                 then do
+                                   setColour c
+                                 else do
+                                   C.setSourceRGBA 1 1 1 1
+                              C.fill
+
+endCandleSample :: C.Render ()
+endCandleSample = return ()
+
+renderWhiskerSample :: Width -> Color -> Color → Bool -> Double -> (Double,Double) -> C.Render ()
+renderWhiskerSample bw _ bc whiskers x (yl,yu) = do
+                              setColour bc
+                              C.moveTo x yl
+                              C.lineTo x yu
+                              if whiskers
+                                 then do
+                                   C.moveTo (x-bw÷2) yu
+                                   C.lineTo (x+bw÷2) yu
+                                   C.moveTo (x-bw÷2) yl
+                                   C.lineTo (x+bw÷2) yl
+                                 else return ()
+                              C.stroke
+
+endWhiskerSample :: C.Render ()
+endWhiskerSample = return ()
 
 -----------------------------------------------------------------------------
 

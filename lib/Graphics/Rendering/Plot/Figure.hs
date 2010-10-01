@@ -57,6 +57,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , area
                                       , bar
                                       , hist
+                                      , candle, whisker
                                       , setDataset
                                       -- ** Plot type
                                       , setSeriesType

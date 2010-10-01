@@ -29,6 +29,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , D.area
                                            , D.bar
                                            , D.hist
+                                           , D.candle, D.whisker
                                            , setDataset
                                            -- ** Plot type
                                            , setSeriesType
@@ -68,7 +69,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
 
 import Data.Eq.Unicode
 import Data.Bool.Unicode
-import Data.Ord.Unicode
+--import Data.Ord.Unicode
 
 --import Data.Packed.Vector
 --import Data.Packed.Matrix
@@ -109,16 +110,16 @@ withHeading m = do
 
 -- | set the axis range
 setRange :: AxisType -> AxisSide -> Scale → Double -> Double -> Plot ()
-setRange XAxis sd sc min max = modify $ \s -> s { _ranges = setXRanges' sd (_ranges s) }
-    where setXRanges' sd r
+setRange XAxis sd sc min max = modify $ \s -> s { _ranges = setXRanges' (_ranges s) }
+    where setXRanges' r
               | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
               | otherwise          = setXRanges sd r
           setXRanges Lower (Ranges (Left _) yr)       = Ranges (Left (Range sc min max)) yr
           setXRanges Lower (Ranges (Right (_,xr)) yr) = Ranges (Right ((Range sc min max,xr))) yr
           setXRanges Upper (Ranges (Left xr) yr)      = Ranges (Right (xr,Range sc min max)) yr
           setXRanges Upper (Ranges (Right (_,xr)) yr) = Ranges (Right (Range sc min max,xr)) yr
-setRange YAxis sd sc min max = modify $ \s -> s { _ranges = setYRanges' sd (_ranges s) }
-    where setYRanges' sd r
+setRange YAxis sd sc min max = modify $ \s -> s { _ranges = setYRanges' (_ranges s) }
+    where setYRanges' r
               | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
               | otherwise          = setYRanges sd r
           setYRanges Lower (Ranges xr (Left _))       = Ranges xr (Left (Range sc min max))

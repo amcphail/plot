@@ -347,30 +347,30 @@ instance SeriesTypes Decoration where
     setSeriesType'' Whisker  (DecLine lt)      = do
                                                  let c = fromJust $ getLineColour lt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
+                                                 return $ DecWhisk bt
     setSeriesType'' Whisker  (DecPoint pt)     = do
                                                  let c = getPointColour pt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
+                                                 return $ DecWhisk bt
     setSeriesType'' Whisker  (DecLinPt lt _)   = do
                                                  let c = fromJust $ getLineColour lt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
+                                                 return $ DecWhisk bt
     setSeriesType'' Whisker  (DecImpulse lt)   = do
                                                  let c = fromJust $ getLineColour lt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
+                                                 return $ DecWhisk bt
     setSeriesType'' Whisker  (DecStep lt)      = do
                                                  let c = fromJust $ getLineColour lt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
+                                                 return $ DecWhisk bt
     setSeriesType'' Whisker  (DecArea lt)      = do
                                                  let c = fromJust $ getLineColour lt
                                                  bt <- toBar c
-                                                 return $ DecHist bt
-    setSeriesType'' Whisker  (DecBar bt)       = return $ DecHist bt
-    setSeriesType'' Whisker  (DecHist bt)      = return $ DecHist bt
-    setSeriesType'' Whisker  (DecCand bt)      = return $ DecHist bt
+                                                 return $ DecWhisk bt
+    setSeriesType'' Whisker  (DecBar bt)       = return $ DecWhisk bt
+    setSeriesType'' Whisker  (DecHist bt)      = return $ DecWhisk bt
+    setSeriesType'' Whisker  (DecCand bt)      = return $ DecWhisk bt
     setSeriesType'' Whisker  d@(DecWhisk _)    = return d
 
 instance SeriesTypes DecoratedSeries where

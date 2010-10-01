@@ -59,6 +59,13 @@ ly = fromList [50000,10000,5000,1000,500,100,50,10,1] ∷ Vector Double
 mx = linspace 100 (1,10) ∷ Vector Double
 my = linspace 100 (1,10000) ∷ Vector Double
 
+cx = fromList [1,2,3,4,5] ∷ Vector Double
+cyl = fromList [8,10,12,13,8] ∷ Vector Double
+cyu = fromList [10,12,16,5,10] ∷ Vector Double
+cel = cyl - 1
+ceu = cyu + 1
+
+
 figure = do
 --         setPlots 1 1
 {-
@@ -87,7 +94,8 @@ figure = do
 --                         setDataset [(Line,fx,fy)]
 --                         setDataset (ts,[bar (ds,"Sampled data") (10 :: Double,green,3:: Double,blue)
 --                                        ,line (fs,"15 Hz sinusoid") blue])
-                         setDataset [(Line,mx,my)]
+--                         setDataset [(Line,mx,my)]
+                         setDataset (Whisker,cx,[((cyl,cyu),(cel,ceu))])
                          addAxis XAxis (Side Lower) $ do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "time (s)"
@@ -95,8 +103,8 @@ figure = do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "amplitude"
 --                         addAxis XAxis (Value 0) $ return ()
-                         setRange XAxis Lower Linear 1 10
-                         setRange YAxis Lower Log 1 10000 --1 50000
+                         setRange XAxis Lower Linear 0 6
+                         setRange YAxis Lower Linear 0 20 -- Log 1 10000 --1 50000
 --                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
