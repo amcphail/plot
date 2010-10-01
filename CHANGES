@@ -1,2 +1,7 @@
 0.1:
 		* initial version
+0.1.1:
+		* add candle/whisker plots
+
+0.1.1.1:
+		* export MinMaxSeries

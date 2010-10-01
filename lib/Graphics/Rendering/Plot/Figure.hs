@@ -47,7 +47,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setPlotPadding
                                       , withHeading
                                       -- ** Series data
-                                      , Function(), Series(), ErrorSeries()
+                                      , Function(), Series(), MinMaxSeries(), ErrorSeries()
                                       , Surface()
                                       , SeriesLabel()
                                       , Abscissa(), Ordinate(), Dataset()
