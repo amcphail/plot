@@ -240,13 +240,15 @@ data Options = Options {
 
 -----------------------------------------------------------------------------
 
-data SeriesType = Line | Point | LinePoint | Impulse | Step | Area | Bar | Hist
+data SeriesType = Line | Point | LinePoint | Impulse | Step | Area 
+                | Bar | Hist | Candle | Whisker
 
 -----------------------------------------------------------------------------
 
 type Series = Vector Double
 type Surface = Matrix Double
 type ErrorSeries = Series
+type MinMaxSeries = (Series,Series)
 type Function = (Double -> Double)
 
 type SeriesLabel = String
@@ -255,10 +257,15 @@ type SeriesLabel = String
 
 data OrdSeries = Plain Series
                | Error Series (ErrorSeries,ErrorSeries)
+               | MinMax MinMaxSeries (Maybe (ErrorSeries,ErrorSeries))
 
 getOrdData :: OrdSeries -> Series
 getOrdData (Plain o)   = o
 getOrdData (Error o _) = o
+
+getMinMaxData ∷ OrdSeries → Either MinMaxSeries (MinMaxSeries,(ErrorSeries,ErrorSeries))
+getMinMaxData (MinMax o Nothing)  = Left o
+getMinMaxData (MinMax o (Just e)) = Right (o,e)
 
 data Abscissae = AbsFunction 
                | AbsPoints Series
@@ -286,6 +293,8 @@ data Decoration = DecLine    LineType
                 | DecArea    LineType
                 | DecBar     BarType
                 | DecHist    BarType
+                | DecCand    BarType
+                | DecWhisk   BarType
 
 isHist :: Decoration -> Bool
 isHist (DecLine _)    = False
@@ -296,6 +305,8 @@ isHist (DecStep _)    = False
 isHist (DecArea _)    = False
 isHist (DecBar _)     = False
 isHist (DecHist _)    = True
+isHist (DecCand _)    = False
+isHist (DecWhisk _)   = False
 
 decorationGetLineType :: Decoration -> Maybe LineType
 decorationGetLineType (DecLine lt)    = Just lt
@@ -306,6 +317,8 @@ decorationGetLineType (DecStep lt)    = Just lt
 decorationGetLineType (DecArea lt)    = Just lt
 decorationGetLineType (DecBar _)      = Nothing
 decorationGetLineType (DecHist _)     = Nothing
+decorationGetLineType (DecCand _)     = Nothing
+decorationGetLineType (DecWhisk _)    = Nothing
                         
 decorationGetPointType :: Decoration -> Maybe PointType
 decorationGetPointType (DecLine _)     = Nothing
@@ -316,6 +329,8 @@ decorationGetPointType (DecStep _)     = Nothing
 decorationGetPointType (DecArea _)     = Nothing
 decorationGetPointType (DecBar _)      = Nothing
 decorationGetPointType (DecHist _)     = Nothing
+decorationGetPointType (DecCand _)     = Nothing
+decorationGetPointType (DecWhisk _)    = Nothing
                         
 decorationGetBarType :: Decoration -> Maybe BarType
 decorationGetBarType (DecLine _)     = Nothing
@@ -326,6 +341,8 @@ decorationGetBarType (DecStep _)     = Nothing
 decorationGetBarType (DecArea _)     = Nothing
 decorationGetBarType (DecBar bt)     = Just bt
 decorationGetBarType (DecHist bt)    = Just bt
+decorationGetBarType (DecCand bt)    = Just bt
+decorationGetBarType (DecWhisk bt)   = Just bt
                         
 data DecoratedSeries = DecSeries Ordinates Decoration
 --                     BarSeries   Abscissae Ordinates BarType
