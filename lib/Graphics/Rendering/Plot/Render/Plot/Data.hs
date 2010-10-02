@@ -313,20 +313,20 @@ renderSamples xmin xmax s f e t y = do
                                                                      then (findMinIdx t xmin 0 (ln-1)
                                                                            ,findMaxIdx t xmax (ln-1) 0
                                                                            ,xmax_ix - xmin_ix + 1)
-                                                                     else (0,ln-1,1)
-                                      diff'' = (fromIntegral num_pts)/w
-                                      diff' = round $ if diff'' <= 1 then 1 else diff''
+                                                                     else (0,ln-1,ln)
+                                      diff'' = floor $ (fromIntegral num_pts)/w
+                                      diff' = if diff'' <= 1 then 1 else diff''
                                       diff = if m then diff' else 1
                                   cairo $ do
                                          case s of
                                                 Nothing -> C.moveTo (t @> xmin_ix) (y @> xmin_ix)
                                                 Just s' -> s'
-                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\i y' -> do
-                                            when (i >= xmin_ix && i `mod` diff == 0)
-                                                     (do
-                                                      renderSample i xmax_ix t f e y')
-                                            return ()) y
-                                         return ()
+                                         _ <- runMaybeT $ do
+                                               mapVectorWithIndexM_ (\i y' -> do
+                                                 when (i >= xmin_ix && i `mod` diff == 0)
+                                                     (renderSample i xmax_ix t f y')
+                                                 return ()) y
+                                         e
 
 -----------------------------------------------------------------------------
 
@@ -342,9 +342,9 @@ renderMinMaxSamples xmin xmax s f e t y = do
                                                                      then (findMinIdx t xmin 0 (ln-1)
                                                                            ,findMaxIdx t xmax (ln-1) 0
                                                                            ,xmax_ix - xmin_ix + 1)
-                                                                     else (0,ln-1,1)
-                                      diff'' = (fromIntegral num_pts)/w
-                                      diff' = round $ if diff'' <= 1 then 1 else diff''
+                                                                     else (0,ln-1,ln)
+                                      diff'' = floor $ (fromIntegral num_pts)/w
+                                      diff' = if diff'' <= 1 then 1 else diff''
                                       diff = if m then diff' else 1
                                   cairo $ do
                                          case s of
@@ -352,21 +352,18 @@ renderMinMaxSamples xmin xmax s f e t y = do
                                                 Just s' -> s'
                                          _ <- runMaybeT $ mapVectorWithIndexM_ (\i t -> do
                                             when (i >= xmin_ix && i `mod` diff == 0)
-                                                     (do
-                                                       renderMinMaxSample i xmax_ix t f e y)
+                                                     (renderMinMaxSample i xmax_ix t f e y)
                                             return ()) t
                                          return ()
 
 -----------------------------------------------------------------------------
 
 renderSample :: Int -> Int -> Vector Double 
-             -> (Double -> Double -> C.Render ()) -> C.Render () 
+             -> (Double -> Double -> C.Render ())
              -> Double -> MaybeT C.Render ()
-renderSample ix xmax_ix t f e y
+renderSample ix xmax_ix t f y
     | ix >= xmax_ix            = do
-                                lift $ do
-                                       f (t @> ix) y
-                                       e
+                                lift $ f (t @> ix) y
                                 fail "end of bounded area"
     | otherwise               = do
                                 lift $ f (t @> ix) y
@@ -499,7 +496,7 @@ monoStep d = do
 {-# INLINE monoStep #-}
 
 isMonotoneIncreasing :: Vector Double -> Bool
-isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep v)) (v @> 0)
+isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep (subVector 1 (dim v -1) v))) (v @> 0)
 
 -----------------------------------------------------------------------------
 

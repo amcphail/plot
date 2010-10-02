@@ -34,6 +34,12 @@ BUGS
 
  * logarithmic tick label width adjustment?
 
+ * move monotone increasing check to creation of dataseries
+
+ * should scale be in setRange*?
+
+ * axis and tick joins are ugly
+
 REFACTOR
 
  * using padding functions not raw data structure: pdFoo, pdBar

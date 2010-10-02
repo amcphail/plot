@@ -65,6 +65,9 @@ cyu = fromList [10,12,16,5,10] ∷ Vector Double
 cel = cyl - 1
 ceu = cyu + 1
 
+at = linspace 1000 (0,2⋅π) ∷ Vector Double
+ax = sin at
+
 
 figure = do
 --         setPlots 1 1
@@ -95,16 +98,17 @@ figure = do
 --                         setDataset (ts,[bar (ds,"Sampled data") (10 :: Double,green,3:: Double,blue)
 --                                        ,line (fs,"15 Hz sinusoid") blue])
 --                         setDataset [(Line,mx,my)]
-                         setDataset (Whisker,cx,[((cyl,cyu),(cel,ceu))])
+--                         setDataset (Whisker,cx,[((cyl,cyu),(cel,ceu))])
+                         setDataset (Line,at,[ax])
                          addAxis XAxis (Side Lower) $ do
                                                       setGridlines Major True
                                                       withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ do
                                                       setGridlines Major True
-                                                      withAxisLabel $ setText "amplitude"
+                                                      withAxisLabel $ setText "amplitude (α)"
 --                         addAxis XAxis (Value 0) $ return ()
-                         setRange XAxis Lower Linear 0 6
-                         setRange YAxis Lower Linear 0 20 -- Log 1 10000 --1 50000
+                         setRangeFromData XAxis Lower Linear
+                         setRangeFromData YAxis Lower Linear
 --                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6
@@ -123,8 +127,8 @@ display r = do
 
    window <- windowNew
    set window [ windowTitle := "Cairo test window"
-              , windowDefaultWidth := 400
-              , windowDefaultHeight := 300
+              , windowDefaultWidth := 600
+              , windowDefaultHeight := 400
               , containerBorderWidth := 1
               ]
 
