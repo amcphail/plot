@@ -60,7 +60,11 @@ renderGlyphBox = do
                  C.relLineTo x 0
                  C.relLineTo 0 (-y)
                  C.closePath
-                 C.stroke
+                 C.strokePreserve
+                 C.save
+                 C.setSourceRGBA 1 1 1 1
+                 C.fill
+                 C.restore
 
 renderGlyphCross :: C.Render ()
 renderGlyphCross = do
@@ -82,6 +86,11 @@ renderGlyphDiamond = do
                      C.relLineTo (x/2) (-y)
                      C.relLineTo (-x/2) (-y)
                      C.closePath
+                     C.strokePreserve
+                     C.save
+                     C.setSourceRGBA 1 1 1 1
+                     C.fill
+                     C.restore
                      C.stroke
 
 renderGlyphAsterisk :: C.Render ()
@@ -109,7 +118,11 @@ renderGlyphTriangle = do
                       C.relMoveTo sx sy
                       mapM_ (uncurry C.relLineTo) (zip xs ys)
                       C.closePath
-                      C.stroke
+                      C.strokePreserve
+                      C.save
+                      C.setSourceRGBA 1 1 1 1
+                      C.fill
+                      C.restore
 
 renderGlyphCircle :: C.Render ()
 renderGlyphCircle = do
@@ -122,7 +135,11 @@ renderGlyphCircle = do
                     C.relMoveTo sx sy
                     mapM_ (uncurry C.relLineTo) (zip xs ys)
                     C.closePath
-                    C.stroke
+                    C.strokePreserve
+                    C.save
+                    C.setSourceRGBA 1 1 1 1
+                    C.fill
+                    C.restore
                         
 renderGlyphBullet :: C.Render ()
 renderGlyphBullet = do
