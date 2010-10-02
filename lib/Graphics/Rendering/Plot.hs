@@ -58,8 +58,8 @@ Perform actions in 'Figure a' to create a figure
 >                          addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
 >                          addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
 >                          addAxis XAxis (Value 0) $ return ()
->                          setRangeFromData XAxis Lower
->                          setRange YAxis Lower (-1.25) 1.25
+>                          setRangeFromData XAxis Lower Linear
+>                          setRange YAxis Lower Linear (-1.25) 1.25
  
 Render the graph to a Cairo 'Render ()' action that takes the width
 and height of the drawing area
@@ -75,7 +75,7 @@ The same graph using the 'Simple' interface
 >         subtitle "with 1 second of a 15Hz sine wave"
 >         xlabel "time (s)"
 >         ylabel "amplitude"
->         yrange (-1.25) 1.25
+>         yrange Linear (-1.25) 1.25
 
 The 'Render a' action can be used in GTK or with Cairo to write to file in PS, PDF, SVG, or PNG
 
@@ -90,8 +90,8 @@ Display a greyscale matrix
 >                          setDataset ms
 >                          addAxis XAxis (Side Lower) $ setTickLabelFormat "%.0f"
 >                          addAxis YAxis (Side Lower) $ setTickLabelFormat "%.0f"
->                          setRangeFromData XAxis Lower
->                          setRangeFromData YAxis Lower
+>                          setRangeFromData XAxis Lower Linear
+>                          setRangeFromData YAxis Lower Linear
 
 The ODE example from hmatrix:
 

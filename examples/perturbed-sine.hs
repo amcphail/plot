@@ -20,7 +20,7 @@ import Data.Packed()
 
 import qualified Data.Array.IArray as A
 
-import Numeric.LinearAlgebra.Linear
+import Numeric.LinearAlgebra
 --import Numeric.LinearAlgebra.Instances
 --import Numeric.LinearAlgebra.Interface
 
@@ -53,8 +53,8 @@ figure = do
                          addAxis XAxis (Side Lower) $ withAxisLabel $ setText "time (s)"
                          addAxis YAxis (Side Lower) $ withAxisLabel $ setText "amplitude"
                          addAxis XAxis (Value 0) $ return ()
-                         setRangeFromData XAxis Lower
-                         setRange YAxis Lower (-1.25) 1.25
+                         setRangeFromData XAxis Lower Linear
+                         setRange YAxis Lower Linear (-1.25) 1.25
 
 display :: ((Int,Int) -> C.Render ()) -> IO ()
 display r = do
