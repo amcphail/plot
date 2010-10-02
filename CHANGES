@@ -8,3 +8,7 @@
 
 0.1.1.2:
 		* fixed examples for Scale (Log/Linear)
+
+0.1.1.3:
+		* fixed bug (lack of stroke) with datasets larger than window
+		* hollow points fill with white
