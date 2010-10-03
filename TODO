@@ -38,7 +38,10 @@ BUGS
 
  * should scale be in setRange*?
 
- * axis and tick joins are ugly
+ * draw axes and ticks separately so we get nice joins (refactor) 
+   actually draw tick labels separately, but not an issue any more
+
+ * tick lengths too small for large axis line width?
 
 REFACTOR
 
@@ -66,6 +69,8 @@ COMPLETE
 | * histogram (variable width bars)
 | * Graphics.Plot replacement
 | * log/semilog plots
+| * axis and tick joins are ugly
+
 
 
 
