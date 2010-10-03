@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure
@@ -118,11 +117,11 @@ grid b = simple $ do
                   withAxis YAxis (Side Lower) $ setGridlines Major b
 
 -- | set the x range
-xrange :: Simple m => Scale -> Double -> Double → m ()
+xrange :: Simple m => Scale -> Double -> Double -> m ()
 xrange s l h = simple $ setRange XAxis Lower s l h 
 
 -- | set the y range
-yrange :: Simple m => Scale -> Double -> Double → m ()
+yrange :: Simple m => Scale -> Double -> Double -> m ()
 yrange s l h = simple $ setRange YAxis Lower s l h
 
 -- | set the x range from data

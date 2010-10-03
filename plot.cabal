@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.1.1.3
+Version:             0.1.1.4
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010
@@ -33,7 +33,11 @@ Description:
      <http://code.haskell.org/plot/examples/perturbed-sine.png>
      .
      Changes in plot 0.1.1
+     .
           * added candle and whisker plots
+     .
+     Changes in plot 0.2
+     .
 Category:            Graphics
 
 Tested-with:         GHC==6.12.1
@@ -47,7 +51,6 @@ Extra-source-files:  README, CHANGES, LICENSE,
 library
 
   Build-Depends:     base >= 4 && < 5,
-                     base-unicode-symbols,
                      mtl, array,
                      MaybeT,
                      pango >= 0.11.2 && < 0.12, cairo >= 0.11.1 && < 0.12,
@@ -60,7 +63,6 @@ library
                      FlexibleInstances
                      FlexibleContexts
                      UndecidableInstances
-                     UnicodeSyntax
 
   hs-source-dirs:    lib
   Exposed-Modules:   Graphics.Rendering.Plot
@@ -91,6 +93,6 @@ library
 
   ghc-prof-options:  -auto
 
-    source-repository head
-        type:     darcs
-        location: darcs get http://code.haskell.org/plot
+source-repository head
+  type:     darcs
+  location: http://code.haskell.org/plot

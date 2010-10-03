@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Axis
@@ -20,9 +19,9 @@ module Graphics.Rendering.Plot.Render.Plot.Axis (
 
 -----------------------------------------------------------------------------
 
-import Data.Eq.Unicode
-import Data.Function.Unicode
-import Prelude.Unicode
+--import Data.Eq.Unicode
+--import Data.Function.Unicode
+--import Prelude.Unicode
 
 import Data.Either
 
@@ -282,11 +281,11 @@ renderAxisLine _ YAxis (Side Upper) = do
                                            C.lineTo (x+w+0.5) (y+h)
                                            C.stroke
 
-tickPosition :: Scale → Double -> Double -> Int -> [(Double,Double)]
-tickPosition sc min max n = let pos = map (\x -> min + (max-min)*(x)/(fromIntegral (n-1))) (take n [(0 ∷ Double)..])
-                                val = if sc ≡ Log
-                                      then map (\x → logBase 10 min + (x÷(fromIntegral (n-1))) ⋅ (logBase 10 max - logBase 10 min))
-                                           (take n [(0 ∷ Double)..])
+tickPosition :: Scale -> Double -> Double -> Int -> [(Double,Double)]
+tickPosition sc min max n = let pos = map (\x -> min + (max-min)*(x)/(fromIntegral (n-1))) (take n [(0 :: Double)..])
+                                val = if sc == Log
+                                      then map (\x -> logBase 10 min + (x/(fromIntegral (n-1))) * (logBase 10 max - logBase 10 min))
+                                           (take n [(0 :: Double)..])
                                       else pos
                                 in zip pos val
 {-
@@ -354,7 +353,7 @@ minorTickLengths min maj = let num = (min-1) `div` (maj-1)
                    --map ((/) 2 . (+) 1 . (/) (fromIntegral tmaj) . fromIntegral . (mod tmaj)) (take (tmin+1) [0..])
 
 renderAxisTick :: P.PangoContext -> TextOptions 
-               -> Double -> Double -> Double -> Double -> Scale → Double -> Double
+               -> Double -> Double -> Double -> Double -> Scale -> Double -> Double
                -> AxisType -> AxisPosn -> TickFormat -> Tick -> GridLines
                -> (Double,Double,Double) -> C.Render ()
 renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
@@ -407,7 +406,7 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
                             (Side _)  -> True
                             (Value _) -> False
        when (t == Major && majlab) $ do
-            let s = if sc ≡ Log then formatTick "10e%.1g" v else formatTick tf v
+            let s = if sc == Log then formatTick "10e%.1g" v else formatTick tf v
             lo <- pango $ P.layoutText pc s
             setTextOptions (scaleFontSize tickLabelScale to) lo
             case xa of 

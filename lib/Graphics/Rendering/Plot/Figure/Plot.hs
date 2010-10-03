@@ -1,4 +1,3 @@
-{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure.Plot
@@ -67,8 +66,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
 
 -----------------------------------------------------------------------------
 
-import Data.Eq.Unicode
-import Data.Bool.Unicode
+--import Data.Eq.Unicode
+--import Data.Bool.Unicode
 --import Data.Ord.Unicode
 
 --import Data.Packed.Vector
@@ -109,10 +108,10 @@ withHeading m = do
 -----------------------------------------------------------------------------
 
 -- | set the axis range
-setRange :: AxisType -> AxisSide -> Scale → Double -> Double -> Plot ()
+setRange :: AxisType -> AxisSide -> Scale -> Double -> Double -> Plot ()
 setRange XAxis sd sc min max = modify $ \s -> s { _ranges = setXRanges' (_ranges s) }
     where setXRanges' r
-              | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
+              | sc == Log && min <= 0 = error "non-positive logarithmic range"
               | otherwise          = setXRanges sd r
           setXRanges Lower (Ranges (Left _) yr)       = Ranges (Left (Range sc min max)) yr
           setXRanges Lower (Ranges (Right (_,xr)) yr) = Ranges (Right ((Range sc min max,xr))) yr
@@ -120,7 +119,7 @@ setRange XAxis sd sc min max = modify $ \s -> s { _ranges = setXRanges' (_ranges
           setXRanges Upper (Ranges (Right (_,xr)) yr) = Ranges (Right (Range sc min max,xr)) yr
 setRange YAxis sd sc min max = modify $ \s -> s { _ranges = setYRanges' (_ranges s) }
     where setYRanges' r
-              | sc ≡ Log ∧ min <= 0 = error "non-positive logarithmic range"
+              | sc == Log && min <= 0 = error "non-positive logarithmic range"
               | otherwise          = setYRanges sd r
           setYRanges Lower (Ranges xr (Left _))       = Ranges xr (Left (Range sc min max))
           setYRanges Lower (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range sc min max,yr)))
@@ -128,7 +127,7 @@ setRange YAxis sd sc min max = modify $ \s -> s { _ranges = setYRanges' (_ranges
           setYRanges Upper (Ranges xr (Right (_,yr))) = Ranges xr (Right ((Range sc min max,yr)))
 
 -- | set the axis ranges to values based on dataset
-setRangeFromData :: AxisType -> AxisSide -> Scale → Plot ()
+setRangeFromData :: AxisType -> AxisSide -> Scale -> Plot ()
 setRangeFromData ax sd sc = do
   ds <- gets _data
   let ((xmin,xmax),(ymin,ymax)) = calculateRanges ds

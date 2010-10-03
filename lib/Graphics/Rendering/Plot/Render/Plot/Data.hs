@@ -1,5 +1,6 @@
-{-# LANGUAGE UnicodeSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UnicodeSyntax #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Data
@@ -22,7 +23,7 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 -----------------------------------------------------------------------------
 
 import Data.List(partition)
-import Prelude.Unicode
+--import Prelude.Unicode
 
 import Foreign.Storable 
 import Foreign.Ptr
@@ -129,11 +130,11 @@ renderData r ds = do
   let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
   (BoundingBox x y w h) <- get
   let (xsc,xmin',xmax') = getRanges XAxis Lower r
-  let (xmin,xmax) = if xsc ≡ Log then (logBase 10 xmin',logBase 10 xmax') else (xmin',xmax')
+  let (xmin,xmax) = if xsc == Log then (logBase 10 xmin',logBase 10 xmax') else (xmin',xmax')
   let xscale = w/(xmax-xmin) 
   cairo $ C.save
   let (yscl,yminl',ymaxl') = getRanges YAxis Lower r
-  let (yminl,ymaxl) = if yscl ≡ Log then (logBase 10 yminl',logBase 10 ymaxl') else (yminl',ymaxl')
+  let (yminl,ymaxl) = if yscl == Log then (logBase 10 yminl',logBase 10 ymaxl') else (yminl',ymaxl')
   let yscalel = h/(ymaxl-yminl) 
   -- transform to data coordinates
   cairo $ do 
@@ -147,7 +148,7 @@ renderData r ds = do
            (do
              cairo $ C.save
              let (yscu,yminu',ymaxu') = getRanges YAxis Upper r
-             let (yminu,ymaxu) = if yscu ≡ Log then (logBase 10 yminu',logBase 10 ymaxu') else (yminu',ymaxu')
+             let (yminu,ymaxu) = if yscu == Log then (logBase 10 yminu',logBase 10 ymaxu') else (yminu',ymaxu')
              let yscaleu = h/(ymaxu-yminu) 
              -- transform to data coordinates
              cairo $ do 
@@ -188,10 +189,10 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                            AbsPoints t'     -> t'
                  return $ Right [((t,o'),(t,(l,h)))]
   let dat = case dat' of
-            Left dat'' → map (\(a,b) → Left (if xsc ≡ Log then (logBase 10 a) else a
+            Left dat'' → map (\(a,b) -> Left (if xsc == Log then (logBase 10 a) else a
                                             ,if ysc == Log then (logBase 10 b) else b)) dat''
-            Right dat''' → map (\((a,(bl,bu)),(c,(dl,du))) → let (a',c') = if xsc ≡ Log then (logBase 10 a,logBase 10 c) else (a,c)
-                                                                 (bl',bu',dl',du') = if ysc ≡ Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
+            Right dat''' → map (\((a,(bl,bu)),(c,(dl,du))) → let (a',c') = if xsc == Log then (logBase 10 a,logBase 10 c) else (a,c)
+                                                                 (bl',bu',dl',du') = if ysc == Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
                                                              in Right ((a',(bl',bu')),(c',(dl',du')))) dat'''
   case d of
     (DecLine lt)   -> do
@@ -476,10 +477,10 @@ renderWhiskerSample bw _ bc whiskers x (yl,yu) = do
                               C.lineTo x yu
                               if whiskers
                                  then do
-                                   C.moveTo (x-bw÷2) yu
-                                   C.lineTo (x+bw÷2) yu
-                                   C.moveTo (x-bw÷2) yl
-                                   C.lineTo (x+bw÷2) yl
+                                   C.moveTo (x-bw/2) yu
+                                   C.lineTo (x+bw/2) yu
+                                   C.moveTo (x-bw/2) yl
+                                   C.lineTo (x+bw/2) yl
                                  else return ()
                               C.stroke
 

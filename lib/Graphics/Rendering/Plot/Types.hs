@@ -3,7 +3,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE UnicodeSyntax #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Types
@@ -143,7 +142,7 @@ type Annotations = [Annotation]
 
 data Scale = Linear | Log deriving(Eq)
 
-data Range = Range { _range_scale ∷ Scale, _range_min :: Double, _range_max :: Double }
+data Range = Range { _range_scale :: Scale, _range_min :: Double, _range_max :: Double }
 
 data Ranges = Ranges (Either Range (Range,Range)) (Either Range (Range,Range))
 
@@ -264,7 +263,7 @@ getOrdData (Plain o)   = o
 getOrdData (Error o _) = o
 getOrdData (MinMax (o,_) _) = o
 
-getMinMaxData ∷ OrdSeries → Either MinMaxSeries (MinMaxSeries,(ErrorSeries,ErrorSeries))
+getMinMaxData :: OrdSeries -> Either MinMaxSeries (MinMaxSeries,(ErrorSeries,ErrorSeries))
 getMinMaxData (MinMax o Nothing)  = Left o
 getMinMaxData (MinMax o (Just e)) = Right (o,e)
 
