@@ -165,32 +165,32 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
           (OrdFunction _ f _)            -> do
                  (BoundingBox _ _ w _) <- get
                  let t = linspace (round w) (xmin,xmax)
-                 return $ Left [(t,mapVector f t)]
+                 return $ Left [((True,t),mapVector f t)]
           (OrdPoints _ (Plain o') _)     -> do
                  let t = case abs of
                            AbsFunction      -> if isHist d
-                                              then fromList [0.0..(fromIntegral $ dim o')]
-                                              else fromList [1.0..(fromIntegral $ dim o')]
-                           AbsPoints t'     -> t'
+                                              then (True,fromList [0.0..(fromIntegral $ dim o')])
+                                              else (True,fromList [1.0..(fromIntegral $ dim o')])
+                           AbsPoints mi t'  -> (mi,t')
                  return $ Left [(t,o')]
           (OrdPoints _ (Error o' (l,h)) _) -> do
                  let t = case abs of
                            AbsFunction      -> if isHist d
-                                              then fromList [0.0..(fromIntegral $ dim o')]
-                                              else fromList [1.0..(fromIntegral $ dim o')]
-                           AbsPoints t'     -> t'
+                                              then (True,fromList [0.0..(fromIntegral $ dim o')])
+                                              else (True,fromList [1.0..(fromIntegral $ dim o')])
+                           AbsPoints mi t'  -> (mi,t')
                  return $ Left [(t,o'),(t,o'-l),(t,o'+h)]
           (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
                  let t = case abs of
-                           AbsFunction      -> fromList [1.0..(fromIntegral $ dim l)]
-                           AbsPoints t'     -> t'
+                           AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim l)])
+                           AbsPoints mi t'  -> (mi,t')
                  return $ Right [((t,o'),(t,(l,h)))]
   let dat = case dat' of
-            Left dat'' → map (\(a,b) -> Left (if xsc == Log then (logBase 10 a) else a
-                                            ,if ysc == Log then (logBase 10 b) else b)) dat''
-            Right dat''' → map (\((a,(bl,bu)),(c,(dl,du))) → let (a',c') = if xsc == Log then (logBase 10 a,logBase 10 c) else (a,c)
-                                                                 (bl',bu',dl',du') = if ysc == Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
-                                                             in Right ((a',(bl',bu')),(c',(dl',du')))) dat'''
+            Left dat'' → map (\((m,a),b) -> Left (if xsc == Log then (m,logBase 10 a) else (m,a)
+                                                ,if ysc == Log then (logBase 10 b) else b)) dat''
+            Right dat''' -> map (\(((m1,a),(bl,bu)),((m2,c),(dl,du))) → let (a',c') = if xsc == Log then (logBase 10 a,logBase 10 c) else (a,c)
+                                                                            (bl',bu',dl',du') = if ysc == Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
+                                                                       in Right (((m1,a'),(bl',bu')),((m2,c'),(dl',du')))) dat'''
   case d of
     (DecLine lt)   -> do
            formatLineSeries lt xscale yscale
@@ -222,9 +222,9 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
     (DecArea lt) -> do
            formatLineSeries lt xscale yscale
            let Left hd = head dat
-               ln = dim $ fst hd
-               xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
-               x0 = (fst hd) @> xmin_ix
+               ln = dim $ snd $ fst hd
+               xmin_ix = findMinIdx (snd $ fst hd) xmin 0 (ln-1)
+               x0 = (snd $ fst hd) @> xmin_ix
                y0 = (snd hd) @> xmin_ix
            mapM_ (\(t',y') -> renderSamples xmin xmax Nothing 
                              renderAreaSample (endAreaSample x0 y0) t' y') (map (either id (error "MinMax data")) dat)
@@ -235,10 +235,10 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
     (DecHist bt)  -> do
            (bw,bc,c) <- formatBarSeries bt xscale yscale
            let Left hd = head dat
-               ln = dim $ fst hd
-               xmin_ix = findMinIdx (fst hd) xmin 0 (ln-1)
-               rest v = subVector 1 (dim v - 1) v
-               x0 = (fst hd) @> xmin_ix
+               ln = dim $ snd $ fst hd
+               xmin_ix = findMinIdx (snd $ fst hd) xmin 0 (ln-1)
+               rest (m,v) = (m,subVector 1 (dim v - 1) v)
+               x0 = (snd $ fst hd) @> xmin_ix
                y0 = 0
            mapM_ (\(t',y') -> renderSamples xmin xmax (Just $ C.moveTo x0 y0) 
                              (renderHistSample bw bc c) endHistSample (rest t') y') (map (either id (error "MinMax data")) dat)
@@ -265,19 +265,18 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
 renderSamples :: Double -> Double 
               -> Maybe (C.Render ())
               -> (Double -> Double -> C.Render ()) -> C.Render ()
-              -> Vector Double -> Vector Double -> Render ()
-renderSamples xmin xmax s f e t y = do
+              -> (Bool,Vector Double) -> Vector Double -> Render ()
+renderSamples xmin xmax s f e (mono,t) y = do
                                   (BoundingBox _ _ w _) <- get
                                   let ln = dim t
-                                      m = isMonotoneIncreasing t
-                                      (xmin_ix,xmax_ix,num_pts) = if m
+                                      (xmin_ix,xmax_ix,num_pts) = if mono
                                                                      then (findMinIdx t xmin 0 (ln-1)
                                                                            ,findMaxIdx t xmax (ln-1) 0
                                                                            ,xmax_ix - xmin_ix + 1)
                                                                      else (0,ln-1,ln)
                                       diff'' = floor $ (fromIntegral num_pts)/w
                                       diff' = if diff'' <= 1 then 1 else diff''
-                                      diff = if m then diff' else 1
+                                      diff = if mono then diff' else 1
                                   cairo $ do
                                          case s of
                                                 Nothing -> C.moveTo (t @> xmin_ix) (y @> xmin_ix)
@@ -294,19 +293,18 @@ renderSamples xmin xmax s f e t y = do
 renderMinMaxSamples :: Double -> Double 
               -> Maybe (C.Render ())
               -> (Double -> (Double,Double) -> C.Render ()) -> C.Render ()
-              -> Vector Double -> (Vector Double,Vector Double) -> Render ()
-renderMinMaxSamples xmin xmax s f e t y = do
+              -> (Bool,Vector Double) -> (Vector Double,Vector Double) -> Render ()
+renderMinMaxSamples xmin xmax s f e (mono,t) y = do
                                   (BoundingBox _ _ w _) <- get
                                   let ln = dim t
-                                      m = isMonotoneIncreasing t
-                                      (xmin_ix,xmax_ix,num_pts) = if m
+                                      (xmin_ix,xmax_ix,num_pts) = if mono
                                                                      then (findMinIdx t xmin 0 (ln-1)
                                                                            ,findMaxIdx t xmax (ln-1) 0
                                                                            ,xmax_ix - xmin_ix + 1)
                                                                      else (0,ln-1,ln)
                                       diff'' = floor $ (fromIntegral num_pts)/w
                                       diff' = if diff'' <= 1 then 1 else diff''
-                                      diff = if m then diff' else 1
+                                      diff = if mono then diff' else 1
                                   cairo $ do
                                          case s of
                                                 Nothing -> C.moveTo (t @> xmin_ix) ((fst $ y) @> xmin_ix)
@@ -446,18 +444,6 @@ renderWhiskerSample bw _ bc whiskers x (yl,yu) = do
 
 endWhiskerSample :: C.Render ()
 endWhiskerSample = return ()
-
------------------------------------------------------------------------------
-
-monoStep :: Double -> MaybeT (State Double) ()
-monoStep d = do
-             dp <- get
-             when (d < dp) (fail "negative difference")
-             put d
-{-# INLINE monoStep #-}
-
-isMonotoneIncreasing :: Vector Double -> Bool
-isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep (subVector 1 (dim v -1) v))) (v @> 0)
 
 -----------------------------------------------------------------------------
 

@@ -237,7 +237,7 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
 findMinMax AbsFunction (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
                                            in (minElement v,maxElement v)
-findMinMax (AbsPoints x) (OrdFunction _ f _) = let v = mapVector f x
+findMinMax (AbsPoints _ x) (OrdFunction _ f _) = let v = mapVector f x
                                              in (minElement v,maxElement v)
                                            -- what if errors go beyond plot?
 findMinMax _ (OrdPoints _ y _)    = let o = getOrdData y
@@ -245,7 +245,7 @@ findMinMax _ (OrdPoints _ y _)    = let o = getOrdData y
 
 abscMinMax :: Abscissae -> (Double,Double)
 abscMinMax AbsFunction        = defaultXAxisSideLowerRange
-abscMinMax (AbsPoints x)      = (minElement x,maxElement x)
+abscMinMax (AbsPoints _ x)      = (minElement x,maxElement x)
 
 
 ordDim :: Ordinates -> Int

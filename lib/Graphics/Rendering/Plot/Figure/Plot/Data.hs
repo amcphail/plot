@@ -40,7 +40,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Data (
 
 -----------------------------------------------------------------------------
 
---import Data.Packed.Vector
+import Data.Packed.Vector
 
 import Data.Maybe
 
@@ -49,6 +49,7 @@ import qualified Data.Array.IArray as A
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Supply
+import Control.Monad.Maybe
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Figure.Line
@@ -518,7 +519,7 @@ class Abscissa a where
 toAbscissae :: Abscissa a => [a] -> [Abscissae]
 toAbscissae = map toAbscissa
 
-instance Abscissa Series                   where toAbscissa s         = AbsPoints s
+instance Abscissa Series                   where toAbscissa s         = AbsPoints (isMonotoneIncreasing s) s
 
 class Ordinate a where
     toOrdinate :: a -> Ordinates
@@ -891,6 +892,18 @@ setDataSeries :: Dataset a => a -> Data ()
 setDataSeries d = do
                   ds <- toDataSeries d
                   put ds
+
+-----------------------------------------------------------------------------
+
+monoStep :: Double -> MaybeT (State Double) ()
+monoStep d = do
+             dp <- get
+             when (d < dp) (fail "negative difference")
+             put d
+{-# INLINE monoStep #-}
+
+isMonotoneIncreasing :: Vector Double -> Bool
+isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep (subVector 1 (dim v -1) v))) (v @> 0)
 
 -----------------------------------------------------------------------------
 

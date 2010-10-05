@@ -280,8 +280,10 @@ getMinMaxData :: OrdSeries -> Either MinMaxSeries (MinMaxSeries,(ErrorSeries,Err
 getMinMaxData (MinMax o Nothing)  = Left o
 getMinMaxData (MinMax o (Just e)) = Right (o,e)
 
+type MonotoneIncreasing = Bool
+
 data Abscissae = AbsFunction 
-               | AbsPoints Series
+               | AbsPoints MonotoneIncreasing Series
 
 data Ordinates = OrdFunction AxisSide Function  (Maybe SeriesLabel)
                | OrdPoints   AxisSide OrdSeries (Maybe SeriesLabel)
