@@ -49,17 +49,17 @@ import qualified Prelude(max)
 moveTo :: Double -> Double -> C.Render ()
 moveTo x y = do
   lw <- C.getLineWidth
-  let (x',y') = if lw >= 1 && round lw `mod` 2 == 0
-                then (fromIntegral $ round x,fromIntegral $ round y)
-                else ((((fromIntegral $ round x)*2)+1)/2,(((fromIntegral $ round y)*2)+1)/2)
+  let (x',y') = if lw >= 1 && (round lw `mod` 2 == (0 :: Int))
+                then (fromIntegral $ (round x :: Int),fromIntegral $ (round y :: Int))
+                else ((((fromIntegral $ (round x :: Int))*2)+1)/2,(((fromIntegral $ (round y :: Int))*2)+1)/2)
   C.moveTo x' y'
 
 lineTo :: Double -> Double -> C.Render ()
 lineTo x y = do
   lw <- C.getLineWidth
-  let (x',y') = if lw >= 1 && round lw `mod` 2 == 0
-                then (fromIntegral $ round x,fromIntegral $ round y)
-                else ((((fromIntegral $ round x)*2)+1)/2,(((fromIntegral $ round y)*2)+1)/2)
+  let (x',y') = if lw >= 1 && (round lw `mod` 2 == (0 :: Int))
+                then (fromIntegral $ (round x :: Int),fromIntegral $ (round y :: Int))
+                else ((((fromIntegral $ (round x :: Int))*2)+1)/2,(((fromIntegral $ (round y :: Int))*2)+1)/2)
   C.lineTo x' y'
 
 -----------------------------------------------------------------------------
@@ -394,15 +394,15 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
                                                                     in (xt p,y+h,xt p,y+h-tl)
                                                     (Side Upper) -> let xt x' = x + (x'-min)*w/(max-min)
                                                                     in (xt p,y,xt p,y+tl)
-                                                    (Value v)    -> let xt x' = x + (x'-min)*w/(max-min)
-                                                                    in (xt p,v-tl,xt p,v+tl)
+                                                    (Value v')   -> let xt x' = x + (x'-min)*w/(max-min)
+                                                                    in (xt p,v'-tl,xt p,v'+tl)
                                    YAxis -> case sd of
                                                     (Side Lower) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
                                                                     in (x,yt p,x+tl,yt p)
                                                     (Side Upper) -> let yt y' = (y+h) - (y'-min)*h/(max-min)
                                                                     in (x+w,yt p,x+w-tl,yt p)
-                                                    (Value v)    -> let yt y' = (y + h) - (y'-min)*h/(max-min)
-                                                                    in (v-tl,yt p,v+tl,yt p)
+                                                    (Value v')   -> let yt y' = (y + h) - (y'-min)*h/(max-min)
+                                                                    in (v'-tl,yt p,v'+tl,yt p)
        moveTo x1 y1
        lineTo x2 y2
        C.stroke

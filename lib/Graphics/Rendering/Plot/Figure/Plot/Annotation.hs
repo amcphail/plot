@@ -26,19 +26,13 @@ module Graphics.Rendering.Plot.Figure.Plot.Annotation (
 
 --import Data.Packed.Vector
 
-import Data.Maybe
-
 import Control.Monad.State
 import Control.Monad.Reader
-import Control.Monad.Supply
 
 import qualified Graphics.Rendering.Cairo as C
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
-import Graphics.Rendering.Plot.Figure.Line
-import Graphics.Rendering.Plot.Figure.Point
-import Graphics.Rendering.Plot.Figure.Bar
 
 -----------------------------------------------------------------------------
 
