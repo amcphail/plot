@@ -59,6 +59,15 @@ module Graphics.Rendering.Plot.Figure (
                                       , hist
                                       , candle, whisker
                                       , setDataset
+                                      -- * Annotations
+                                      , Location, Head, Fill
+                                      , arrow
+                                      , oval
+                                      , rect
+                                      , glyph
+                                      , text
+                                      , cairo
+                                      , withAnnotations
                                       -- ** Plot type
                                       , setSeriesType
                                       , setAllSeriesTypes

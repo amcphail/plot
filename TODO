@@ -6,9 +6,13 @@ FEATURES
 
  * text labels for major ticks
  * tick values
+ * ticks selectable inside/outside
+ * better tick value formatting and selection algorithm
+   -> add (tickpos),(labelpos,labelvalue)
+
+ * logarithmic minor tick positions
  
  * columns
- * candlestick
 
  * adjustable elements ((x,y) adjustments/offsets)
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
@@ -18,11 +22,7 @@ FEATURES
 
  * 3d plots
 
- * ticks selectable inside/outside
-
- * better tick value formatting and selection algorithm
-
- * logarithmic minor tick positions
+ * formattable grid lines
 
 BUGS
 
@@ -69,6 +69,7 @@ COMPLETE
 | * histogram (variable width bars)
 | * Graphics.Plot replacement
 | * log/semilog plots
+| * candlestick
 | * axis and tick joins are ugly
 
 

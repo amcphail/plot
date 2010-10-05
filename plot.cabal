@@ -38,7 +38,7 @@ Description:
      .
      Changes in plot 0.1.2
      .
-          * bug fixes
+          * axis join rendering improvement
           * added annotations
      .
 Category:            Graphics
@@ -83,13 +83,16 @@ library
                      Graphics.Rendering.Plot.Figure.Plot.Axis
                      Graphics.Rendering.Plot.Figure.Plot.Data
                      Graphics.Rendering.Plot.Figure.Plot.Legend
+                     Graphics.Rendering.Plot.Figure.Plot.Annotation
                      Graphics.Rendering.Plot.Render.Types
                      Graphics.Rendering.Plot.Render.Text
                      Graphics.Rendering.Plot.Render.Plot
                      Graphics.Rendering.Plot.Render.Plot.Axis
                      Graphics.Rendering.Plot.Render.Plot.Data
                      Graphics.Rendering.Plot.Render.Plot.Legend
+                     Graphics.Rendering.Plot.Render.Plot.Annotation
                      Graphics.Rendering.Plot.Render.Plot.Glyph
+                     Graphics.Rendering.Plot.Render.Plot.Format
                      Control.Monad.Supply
 
   ghc-options:       -Wall -fno-warn-unused-binds

@@ -30,6 +30,15 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , D.hist
                                            , D.candle, D.whisker
                                            , setDataset
+                                           -- * Annotations
+                                           , Location, Head, Fill
+                                           , AN.arrow
+                                           , AN.oval
+                                           , AN.rect
+                                           , AN.glyph
+                                           , AN.text
+                                           , AN.cairo
+                                           , withAnnotations
                                            -- ** Plot type
                                            , setSeriesType
                                            , setAllSeriesTypes
@@ -88,6 +97,7 @@ import qualified Graphics.Rendering.Plot.Figure.Text as T
 import qualified Graphics.Rendering.Plot.Figure.Plot.Data as D
 import qualified Graphics.Rendering.Plot.Figure.Plot.Axis as AX
 import qualified Graphics.Rendering.Plot.Figure.Plot.Legend as L
+import qualified Graphics.Rendering.Plot.Figure.Plot.Annotation as AN
 
 -----------------------------------------------------------------------------
 
@@ -135,6 +145,11 @@ setRangeFromData ax sd sc = do
     XAxis -> setRange ax sd sc xmin xmax
     YAxis -> setRange ax sd sc ymin ymax
                     
+-----------------------------------------------------------------------------
+
+withAnnotations :: Annote () -> Plot ()
+withAnnotations = annoteInPlot
+
 -----------------------------------------------------------------------------
 
 -- | clear the axes of a subplot

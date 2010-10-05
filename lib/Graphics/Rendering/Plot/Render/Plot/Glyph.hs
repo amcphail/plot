@@ -32,7 +32,7 @@ renderGlyph :: Double -> Double -> LineWidth -> Glyph -> C.Render ()
 renderGlyph xscale yscale pz g = do
                                  C.save
                                  C.scale (pz / xscale) (pz / yscale)
-                                 C.setLineWidth 1
+                                 C.setLineWidth pz
                                  renderGlyph' g
                                  C.restore
    where renderGlyph' Box    = renderGlyphBox 

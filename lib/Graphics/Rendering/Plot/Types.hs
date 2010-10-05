@@ -29,6 +29,7 @@ import Data.Colour()
 
 import qualified Data.Array.IArray as A
 
+import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
 import Control.Monad.State
@@ -125,18 +126,30 @@ execBar m r = execState (runReaderT (runBar m) r)
 
 -----------------------------------------------------------------------------
 
-type Length = Double
 type Location = (Double,Double)
 type Orientation = Double -- angle
-type Arrow = Bool
+type Head = Bool
+type Fill = Bool
+
+data AnnoteType = Arrow | Glyph | Text | Oval | Rectangle | Cairo
 
 -- extra glyphs and so on that can be put in a chart
-data AnnoteType = AT_Text TextEntry
-                | AT_Glyph Glyph
-                | AT_Arrow Arrow LineOptions Length
+data Annotation = AnnArrow Head LineType Location Location 
+                | AnnOval  Fill BarType Location Location
+                | AnnRect  Fill BarType Location Location
+                | AnnGlyph PointType Location
+                | AnnText  TextEntry Location --Orientation
+                | AnnCairo (Double -> Double -> Double -> Double -> C.Render ())
 
-data Annotation = Annotation AnnoteType Location Orientation Color
 type Annotations = [Annotation]
+
+-----------------------------------------------------------------------------
+
+newtype Annote a = FN { runAnnote :: ReaderT Options (State Annotations) a}
+    deriving(Monad, MonadReader Options, MonadState Annotations)
+
+execAnnote :: Annote a -> Options -> Annotations -> Annotations
+execAnnote m r = execState (runReaderT (runAnnote m) r) 
 
 -----------------------------------------------------------------------------
 
@@ -424,6 +437,16 @@ legendInPlot' m = State $ \s -> let l = _legend s
 
 legendInPlot :: Legend a -> Plot a
 legendInPlot m = FP $ lift $ (withReaderT _textoptions . mapReaderT legendInPlot') (runLegend m)
+
+-----------------------------------------------------------------------------
+
+annoteInPlot' :: State Annotations a -> State PlotData a
+annoteInPlot' m = State $ \s -> let l = _annote s
+                                    (a,annote) = runState m l
+                                in (a,s { _annote = annote})
+
+annoteInPlot :: Annote a -> Plot a
+annoteInPlot m = FP $ lift $ (mapReaderT annoteInPlot') (runAnnote m)
 
 -----------------------------------------------------------------------------
 

@@ -49,7 +49,9 @@ import Control.Monad.Maybe
 import Graphics.Rendering.Plot.Types
 
 import Graphics.Rendering.Plot.Render.Types
+import Graphics.Rendering.Plot.Render.Plot.Format
 import Graphics.Rendering.Plot.Render.Plot.Glyph
+import Graphics.Rendering.Plot.Render.Plot.Annotation
 
 import Prelude hiding(min,max,abs)
 import qualified Prelude
@@ -67,12 +69,6 @@ findMaxIdx v x n min
     | v @> n <= x    = n
     | otherwise      = findMaxIdx v x (n-1) min
 
-flipVerticalMatrix :: CM.Matrix
-flipVerticalMatrix = CM.Matrix 1 0 0 (-1) 0 0
-
-flipVertical :: C.Render ()
-flipVertical = C.transform flipVerticalMatrix
-
 -----------------------------------------------------------------------------
 
 greySurfaceFromMatrix :: C.SurfaceData Int Word8 -> Surface -> Int -> Int -> Int -> IO ()
@@ -89,10 +85,10 @@ greySurfaceFromMatrix s m stride r' c' = do
                         B.unsafeWrite s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
 
 
------------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
 renderData :: Ranges -> DataSeries -> Render ()
-renderData _    (DS_Surf m) = do
+renderData _    (DS_Surf m) = do 
   (BoundingBox x y w h) <- get
   let r = rows m
       c = cols m
@@ -156,7 +152,8 @@ renderData r ds = do
                C.scale xscale yscaleu
                C.translate xmin yminu
                flipVertical
-             mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups)
+             mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups
+             cairo $ C.restore)
              -- could filter annotations as well
   return ()
 
@@ -262,43 +259,6 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
                                  (renderCandleSample bw bc c) endCandleSample t' y'
             ) (map (either (error "Single data") id) dat)
   return ()
-
------------------------------------------------------------------------------
-
-formatLineSeries' :: [Dash] -> LineWidth -> Color -> C.Render ()
-formatLineSeries' ds lw c = do
-                            setDashes ds
-                            C.setLineWidth lw 
-                            setColour c
-
-formatLineSeries :: LineType -> Double -> Double -> Render ()
-formatLineSeries NoLine         _      _      = error "line format of NoLine in a line series"
-formatLineSeries (ColourLine c) xscale yscale = do
-                                                (LineOptions ds lw) <- asks (_lineoptions . _renderoptions)
-                                                cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
-formatLineSeries (TypeLine (LineOptions ds lw) c) xscale yscale = cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
-
-formatPointSeries' :: Color -> C.Render ()
-formatPointSeries' = setColour
-
-formatPointSeries :: PointType -> Double -> Double -> Render (LineWidth,Glyph)
-formatPointSeries (FullPoint (PointOptions pz c) g) _ _ = do
-                                                          cairo $ formatPointSeries' c
-                                                          return (pz,g)
-
-formatBarSeries' :: LineWidth -> C.Render ()
-formatBarSeries' lw = C.setLineWidth lw
-
-formatBarSeries :: BarType -> Double -> Double -> Render (Width,Color,Color)
-formatBarSeries (ColourBar c) xscale yscale = do
-                                let sc = (xscale+yscale)/2
-                                (BarOptions bw lw bc) <- asks (_baroptions . _renderoptions)
-                                cairo $ formatBarSeries' (lw/sc)
-                                return (bw/sc,c,bc)
-formatBarSeries (TypeBar (BarOptions bw lw bc) c) xscale yscale = do
-                                let sc = (xscale+yscale)/2
-                                cairo $ formatBarSeries' (lw/sc)
-                                return (bw/sc,c,bc)
 
 -----------------------------------------------------------------------------
 

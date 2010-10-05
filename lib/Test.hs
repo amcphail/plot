@@ -81,6 +81,7 @@ figure = do
 {-                          setRange XAxis Lower 0 32
                           setRange YAxis Lower 0 20
 -}
+        withLineDefaults $ setLineWidth 2
         withTextDefaults $ setFontFamily "OpenSymbol"
         withTitle $ setText "Testing plot package:"
         withSubTitle $ do
@@ -109,6 +110,16 @@ figure = do
 --                         addAxis XAxis (Value 0) $ return ()
                          setRangeFromData XAxis Lower Linear
                          setRangeFromData YAxis Lower Linear
+                         withAnnotations $ do
+                           arrow True (pi/2,0.5) (0,0) (return ())
+                           --oval True (0.5,1) (1,3) $ setBarColour blue
+                           rect True (0.5,0.5) (2,0.75) $ (return ())
+                           glyph (4,0.2) (return ())
+                           text (5,0.0) (setText "from the α to the Ω")
+                           cairo (\_ _ _ _ -> do
+                                    C.moveTo 3 0.75
+                                    C.lineTo 4 (-0.5)
+                                 )
 --                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside
 --                         withLegendFormat $ setFontSize 6

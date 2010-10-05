@@ -32,6 +32,7 @@ import Data.Colour.Names
 --import qualified Data.Array.IArray as A
 
 import qualified Graphics.Rendering.Cairo as C
+import qualified Graphics.Rendering.Cairo.Matrix as CM
 import qualified Graphics.Rendering.Pango as P
 
 import Control.Monad.Reader
@@ -208,6 +209,15 @@ setPointStyle (FullPoint po g) = do
                                  return g
 
 -----------------------------------------------------------------------------
+
+flipVerticalMatrix :: CM.Matrix
+flipVerticalMatrix = CM.Matrix 1 0 0 (-1) 0 0
+
+flipVertical :: C.Render ()
+flipVertical = C.transform flipVerticalMatrix
+
+-----------------------------------------------------------------------------
+
 
 
 

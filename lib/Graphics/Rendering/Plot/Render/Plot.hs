@@ -51,6 +51,7 @@ import Graphics.Rendering.Plot.Render.Text
 import Graphics.Rendering.Plot.Render.Plot.Axis
 import Graphics.Rendering.Plot.Render.Plot.Data
 import Graphics.Rendering.Plot.Render.Plot.Legend
+import Graphics.Rendering.Plot.Render.Plot.Annotation
 
 --import qualified Text.Printf as Printf
 
@@ -122,8 +123,4 @@ renderBorder True  = do
                                            
 -----------------------------------------------------------------------------
 
-renderAnnotations :: Ranges -> [Annotation] -> Render ()
-renderAnnotations _ _ = return ()
-
------------------------------------------------------------------------------
 
