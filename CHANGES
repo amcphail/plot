@@ -26,5 +26,8 @@
 		* improve Dashes
 		* formattable grid lines
 
-0.2.2.2:
+0.1.2.2:
 		* FormattedSeries, not DecoratedSeries in setDataset documentation
+
+0.1.2.3:
+		* export withGridLine

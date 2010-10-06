@@ -61,6 +61,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setDataset
                                       -- * Annotations
                                       , Location, Head, Fill
+                                      , Annote()
                                       , arrow
                                       , oval
                                       , rect
@@ -100,6 +101,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setTickLabelFormat
                                       , withAxisLabel
                                       , withAxisLine
+                                      , withGridLine
                                        -- * Lines
                                       , Line(), LineFormat()
                                       , DashStyle,Dash(..),LineWidth
