@@ -70,6 +70,9 @@ defaultLineOptions = LineOptions defaultDashStyle defaultLineWidth
 defaultLineType :: LineType
 defaultLineType = ColourLine black
 
+defaultGridLine :: LineType
+defaultGridLine = ColourLine grey 
+
 -----------------------------------------------------------------------------
 
 defaultBarWidth :: Double
@@ -157,10 +160,10 @@ majorTickLength = 7.0
 tickLabelScale = 0.75
 
 defaultMinorTicks :: Ticks
-defaultMinorTicks = Ticks False (Left 41)
+defaultMinorTicks = Ticks NoLine (Left 41)
 
 defaultMajorTicks :: Ticks
-defaultMajorTicks = Ticks False (Left 5)
+defaultMajorTicks = Ticks NoLine (Left 5)
 
 defaultTickFormat :: TickFormat
 defaultTickFormat = ""

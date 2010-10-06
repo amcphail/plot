@@ -88,17 +88,19 @@ execPoint m r = execState (runReaderT (runPoint m) r)
 
 -----------------------------------------------------------------------------
 
-data Dash = Dot | Dash
+data Dash = Dot | Dash deriving(Eq)
 type DashStyle = [Dash]
 type LineWidth = Double
 -- not using line join
 -- not using line cap
 -- do we want arrows?
 data LineOptions = LineOptions DashStyle LineWidth
+                 deriving(Eq)
 
 data LineType = NoLine
               | ColourLine Color
               | TypeLine LineOptions Color
+                deriving(Eq)
 
 -----------------------------------------------------------------------------
 
@@ -181,9 +183,9 @@ data Tick = Minor | Major deriving(Eq)
 
 type GridLines = Bool
 type TickValues = Either Int (Vector Double) -- ^ Either (number of ticks) (tick values)
-data Ticks = Ticks GridLines TickValues
+data Ticks = Ticks LineType TickValues
 
-setTickGridlines :: GridLines -> Ticks -> Ticks
+setTickGridlines :: LineType -> Ticks -> Ticks
 setTickGridlines gl (Ticks _ tv) = Ticks gl tv
 
 setTickValues :: TickValues -> Ticks -> Ticks

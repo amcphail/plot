@@ -71,6 +71,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , AX.setTickLabelFormat
                                            , AX.withAxisLabel
                                            , AX.withAxisLine
+                                           , AX.withGridLine
                                            ) where
 
 -----------------------------------------------------------------------------

@@ -24,3 +24,4 @@
 		* save/restore cairo annotation
 		* add setDataset documentation
 		* improve Dashes
+		* formattable grid lines

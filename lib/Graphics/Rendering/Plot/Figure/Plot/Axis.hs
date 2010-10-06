@@ -13,15 +13,16 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot.Figure.Plot.Axis (
-                                            Axis
-                                           , AxisType(..),AxisSide(..),AxisPosn(..)
-                                           , Tick(..), TickValues, GridLines
-                                           , setTicks
-                                           , setGridlines
-                                           , setTickLabelFormat
-                                           , withAxisLabel
-                                           , withAxisLine
-                                    ) where
+                                                 Axis
+                                                , AxisType(..),AxisSide(..),AxisPosn(..)
+                                                , Tick(..), TickValues, GridLines
+                                                , setTicks
+                                                , setGridlines
+                                                , setTickLabelFormat
+                                                , withAxisLabel
+                                                , withAxisLine
+                                                , withGridLine
+                                                ) where
 
 -----------------------------------------------------------------------------
 
@@ -29,6 +30,7 @@ import Control.Monad.State
 import Control.Monad.Reader
 
 import Graphics.Rendering.Plot.Types
+import Graphics.Rendering.Plot.Defaults
 
 -----------------------------------------------------------------------------
 
@@ -57,6 +59,22 @@ withAxisLine m = do
                  let lt = execLine m lo l
                  modify $ \s -> s { _line_type = lt }
 
+-- | format the grid lines
+withGridLine :: Tick -> Line () -> Axis ()
+withGridLine t m = do
+                 lo <- asks _lineoptions
+                 (lt',v) <- case t of
+                        Minor -> do
+                               (Ticks lt'' v') <- gets _minor_ticks
+                               return (lt'',v')
+                        Major -> do
+                               (Ticks lt'' v') <- gets _major_ticks
+                               return (lt'',v')
+                 let lt = execLine m lo lt'
+                 case t of
+                   Minor -> modify $ \s -> s { _minor_ticks = Ticks lt v }
+                   Major -> modify $ \s -> s { _major_ticks = Ticks lt v }
+
 -- | format the axis ticks
 setTicks :: Tick -> TickValues -> Axis ()
 setTicks Minor ts = modify $ \s -> changeMinorTicks (setTickValues ts) s
@@ -64,8 +82,8 @@ setTicks Major ts = modify $ \s -> changeMajorTicks (setTickValues ts) s
 
 -- | should gridlines be displayed?
 setGridlines :: Tick -> GridLines -> Axis ()
-setGridlines Minor gl = modify $ \s -> changeMinorTicks (setTickGridlines gl) s
-setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines gl) s
+setGridlines Minor gl = modify $ \s -> changeMinorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
+setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
 
 -- | printf format that takes one argument, the tick value
 setTickLabelFormat :: String -> Axis ()

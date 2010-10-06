@@ -119,6 +119,7 @@ figure = do
                            cairo (\_ _ _ _ -> do
                                     C.moveTo 3 0.75
                                     C.lineTo 4 (-0.5)
+                                    C.stroke
                                  )
 --                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside

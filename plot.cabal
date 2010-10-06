@@ -42,6 +42,8 @@ Description:
      .
           * added annotations
      .
+          * grid lines formattable
+     .
 Category:            Graphics
 
 Tested-with:         GHC==6.12.1

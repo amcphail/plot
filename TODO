@@ -20,8 +20,6 @@ FEATURES
 
  * 3d plots
 
- * formattable grid lines
-
 BUGS
 
  * fix error bars for non-points (esp. bars, hist)
@@ -69,6 +67,8 @@ COMPLETE
 | * axis and tick joins are ugly
 | * annotations
 | * move monotone increasing check to creation of dataseries
+| * formattable grid lines
+
 
 
 

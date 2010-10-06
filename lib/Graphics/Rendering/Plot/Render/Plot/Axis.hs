@@ -381,7 +381,7 @@ minorTickLengths min maj = let num = (min-1) `div` (maj-1)
 
 renderAxisTick :: P.PangoContext -> TextOptions 
                -> Double -> Double -> Double -> Double -> Scale -> Double -> Double
-               -> AxisType -> AxisPosn -> TickFormat -> Tick -> GridLines
+               -> AxisType -> AxisPosn -> TickFormat -> Tick -> LineType
                -> (Double,Double,Double) -> C.Render ()
 renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
        let tl' = case t of
@@ -406,7 +406,7 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
        moveTo x1 y1
        lineTo x2 y2
        C.stroke
-       when gl (do
+       when (gl /= NoLine)  (do
                 let (x3,y3,x4,y4) = case xa of
                                    XAxis -> case sd of
                                                     (Side Lower) -> let xt x' = x + (x'-min)*w/(max-min)
@@ -423,10 +423,7 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
                                                     (Value _)    -> let yt y' = (y + h) - (y'-min)*h/(max-min)
                                                                     in (x,yt p,x+w,yt p)
                 C.save
-                lw <- C.getLineWidth
-                C.setLineWidth (lw/2)
-                C.setDash [4,4] 0
-                C.setSourceRGBA 0 0 0 0.5
+                setLineStyle gl             
                 moveTo x3 y3
                 lineTo x4 y4
                 C.stroke
