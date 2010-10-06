@@ -25,3 +25,6 @@
 		* add setDataset documentation
 		* improve Dashes
 		* formattable grid lines
+
+0.2.2.2:
+		* FormattedSeries, not DecoratedSeries in setDataset documentation

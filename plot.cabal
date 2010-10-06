@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.1.2.1
+Version:             0.1.2.2
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010
@@ -43,6 +43,8 @@ Description:
           * added annotations
      .
           * grid lines formattable
+     .
+     Changes
      .
 Category:            Graphics
 

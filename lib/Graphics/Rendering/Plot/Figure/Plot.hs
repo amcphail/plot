@@ -205,7 +205,7 @@ withData = dataInPlot
 
 {- | set the data series of the subplot
 
-   The data series are either 'DecoratedSeries' or plain data series.
+   The data series are either 'FormattedSeries' or plain data series.
    A plain data series must carry a 'SeriesType'.
 
   A dataset may or may not have an abscissa series, and if so, it is paired
@@ -223,7 +223,7 @@ withData = dataInPlot
 > setDataset (ts,[linespoints (xs,(le,ue),Upper,"data") (([Dash,Dash],3,blue),(Diamond,green))])
 
   has abscissa @ts@ paired with a list of ordinate series, the single element of which is a
-  'DecoratedSeries', @linespoints@ where the ordinate is @xs@ with error series @le@ and @ue@,
+  'FormattedSeries', @linespoints@ where the ordinate is @xs@ with error series @le@ and @ue@,
   to be graphed against the upper y-range with label \"data\".  The line element is formatted
   to be dashed, of width 3, and blue and the point element is to be a green diamond.
 -}
