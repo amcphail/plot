@@ -25,17 +25,17 @@ import Control.Monad.Reader
 import Control.Monad.State
 
 import Graphics.Rendering.Plot.Types
-import Graphics.Rendering.Plot.Defaults
+--import Graphics.Rendering.Plot.Defaults
 
-import Graphics.Rendering.Plot.Figure.Text
+--import Graphics.Rendering.Plot.Figure.Text
 
 import Graphics.Rendering.Plot.Render.Types
 import Graphics.Rendering.Plot.Render.Text
 import Graphics.Rendering.Plot.Render.Plot.Glyph
 import Graphics.Rendering.Plot.Render.Plot.Format
 
-import Prelude hiding(min,max)
-import qualified Prelude(max)
+--import Prelude hiding(min,max)
+--import qualified Prelude(max)
 
 -----------------------------------------------------------------------------
 
@@ -131,6 +131,9 @@ renderAnnotation xsc ysc (AnnText te (x1,y1)) = do
   return ()
 renderAnnotation _   _   (AnnCairo r) = do
   (BoundingBox x y w h) <- get
-  cairo $ r x y w h
+  cairo $ do
+    C.save
+    r x y w h
+    C.restore
 
 -----------------------------------------------------------------------------

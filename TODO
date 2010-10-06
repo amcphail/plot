@@ -1,7 +1,5 @@
 FEATURES
 
- * annotations
-
  * square plot (tie x and y shapes) (lockAspectRatio)
 
  * text labels for major ticks
@@ -33,8 +31,6 @@ BUGS
  * scale (log/linear) attached to range?
 
  * logarithmic tick label width adjustment?
-
- * move monotone increasing check to creation of dataseries
 
  * should scale be in setRange*?
 
@@ -71,6 +67,10 @@ COMPLETE
 | * log/semilog plots
 | * candlestick
 | * axis and tick joins are ugly
+| * annotations
+| * move monotone increasing check to creation of dataseries
+
+
 
 
 

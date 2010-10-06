@@ -25,8 +25,8 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 import Data.List(partition)
 --import Prelude.Unicode
 
-import Foreign.Storable 
-import Foreign.Ptr
+--import Foreign.Storable 
+--import Foreign.Ptr
 
 --import Data.Packed.Vector
 --import Data.Packed.Matrix
@@ -51,7 +51,7 @@ import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Render.Types
 import Graphics.Rendering.Plot.Render.Plot.Format
 import Graphics.Rendering.Plot.Render.Plot.Glyph
-import Graphics.Rendering.Plot.Render.Plot.Annotation
+--import Graphics.Rendering.Plot.Render.Plot.Annotation
 
 import Prelude hiding(min,max,abs)
 import qualified Prelude
@@ -309,9 +309,9 @@ renderMinMaxSamples xmin xmax s f e (mono,t) y = do
                                          case s of
                                                 Nothing -> C.moveTo (t @> xmin_ix) ((fst $ y) @> xmin_ix)
                                                 Just s' -> s'
-                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\i t -> do
+                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\i t' -> do
                                             when (i >= xmin_ix && i `mod` diff == 0)
-                                                     (renderMinMaxSample i xmax_ix t f e y)
+                                                     (renderMinMaxSample i xmax_ix t' f e y)
                                             return ()) t
                                          return ()
 
