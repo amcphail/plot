@@ -39,6 +39,7 @@ Description:
      Changes in plot 0.1.2
      .
           * axis join rendering improvement
+     .
           * added annotations
      .
 Category:            Graphics

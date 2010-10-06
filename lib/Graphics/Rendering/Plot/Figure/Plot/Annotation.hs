@@ -13,7 +13,8 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot.Figure.Plot.Annotation (
-                                                       clearAnnotations
+                                                       Annote
+                                                      , clearAnnotations
                                                       , arrow
                                                       , oval
                                                       , rect

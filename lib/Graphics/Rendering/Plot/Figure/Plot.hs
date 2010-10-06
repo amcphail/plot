@@ -224,7 +224,7 @@ withData = dataInPlot
   has abscissa @ts@ paired with a list of ordinate series, the single element of which is a
   'DecoratedSeries', @linespoints@ where the ordinate is @xs@ with error series @le@ and @ue@,
   to be graphed against the upper y-range with label \"data\".  The line element is formatted
-  to be dashed, of width 3 and blue and the point element is to be a green diamond.
+  to be dashed, of width 3, and blue and the point element is to be a green diamond.
 -}
 setDataset :: D.Dataset a => a -> Plot ()
 setDataset d = withData $ D.setDataSeries d

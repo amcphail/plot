@@ -128,7 +128,7 @@ setColour c = let (RGB r g b) = toSRGB c
 setDashes :: [Dash] -> C.Render ()
 setDashes [] = C.setDash [] 0
 setDashes xs = do
-               let xs' = concat $ map (\d -> case d of { Dot -> [1,1] ; Dash -> [2,1] }) xs
+               let xs' = map (\d -> case d of { Dot -> 1 ; Dash -> 3 }) xs
                C.setDash xs' 0
                      
 -----------------------------------------------------------------------------
