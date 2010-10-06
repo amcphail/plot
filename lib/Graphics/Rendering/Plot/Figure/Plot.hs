@@ -202,7 +202,30 @@ withLegend = legendInPlot
 withData :: D.Data () -> Plot ()
 withData = dataInPlot
 
--- | set the data series of the subplot
+{- | set the data series of the subplot
+
+   The data series are either 'DecoratedSeries' or plain data series.
+   A plain data series must carry a 'SeriesType'.
+
+  A dataset may or may not have an abscissa series, and if so, it is paired
+  with either a list of ordinate series or a single ordinate series.
+
+  The abscissa series (if present) is of type 'Vector Double'.
+
+  An ordinate series be a function (@Double -> Double@) or a series of points,
+  a 'Vector Double' with optional error series, y axis preference, and labels.
+
+  To specify decoration options for an ordinate series, use the appropriate function, such
+  as 'linespoints', with the ordinate series and decoration formatting ('LineFormat',
+  'PointFormat', and 'BarFormat') as arguments.
+
+> setDataset (ts,[linespoints (xs,(le,ue),Upper,"data") (([Dash,Dash],3,blue),(Diamond,green))])
+
+  has abscissa @ts@ paired with a list of ordinate series, the single element of which is a
+  'DecoratedSeries', @linespoints@ where the ordinate is @xs@ with error series @le@ and @ue@,
+  to be graphed against the upper y-range with label \"data\".  The line element is formatted
+  to be dashed, of width 3 and blue and the point element is to be a green diamond.
+-}
 setDataset :: D.Dataset a => a -> Plot ()
 setDataset d = withData $ D.setDataSeries d
 

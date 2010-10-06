@@ -22,3 +22,4 @@
 
 0.1.2.1:
 		* save/restore cairo annotation
+		* add setDataset documentation
