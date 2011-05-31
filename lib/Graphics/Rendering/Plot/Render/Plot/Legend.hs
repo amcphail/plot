@@ -285,7 +285,7 @@ renderLegendSample x y w h d = do
                                                  cairo $ do
                                                          g <- setPointStyle p'
                                                          C.moveTo (x+w/2) (y+h/2)
-                                                         renderGlyph 1 1 1 g
+                                                         renderGlyph 1 g
 
 -----------------------------------------------------------------------------
 

@@ -24,8 +24,9 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Plot.Figure (
+                                       module Data.Colour.Names
                                        -- * Top level operation
-                                       Figure(), FigureState()
+                                      , Figure(), FigureState()
                                        -- * Default options
                                       , withTextDefaults
                                       , withLineDefaults 

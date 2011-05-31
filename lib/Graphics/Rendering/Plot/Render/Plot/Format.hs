@@ -33,38 +33,37 @@ import Control.Monad.Reader
 
 formatLineSeries' :: [Dash] -> LineWidth -> Color -> C.Render ()
 formatLineSeries' ds lw c = do
-                            setDashes ds
-                            C.setLineWidth lw 
-                            setColour c
+  setDashes ds
+  C.setLineWidth lw 
+  setColour c
 
-formatLineSeries :: LineType -> Double -> Double -> Render ()
-formatLineSeries NoLine         _      _      = error "line format of NoLine in a line series"
-formatLineSeries (ColourLine c) xscale yscale = do
-                                                (LineOptions ds lw) <- asks (_lineoptions . _renderoptions)
-                                                cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
-formatLineSeries (TypeLine (LineOptions ds lw) c) xscale yscale = cairo $ formatLineSeries' ds ((lw)/(xscale+yscale)) c
+formatLineSeries :: LineType -> Render ()
+formatLineSeries NoLine         = error "line format of NoLine in a line series"
+formatLineSeries (ColourLine c) = do
+  (LineOptions ds lw) <- asks (_lineoptions . _renderoptions)
+  cairo $ formatLineSeries' ds lw c
+formatLineSeries (TypeLine (LineOptions ds lw) c) =
+    cairo $ formatLineSeries' ds lw c
 
 formatPointSeries' :: Color -> C.Render ()
 formatPointSeries' = setColour
 
-formatPointSeries :: PointType -> Double -> Double -> Render (LineWidth,Glyph)
-formatPointSeries (FullPoint (PointOptions pz c) g) _ _ = do
-                                                          cairo $ formatPointSeries' c
-                                                          return (pz,g)
+formatPointSeries :: PointType -> Render (LineWidth,Glyph)
+formatPointSeries (FullPoint (PointOptions pz c) g) = do
+  cairo $ formatPointSeries' c
+  return (pz,g)
 
 formatBarSeries' :: LineWidth -> C.Render ()
 formatBarSeries' lw = C.setLineWidth lw
 
-formatBarSeries :: BarType -> Double -> Double -> Render (Width,Color,Color)
-formatBarSeries (ColourBar c) xscale yscale = do
-                                let sc = (xscale+yscale)/2
-                                (BarOptions bw lw bc) <- asks (_baroptions . _renderoptions)
-                                cairo $ formatBarSeries' (lw/sc)
-                                return (bw/sc,c,bc)
-formatBarSeries (TypeBar (BarOptions bw lw bc) c) xscale yscale = do
-                                let sc = (xscale+yscale)/2
-                                cairo $ formatBarSeries' (lw/sc)
-                                return (bw/sc,c,bc)
+formatBarSeries :: BarType -> Render (Width,Color,Color)
+formatBarSeries (ColourBar c) = do
+  (BarOptions bw lw bc) <- asks (_baroptions . _renderoptions)
+  cairo $ formatBarSeries' lw
+  return (bw,c,bc)
+formatBarSeries (TypeBar (BarOptions bw lw bc) c) = do
+  cairo $ formatBarSeries' lw
+  return (bw,c,bc)
 
 -----------------------------------------------------------------------------
 

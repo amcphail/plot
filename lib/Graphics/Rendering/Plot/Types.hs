@@ -426,7 +426,7 @@ execPlot m s r = execState (runReaderT (runSupplyT (runPlot m) s) r)
 -----------------------------------------------------------------------------
 
 dataInPlot' :: State DataSeries a -> State PlotData a
-dataInPlot' m = State $ \s -> let (a,d') = runState m (_data s)
+dataInPlot' m = state $ \s -> let (a,d') = runState m (_data s)
                                   in (a,s { _data = d'})
 
 dataInPlot :: Data a -> Plot a
@@ -435,7 +435,7 @@ dataInPlot m = FP $ mapSupplyT (mapReaderT dataInPlot') (runData m)
 -----------------------------------------------------------------------------
 
 legendInPlot' :: State (Maybe LegendData) a -> State PlotData a
-legendInPlot' m = State $ \s -> let l = _legend s
+legendInPlot' m = state $ \s -> let l = _legend s
                                     (a,legend) = runState m l
                                 in (a,s { _legend = legend})
 
@@ -445,7 +445,7 @@ legendInPlot m = FP $ lift $ (withReaderT _textoptions . mapReaderT legendInPlot
 -----------------------------------------------------------------------------
 
 annoteInPlot' :: State Annotations a -> State PlotData a
-annoteInPlot' m = State $ \s -> let l = _annote s
+annoteInPlot' m = state $ \s -> let l = _annote s
                                     (a,annote) = runState m l
                                 in (a,s { _annote = annote})
 

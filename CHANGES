@@ -31,3 +31,19 @@
 
 0.1.2.3:
 		* export withGridLine
+
+0.1.2.4:
+		* bumped gtk dependency
+		* changed 'State' constructor to 'state' function to reflect mtl > 2
+
+0.1.2.5:
+		* fixed bug in surface axis labels
+
+0.1.2.6:
+		* fixed treatment of 0 in log axes
+		* fixed reversed range values
+		  * thus reverting 0.1.2.5 non-bug
+		* export Data.Colour.Names
+
+0.1.3.0:
+		* change scaling so that miniscule linewidths don't occur

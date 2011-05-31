@@ -20,6 +20,8 @@ FEATURES
 
  * 3d plots
 
+ * recycle Cairo context between invocations of renderFigure
+
 BUGS
 
  * fix error bars for non-points (esp. bars, hist)
@@ -37,6 +39,10 @@ BUGS
 
  * tick lengths too small for large axis line width?
 
+ * export Data.Colour.Names
+
+ * 0 in log plots should be ignored
+
 REFACTOR
 
  * using padding functions not raw data structure: pdFoo, pdBar
@@ -46,6 +52,8 @@ REFACTOR
  * refactor Legend (LegendLocation)
  * replace with utility functions common code in Render/Data.hs
  * check Render/Data.hs, Render/Axis.hs
+
+ * rationalise passing of xscale/yscale
 
 COMPLETE
 
@@ -68,7 +76,7 @@ COMPLETE
 | * annotations
 | * move monotone increasing check to creation of dataseries
 | * formattable grid lines
-
+| * cairo in device coordinates not user to avoid tiny linewidths
 
 
 

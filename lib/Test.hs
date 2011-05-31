@@ -20,7 +20,7 @@ import Data.Packed.Vector
 --import Data.Packed.Random
 import Data.Packed()
 
-import Prelude.Unicode
+--import Prelude.Unicode
 
 import qualified Data.Array.IArray as A
 
@@ -65,7 +65,7 @@ cyu = fromList [10,12,16,5,10] ∷ Vector Double
 cel = cyl - 1
 ceu = cyu + 1
 
-at = linspace 1000 (0,2⋅π) ∷ Vector Double
+at = linspace 1000 (0,2*pi) ∷ Vector Double
 ax = sin at
 
 

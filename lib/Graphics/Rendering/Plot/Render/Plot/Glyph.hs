@@ -28,13 +28,13 @@ import Graphics.Rendering.Plot.Types
 glyphWidth :: Double
 glyphWidth = 2*pi
 
-renderGlyph :: Double -> Double -> LineWidth -> Glyph -> C.Render ()
-renderGlyph xscale yscale pz g = do
-                                 C.save
-                                 C.scale (pz / xscale) (pz / yscale)
-                                 C.setLineWidth pz
-                                 renderGlyph' g
-                                 C.restore
+renderGlyph :: LineWidth -> Glyph -> C.Render ()
+renderGlyph pz g = do
+  C.save
+  C.scale pz pz
+  C.setLineWidth pz
+  renderGlyph' g
+  C.restore
    where renderGlyph' Box    = renderGlyphBox 
          renderGlyph' Cross  = renderGlyphCross 
          renderGlyph' Diamond = renderGlyphDiamond 

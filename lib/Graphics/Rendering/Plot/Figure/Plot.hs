@@ -292,7 +292,7 @@ calculateRanges (DS_1to1 ys)   = let (xm',ym') = unzip $ A.elems ys
                                      xm = unzip $ map abscMinMax xm'
                                      xmm = (minimum $ fst xm,maximum $ snd xm) 
                                  in (xmm,ymm)
-calculateRanges (DS_Surf m)     = ((0,fromIntegral $ rows m),(fromIntegral $ cols m,0))
+calculateRanges (DS_Surf m)     = ((0,fromIntegral $ cols m),(fromIntegral $ rows m,0))
 
 -----------------------------------------------------------------------------
                           
