@@ -141,7 +141,7 @@ renderData r ds = do
   cairo $ do 
     C.translate x (y+h)
     --C.scale xscale yscalel
-    C.translate (-xmin) yminl
+    C.translate (-xmin*xscale) (yminl*yscalel)
     flipVertical
   mapM_ (renderSeries xsc yscl xmin xmax xscale yscalel) los
   cairo $ C.restore
@@ -155,7 +155,7 @@ renderData r ds = do
              cairo $ do 
                C.translate x (y+h)
                --C.scale xscale yscaleu
-               C.translate xmin yminu
+               C.translate (-xmin*xscale) (yminu*yscaleu)
                flipVertical
              mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups
              cairo $ C.restore)
@@ -285,7 +285,7 @@ renderSamples xscale yscale xmin xmax s f e (mono,t) y = do
                                       diff = if mono then diff' else 1
                                   cairo $ do
                                          case s of
-                                                Nothing -> C.moveTo ((t @> xmin_ix)/xscale) ((y @> xmin_ix)/yscale)
+                                                Nothing -> C.moveTo ((t @> xmin_ix)*xscale) ((y @> xmin_ix)*yscale)
                                                 Just s' -> s'
                                          _ <- runMaybeT $ do
                                                mapVectorWithIndexM_ (\i y' -> do
@@ -314,7 +314,7 @@ renderMinMaxSamples xscale yscale xmin xmax s f e (mono,t) y = do
                                       diff = if mono then diff' else 1
                                   cairo $ do
                                          case s of
-                                                Nothing -> C.moveTo ((t @> xmin_ix)/xscale) (((fst $ y) @> xmin_ix)/yscale)
+                                                Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
                                                 Just s' -> s'
                                          _ <- runMaybeT $ mapVectorWithIndexM_ (\i t' -> do
                                             when (i >= xmin_ix && i `mod` diff == 0)
@@ -349,14 +349,14 @@ renderMinMaxSample ix xmax_ix t f e (yl,yu)
 -----------------------------------------------------------------------------
 
 renderLineSample :: Double → Double -> Double -> Double -> C.Render ()
-renderLineSample xscale yscale x y = C.lineTo (x/xscale) (y/yscale)
+renderLineSample xscale yscale x y = C.lineTo (x*xscale) (y*yscale)
 
 endLineSample :: Double -> Double -> C.Render ()
 endLineSample _ _ = C.stroke
 
 renderPointSample :: LineWidth -> Glyph -> Double -> Double -> Double -> Double -> C.Render ()
 renderPointSample pz g xscale yscale x y = do
-  C.moveTo (x/xscale) (y/yscale)
+  C.moveTo (x*xscale) (y*yscale)
   renderGlyph pz g
 
 endPointSample :: Double -> Double -> C.Render ()
@@ -364,9 +364,9 @@ endPointSample _ _ = return ()
 
 renderImpulseSample :: Double -> Double -> Double -> Double -> C.Render ()
 renderImpulseSample xscale yscale x y = do
-  let x' = x/xscale
+  let x' = x*xscale
   C.moveTo x' 0
-  C.lineTo x (y/yscale)
+  C.lineTo x (y*yscale)
   C.stroke
 
 endImpulseSample :: Double -> Double -> C.Render ()
@@ -375,20 +375,20 @@ endImpulseSample _ _ = return ()
 renderStepSample :: Double -> Double -> Double -> Double -> C.Render ()
 renderStepSample xscale yscale x y = do
   (x',_) <- C.getCurrentPoint
-  let y' = y/yscale
+  let y' = y*yscale
   C.lineTo x'         y'
-  C.lineTo (x/xscale) y'
+  C.lineTo (x*xscale) y'
 
 endStepSample :: Double -> Double -> C.Render ()
 endStepSample _ _ = C.stroke
 
 renderAreaSample :: Double -> Double -> Double -> Double -> C.Render ()
-renderAreaSample xscale yscale x y = C.lineTo (x/xscale) (y/yscale)
+renderAreaSample xscale yscale x y = C.lineTo (x*xscale) (y*yscale)
 
 endAreaSample :: Double -> Double -> Double -> Double -> C.Render ()
 endAreaSample x0 _ xscale _ = do
   (x',_) <- C.getCurrentPoint
-  let x0' = x0/xscale
+  let x0' = x0*xscale
   C.lineTo x'  0
   C.lineTo x0' 0
   -- C.lineTo x0 y0
@@ -399,8 +399,8 @@ endAreaSample x0 _ xscale _ = do
 renderBarSample :: Width -> Color -> Color -> Double -> Double -> Double -> Double -> C.Render ()
 renderBarSample bw c bc xscale yscale x y = do
   setColour bc
-  let bw' = bw/xscale
-  C.rectangle ((x/xscale)-bw'/2) 0 bw' (y/yscale)
+  let bw' = bw*xscale
+  C.rectangle ((x*xscale)-bw'/2) 0 bw' (y*yscale)
   C.strokePreserve
   setColour c
   C.fill
@@ -411,10 +411,10 @@ endBarSample _ _ = return ()
 renderHistSample :: Width -> Color -> Color -> Double -> Double -> Double -> Double -> C.Render ()
 renderHistSample _ c bc xscale yscale x y = do
   (x',_) <- C.getCurrentPoint
-  let x'' = x/xscale
+  let x'' = x*xscale
   C.stroke
   setColour bc
-  C.rectangle x' 0 (x''-x') (y/yscale)
+  C.rectangle x' 0 (x''-x') (y*yscale)
   C.strokePreserve
   setColour c
   C.fill
@@ -426,9 +426,9 @@ endHistSample _ _ = return ()
 renderCandleSample :: Width -> Color -> Color -> Double -> Double -> Double -> (Double,Double) -> C.Render ()
 renderCandleSample bw c bc xscale yscale x (yl,yu) = do
   setColour bc
-  let (yl',yu') = (yl/yscale,yu/yscale)
-      bw' = bw/xscale
-  C.rectangle ((x/xscale)-bw'/2) yl' bw' (yu'-yl')
+  let (yl',yu') = (yl*yscale,yu*yscale)
+      bw' = bw*xscale
+  C.rectangle ((x*xscale)-bw'/2) yl' bw' (yu'-yl')
   C.strokePreserve
   --liftIO $ putStrLn $ (show yl') ++ " " ++ (show yu')
   if (yl < yu)
@@ -444,8 +444,8 @@ endCandleSample _ _ = return ()
 renderWhiskerSample :: Width -> Color -> Color → Bool -> Double -> Double -> Double -> (Double,Double) -> C.Render ()
 renderWhiskerSample bw _ bc whiskers x xscale yscale (yl,yu) = do
   setColour bc
-  let (x',yl',yu') = (x/xscale,yl/yscale,yu/yscale)
-      bw' = bw/xscale
+  let (x',yl',yu') = (x*xscale,yl*yscale,yu*yscale)
+      bw' = bw*xscale
   C.moveTo x' yl'
   C.lineTo x' yu'
   if whiskers

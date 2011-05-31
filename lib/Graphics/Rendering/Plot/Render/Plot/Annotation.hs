@@ -52,8 +52,8 @@ renderAnnotations r an = do
   -- transform to data coordinates
   cairo $ do 
     C.translate x (y+h)
-    C.scale xscale yscalel
-    C.translate (-xmin) yminl
+    --C.scale xscale yscalel
+    C.translate (-xmin*xscale) (yminl*yscalel)
     flipVertical
   put (BoundingBox (-xmin) (yminl) (xmax-xmin) (ymaxl-yminl))
   mapM_ (renderAnnotation xscale yscalel) an
@@ -65,8 +65,8 @@ renderAnnotations r an = do
 renderAnnotation :: Double -> Double -> Annotation -> Render ()
 renderAnnotation xscale yscale (AnnArrow h lt (x1',y1') (x2',y2')) = do
   formatLineSeries lt
-  let (x1,y1) = (x1'/xscale,y1'/yscale)
-  let (x2,y2) = (x2'/xscale,y2'/yscale)
+  let (x1,y1) = (x1'*xscale,y1'*yscale)
+  let (x2,y2) = (x2'*xscale,y2'*yscale)
   cairo $ do
     C.moveTo x1 y1
     C.lineTo x2 y2
@@ -90,8 +90,8 @@ renderAnnotation xscale yscale (AnnArrow h lt (x1',y1') (x2',y2')) = do
     C.stroke
 renderAnnotation xscale yscale (AnnOval f b (x1',y1') (x2',y2')) = do
   (_,bc,c) <- formatBarSeries b
-  let (x1,y1) = (x1'/xscale,y1'/yscale)
-  let (x2,y2) = (x2'/xscale,y2'/yscale)
+  let (x1,y1) = (x1'*xscale,y1'*yscale)
+  let (x2,y2) = (x2'*xscale,y2'*yscale)
   let width = x2 - x1
       height = y2 - y1
       x = x1 + width/2
@@ -110,8 +110,8 @@ renderAnnotation xscale yscale (AnnOval f b (x1',y1') (x2',y2')) = do
     C.newPath
 renderAnnotation xscale yscale (AnnRect f b (x1',y1') (x2',y2')) = do
   (_,bc,c) <- formatBarSeries b
-  let (x1,y1) = (x1'/xscale,y1'/yscale)
-  let (x2,y2) = (x2'/xscale,y2'/yscale)
+  let (x1,y1) = (x1'*xscale,y1'*yscale)
+  let (x2,y2) = (x2'*xscale,y2'*yscale)
   cairo $ do
     C.save
     setColour c
@@ -124,17 +124,19 @@ renderAnnotation xscale yscale (AnnRect f b (x1',y1') (x2',y2')) = do
     C.newPath
 renderAnnotation xscale yscale (AnnGlyph pt (x1',y1')) = do
   (pw,g) <- formatPointSeries pt
-  let (x1,y1) = (x1'/xscale,y1'/yscale)
+  let (x1,y1) = (x1'*xscale,y1'*yscale)
   cairo $ do
     C.moveTo x1 y1
     renderGlyph pw g
 renderAnnotation xscale yscale (AnnText te (x1',y1')) = do
 --  (x,y) <- cairo $ C.userToDevice x1 y1
-  let (x1,y1) = (x1'/xscale,y1'/yscale)
+  let (x1,y1) = (x1'*xscale,y1'*yscale)
   cairo $ do
     C.save
     --C.scale (recip xscale) (recip (-yscale))
-  _ <- renderText te TRight TTop (x1*xscale) (y1*yscale)
+    flipVertical
+--  _ <- renderText te TRight TTop (x1') (y1')
+  _ <- renderText te TRight TTop (x1) (y1)
   cairo $ C.restore
   return ()
 renderAnnotation _   _   (AnnCairo r) = do

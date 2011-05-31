@@ -47,3 +47,6 @@
 
 0.1.3.0:
 		* change scaling so that miniscule linewidths don't occur
+
+0.1.3.1:
+		* fix error in scaling
