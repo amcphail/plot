@@ -84,6 +84,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
 --import Data.Packed.Matrix
 import Numeric.Container
 
+import Numeric.LinearAlgebra(eps)
+
 import qualified Data.Array.IArray as A
 
 import Control.Monad.State
@@ -91,6 +93,7 @@ import Control.Monad.Reader
 --import Control.Monad.Supply
 
 import Prelude hiding(min,max)
+import qualified Prelude as Prelude
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
@@ -143,8 +146,8 @@ setRangeFromData ax sd sc = do
   ds <- gets _data
   let ((xmin,xmax),(ymin,ymax)) = calculateRanges ds
   case ax of
-    XAxis -> setRange ax sd sc xmin xmax
-    YAxis -> setRange ax sd sc ymin ymax
+    XAxis -> setRange ax sd sc (if sc == Log then if xmin == 0 then 1 else xmin else xmin) xmax
+    YAxis -> setRange ax sd sc (if sc == Log then if ymin == 0 then 1 else ymin else ymin) ymax
                     
 -----------------------------------------------------------------------------
 

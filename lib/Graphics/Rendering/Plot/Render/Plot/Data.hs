@@ -193,7 +193,7 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
   let dat = case dat' of
             Left dat'' → map (\((m,a),b) -> Left (if xsc == Log then (m,logBase 10 a) else (m,a)
                                                 ,if ysc == Log then (logBase 10 b) else b)) dat''
-            Right dat''' -> map (\(((m1,a),(bl,bu)),((m2,c),(dl,du))) → let (a',c') = if xsc == Log then (logBase 10 a,logBase 10 c) else (a,c)
+            Right dat''' -> map (\(((m1,a),(bl,bu)),((m2,c),(dl,du))) → let (a',c') = if xsc == Log then (logBase 10 $ mapVector zeroToOne a,logBase 10 $ mapVector zeroToOne c) else (a,c)
                                                                             (bl',bu',dl',du') = if ysc == Log then (logBase 10 bl,logBase 10 bu,logBase 10 dl,logBase 10 du) else (bl,bu,dl,du) 
                                                                        in Right (((m1,a'),(bl',bu')),((m2,c'),(dl',du')))) dat'''
   case d of
