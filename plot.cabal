@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.1.3.4
+Version:             0.1.3.5
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010
@@ -106,4 +106,4 @@ library
 
 source-repository head
   type:     git
-  location: git@github.com:amcphail/plot
+  location: https://github.com/amcphail/plot
