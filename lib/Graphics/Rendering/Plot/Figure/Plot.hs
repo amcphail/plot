@@ -267,8 +267,10 @@ findMinMax AbsFunction (OrdFunction _ f _) = let v = mapVector f (linspace 100 (
 findMinMax (AbsPoints _ x) (OrdFunction _ f _) = let v = mapVector f x
                                              in (minElement v,maxElement v)
                                            -- what if errors go beyond plot?
-findMinMax _ (OrdPoints _ y _)    = let o = getOrdData y
-                                  in (minElement o,maxElement o)
+findMinMax _ (OrdPoints _ (Plain o) _)    = (minElement o,maxElement o)
+findMinMax _ (OrdPoints _ (Error o _) _)  = (minElement o,maxElement o)
+findMinMax _ (OrdPoints _ (MinMax (o,p) _) _) = (Prelude.min (minElement o) (minElement p)
+                                                ,Prelude.max (maxElement o) (maxElement p))
 
 abscMinMax :: Abscissae -> (Double,Double)
 abscMinMax AbsFunction        = defaultXAxisSideLowerRange
