@@ -427,8 +427,7 @@ renderCandleSample :: Width -> Color -> Color -> Double -> Double -> Double -> (
 renderCandleSample bw c bc xscale yscale x (yl,yu) = do
   setColour bc
   let (yl',yu') = (yl*yscale,yu*yscale)
-      bw' = bw*xscale
-  C.rectangle ((x*xscale)-bw'/2) yl' bw' (yu'-yl')
+  C.rectangle ((x*xscale)-bw/2) yl' bw (yu'-yl')
   C.strokePreserve
   --liftIO $ putStrLn $ (show yl') ++ " " ++ (show yu')
   if (yl < yu)
@@ -436,7 +435,7 @@ renderCandleSample bw c bc xscale yscale x (yl,yu) = do
        setColour c
      else do
        C.setSourceRGBA 1 1 1 1
-       C.fill
+  C.fill
 
 endCandleSample :: Double -> Double -> C.Render ()
 endCandleSample _ _ = return ()
@@ -445,15 +444,14 @@ renderWhiskerSample :: Width -> Color -> Color → Bool -> Double -> Double -> D
 renderWhiskerSample bw _ bc whiskers x xscale yscale (yl,yu) = do
   setColour bc
   let (x',yl',yu') = (x*xscale,yl*yscale,yu*yscale)
-      bw' = bw*xscale
   C.moveTo x' yl'
   C.lineTo x' yu'
   if whiskers
      then do
-       C.moveTo (x'-bw'/2) yu'
-       C.lineTo (x'+bw'/2) yu'
-       C.moveTo (x'-bw'/2) yl'
-       C.lineTo (x'+bw'/2) yl'
+       C.moveTo (x'-bw/2) yu'
+       C.lineTo (x'+bw/2) yu'
+       C.moveTo (x'-bw/2) yl'
+       C.lineTo (x'+bw/2) yl'
      else return ()
   C.stroke
 
