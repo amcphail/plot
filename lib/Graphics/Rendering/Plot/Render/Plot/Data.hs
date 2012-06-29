@@ -316,9 +316,10 @@ renderMinMaxSamples xscale yscale xmin xmax s f e (mono,t) y = do
                                          case s of
                                                 Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
                                                 Just s' -> s'
+
                                          _ <- runMaybeT $ mapVectorWithIndexM_ (\i t' -> do
                                             when (i >= xmin_ix && i `mod` diff == 0)
-                                                     (renderMinMaxSample i xmax_ix t' (f xscale yscale) (e xscale yscale) y)
+                                              (renderMinMaxSample i xmax_ix t' (f xscale yscale) (e xscale yscale) y)
                                             return ()) t
                                          return ()
 
@@ -441,7 +442,7 @@ endCandleSample :: Double -> Double -> C.Render ()
 endCandleSample _ _ = return ()
 
 renderWhiskerSample :: Width -> Color -> Color → Bool -> Double -> Double -> Double -> (Double,Double) -> C.Render ()
-renderWhiskerSample bw _ bc whiskers x xscale yscale (yl,yu) = do
+renderWhiskerSample bw _ bc whiskers xscale yscale x (yl,yu) = do
   setColour bc
   let (x',yl',yu') = (x*xscale,yl*yscale,yu*yscale)
   C.moveTo x' yl'

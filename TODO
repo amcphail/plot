@@ -43,8 +43,6 @@ BUGS
 
  * 0 in log plots should be ignored
 
- * Candle and Whisker plots use bad sizes (remove xscale/yscale)
-
  * use error series for min/max for ranges
 
 REFACTOR
@@ -82,6 +80,8 @@ COMPLETE
 | * formattable grid lines
 | * cairo in device coordinates not user to avoid tiny linewidths
 | * getOrdData only returns lower series in MinMax series
+| * Candle and Whisker plots use bad sizes (remove xscale/yscale)
+
 
 
 

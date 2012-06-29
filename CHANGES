@@ -64,4 +64,6 @@
 		* fixed .cabal repository line
 
 0.1.4:
-		*fix finding min/max of MinMax series
+		* fix finding min/max of MinMax series
+		* fix bar width for Candle/Whisker
+		* fix x coordinate of Whisker
