@@ -1,8 +1,8 @@
 Name:                plot
-Version:             0.1.4
+Version:             0.1.4.1
 License:             BSD3
 License-file:        LICENSE
-Copyright:           (c) A.V.H. McPhail 2010
+Copyright:           (c) A.V.H. McPhail 2010, 2012
 Author:              Vivian McPhail
 Maintainer:          haskell.vivian.mcphail <at> gmail <dot> com
 Stability:           experimental

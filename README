@@ -21,11 +21,9 @@ To install the Plots library:
       package.
 
     * The Haskell cairo bindings, which are packaged as part of
-      gtk2hs.  Unfortunately, for various technical reasons, gtk2hs is
-      not cabalized and cannot be downloaded and installed from
-      Hackage.  To get gtk2hs you will need to go to the gtk2hs
-      website (http://www.haskell.org/gtk2hs/) and follow the
-      instructions to download and build it.
+      gtk2hs.  
+           cabal install gtk2hs-buildtools
+	   cabal install gtk
 
     * The colour library, which is available from Hackage.  If you use
       the cabal-install build option described below, the colour
