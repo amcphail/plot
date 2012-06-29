@@ -67,3 +67,4 @@
 		* fix finding min/max of MinMax series
 		* fix bar width for Candle/Whisker
 		* fix x coordinate of Whisker
+		* change bar width for Bar

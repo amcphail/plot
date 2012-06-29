@@ -400,8 +400,7 @@ endAreaSample x0 _ xscale _ = do
 renderBarSample :: Width -> Color -> Color -> Double -> Double -> Double -> Double -> C.Render ()
 renderBarSample bw c bc xscale yscale x y = do
   setColour bc
-  let bw' = bw*xscale
-  C.rectangle ((x*xscale)-bw'/2) 0 bw' (y*yscale)
+  C.rectangle ((x*xscale)-bw/2) 0 bw (y*yscale)
   C.strokePreserve
   setColour c
   C.fill
@@ -430,7 +429,6 @@ renderCandleSample bw c bc xscale yscale x (yl,yu) = do
   let (yl',yu') = (yl*yscale,yu*yscale)
   C.rectangle ((x*xscale)-bw/2) yl' bw (yu'-yl')
   C.strokePreserve
-  --liftIO $ putStrLn $ (show yl') ++ " " ++ (show yu')
   if (yl < yu)
      then do
        setColour c
