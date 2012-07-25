@@ -70,4 +70,5 @@
 		* change bar width for Bar
 
 0.1.4.1:
-		
+		* refactor renderSeries
+		* fixed error bars for non-points

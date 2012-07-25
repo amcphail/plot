@@ -24,8 +24,6 @@ FEATURES
 
 BUGS
 
- * fix error bars for non-points (esp. bars, hist)
- 
  * no ticks for greyscale?
 
  * scale (log/linear) attached to range?
@@ -45,6 +43,8 @@ BUGS
 
  * use error series for min/max for ranges
 
+ * candle and whisker use bad width for candle part
+
 REFACTOR
 
  * using padding functions not raw data structure: pdFoo, pdBar
@@ -56,6 +56,8 @@ REFACTOR
  * check Render/Data.hs, Render/Axis.hs
 
  * rationalise passing of xscale/yscale
+
+ * re-refactor renderSeries for slight optimisation
 
 COMPLETE
 
@@ -81,6 +83,8 @@ COMPLETE
 | * cairo in device coordinates not user to avoid tiny linewidths
 | * getOrdData only returns lower series in MinMax series
 | * Candle and Whisker plots use bad sizes (remove xscale/yscale)
+| * fix error bars for non-points (esp. bars, hist)
+ 
 
 
 

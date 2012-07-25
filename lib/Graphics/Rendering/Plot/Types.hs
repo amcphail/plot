@@ -270,7 +270,7 @@ type SeriesLabel = String
 --instance Show Function where show _ = "<<function>>"
 
 data OrdSeries = Plain Series
-               | Error Series (ErrorSeries,ErrorSeries)
+               | Error Series (Either ErrorSeries (ErrorSeries,ErrorSeries))
                | MinMax MinMaxSeries (Maybe (ErrorSeries,ErrorSeries))
 
 getOrdData :: OrdSeries -> Series
