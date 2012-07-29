@@ -172,7 +172,8 @@ midpoints(mi,v) = let v' = subVector 1 (dim v - 1) v
                   in (mi,(v'+w')/2.0)
 
 logSeriesMinMax :: Scale -> (Vector Double,Vector Double) -> (Vector Double,Vector Double)
-logSeriesMinMax Log (v,w) = (logSeries Log v,logSeries Log w)
+logSeriesMinMax Log    (v,w) = (logSeries Log v,logSeries Log w)
+logSeriesMinMax Linear x     = x
 
 renderSeries :: Scale -> Scale 
              -> Double -> Double -> Double -> Double 
