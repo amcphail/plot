@@ -54,15 +54,27 @@ plot ds = do
 
 -- | create a figure with a single linear-log plot 
 --   with lower X and Y axes whose ranges are set from the data
-semilog :: Dataset d => d -> Figure ()
-semilog ds = do
-          setPlots 1 1
-          withPlot (1,1) $ do
-                           setDataset ds
-                           addAxis XAxis (Side Lower) $ return ()
-                           addAxis YAxis (Side Lower) $ return ()
-                           setRangeFromData XAxis Lower Linear
-                           setRangeFromData YAxis Lower Log
+linlog :: Dataset d => d -> Figure ()
+linlog ds = do
+         setPlots 1 1
+         withPlot (1,1) $ do
+                          setDataset ds
+                          addAxis XAxis (Side Lower) $ return ()
+                          addAxis YAxis (Side Lower) $ return ()
+                          setRangeFromData XAxis Lower Linear
+                          setRangeFromData YAxis Lower Log
+
+-- | create a figure with a single log-linear plot 
+--   with lower X and Y axes whose ranges are set from the data
+loglin :: Dataset d => d -> Figure ()
+loglin ds = do
+         setPlots 1 1
+         withPlot (1,1) $ do
+                          setDataset ds
+                          addAxis XAxis (Side Lower) $ return ()
+                          addAxis YAxis (Side Lower) $ return ()
+                          setRangeFromData XAxis Lower Log
+                          setRangeFromData YAxis Lower Linear
 
 -- | create a figure with a single log-log plot 
 --   with lower X and Y axes whose ranges are set from the data
