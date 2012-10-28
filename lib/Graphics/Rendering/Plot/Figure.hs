@@ -96,7 +96,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setLegend
                                       , withLegendFormat
                                       -- ** Formatting
-                                      , Tick(..), TickValues, GridLines
+                                      , Tick(..), TickValues(..), GridLines
                                       , setTicks
                                       , setGridlines
                                       , setTickLabelFormat

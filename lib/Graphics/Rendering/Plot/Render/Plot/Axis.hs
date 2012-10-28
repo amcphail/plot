@@ -198,8 +198,8 @@ shiftForTicks _ p (Axis _ (Value _) _ _ _ _ _)
    = return p
 
 shiftForTicks' :: Padding -> Ticks -> Ticks -> AxisType -> AxisPosn -> TickFormat -> Double -> Render Padding
-shiftForTicks' p (Ticks _ (Left 0)) (Ticks _ (Left 0)) _     _            _  _ = return p
-shiftForTicks' p (Ticks _ (Left _)) (Ticks _ (Left 0)) _     _            _  _ = return p
+shiftForTicks' p (Ticks _ (TickNumber 0)) (Ticks _ (TickNumber 0)) _     _            _  _ = return p
+shiftForTicks' p (Ticks _ (TickNumber _)) (Ticks _ (TickNumber 0)) _     _            _  _ = return p
 {-
 shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Lower) _  _ = do
                  bbRaiseBottom minorTickLength
@@ -327,7 +327,7 @@ tickPosition min max n = let diff = max - min
 -}
 renderAxisTicks :: Ranges -> AxisType -> AxisPosn -> Ticks -> Ticks -> TickFormat -> Render ()
 renderAxisTicks (Ranges xrange yrange) ax sd
-                (Ticks gmin (Left tmin)) (Ticks gmaj (Left tmaj)) tf = do
+                (Ticks gmin (TickNumber tmin)) (Ticks gmaj (TickNumber tmaj)) tf = do
        (BoundingBox x y w h) <- get
        to <- asks (_textoptions . _renderoptions)
        pc <- asks _pangocontext

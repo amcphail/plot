@@ -75,3 +75,7 @@
 
 0.1.4.2:
 		* fixed bug in MinMax with error (logSeriesMinMax)
+
+0.1.5:
+		* changed Ticks datatype
+		* added linlog and loglin to Simple.hs

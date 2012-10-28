@@ -182,7 +182,10 @@ data AxisPosn  = Side AxisSide
 data Tick = Minor | Major deriving(Eq)
 
 type GridLines = Bool
-type TickValues = Either Int (Vector Double) -- ^ Either (number of ticks) (tick values)
+
+data TickValues = TickNumber Int
+                | TickValues (Vector Double)
+
 data Ticks = Ticks LineType TickValues
 
 setTickGridlines :: LineType -> Ticks -> Ticks

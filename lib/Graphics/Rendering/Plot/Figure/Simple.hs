@@ -15,7 +15,7 @@
 module Graphics.Rendering.Plot.Figure.Simple (
                                               -- * Plotting
                                               plot
-                                             , loglog, semilog, linlog, loglin,
+                                             , loglog, semilog, linlog, loglin
                                              , parametric
                                               -- * Formatting
                                              , title

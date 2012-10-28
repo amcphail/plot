@@ -39,11 +39,7 @@ BUGS
 
  * export Data.Colour.Names
 
- * 0 in log plots should be ignored
-
  * use error series for min/max for ranges
-
- * candle and whisker use bad width for candle part
 
 REFACTOR
 
@@ -84,6 +80,10 @@ COMPLETE
 | * getOrdData only returns lower series in MinMax series
 | * Candle and Whisker plots use bad sizes (remove xscale/yscale)
 | * fix error bars for non-points (esp. bars, hist)
+| * 0 in log plots should be ignored
+| * candle and whisker use bad width for candle part
+
+
  
 
 

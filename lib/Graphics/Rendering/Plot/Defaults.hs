@@ -160,10 +160,10 @@ majorTickLength = 7.0
 tickLabelScale = 0.75
 
 defaultMinorTicks :: Ticks
-defaultMinorTicks = Ticks NoLine (Left 41)
+defaultMinorTicks = Ticks NoLine (TickNumber 41)
 
 defaultMajorTicks :: Ticks
-defaultMajorTicks = Ticks NoLine (Left 5)
+defaultMajorTicks = Ticks NoLine (TickNumber 5)
 
 defaultTickFormat :: TickFormat
 defaultTickFormat = ""

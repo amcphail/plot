@@ -15,7 +15,7 @@
 module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                                  Axis
                                                 , AxisType(..),AxisSide(..),AxisPosn(..)
-                                                , Tick(..), TickValues, GridLines
+                                                , Tick(..), TickValues(..), GridLines
                                                 , setTicks
                                                 , setGridlines
                                                 , setTickLabelFormat
