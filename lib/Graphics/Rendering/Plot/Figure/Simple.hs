@@ -56,6 +56,7 @@ plot ds = do
 --   with lower X and Y axes whose ranges are set from the data
 semilog :: Dataset d => d -> Figure ()
 semilog = linlog
+{-# DEPRECATED semilog "use linlog" #-}
 
 -- | create a figure with a single linear-log plot 
 --   with lower X and Y axes whose ranges are set from the data
