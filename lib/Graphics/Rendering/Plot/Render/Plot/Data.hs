@@ -231,8 +231,10 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
            case dat of
              Left (Left (t',y')) -> do
                renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-             Left (Right (Left _)) -> do
-               error "Data.hs renderSeries: cannot have single error value with points type"        
+             Left (Right (Left ((t',y'),(_,e')))) -> do
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
              Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
                renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
                renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' l 
@@ -245,7 +247,11 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
              Left (Left (t',y')) -> do
                renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
                renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-             Left (Right (Left _)) -> do
+             Left (Right (Left ((t',y'),(_,e')))) -> do
+               renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
+               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
                error "Data.hs renderSeries: cannot have single error value with line-points type"        
              Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
                renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'

@@ -79,3 +79,4 @@
 0.1.5:
 		* changed Ticks datatype
 		* added linlog and loglin to Simple.hs
+		* fixed points with single error series (to under/over)
