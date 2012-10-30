@@ -529,22 +529,22 @@ toOrdinates = map toOrdinate
 
 instance Ordinate Function                           where toOrdinate f         = OrdFunction Lower f Nothing
 instance Ordinate Series                             where toOrdinate s         = OrdPoints Lower (Plain s) Nothing
-instance Ordinate (Series,ErrorSeries)               where toOrdinate (s,e)     = OrdPoints Lower (Error s (Right (s-e,s+e))) Nothing
+instance Ordinate (Series,ErrorSeries)               where toOrdinate (s,e)     = OrdPoints Lower (Error s (Left e)) Nothing
 instance Ordinate (Series,(ErrorSeries,ErrorSeries)) where toOrdinate (s,(l,u)) = OrdPoints Lower (Error s (Right (l,u))) Nothing
 instance Ordinate (MinMaxSeries,(ErrorSeries,ErrorSeries)) where toOrdinate (s,(l,u)) = OrdPoints Lower (MinMax s (Just (l,u))) Nothing
 instance Ordinate (Function,AxisSide)                         where toOrdinate (f,ax)       = OrdFunction ax f Nothing
 instance Ordinate (Series,AxisSide)                           where toOrdinate (s,ax)       = OrdPoints ax (Plain s) Nothing
-instance Ordinate (Series,ErrorSeries,AxisSide)               where toOrdinate (s,e,ax)     = OrdPoints ax (Error s (Right (s-e,s+e))) Nothing
+instance Ordinate (Series,ErrorSeries,AxisSide)               where toOrdinate (s,e,ax)     = OrdPoints ax (Error s (Left e)) Nothing
 instance Ordinate (Series,(ErrorSeries,ErrorSeries),AxisSide) where toOrdinate (s,(l,u),ax) = OrdPoints ax (Error s (Right (l,u))) Nothing
 instance Ordinate (MinMaxSeries,(ErrorSeries,ErrorSeries),AxisSide) where toOrdinate (s,(l,u),ax) = OrdPoints ax (MinMax s (Just (l,u))) Nothing
 instance Ordinate (Function,SeriesLabel)                         where toOrdinate (f,la)       = OrdFunction Lower f (Just la)
 instance Ordinate (Series,SeriesLabel)                           where toOrdinate (s,la)       = OrdPoints Lower (Plain s) (Just la)
-instance Ordinate (Series,ErrorSeries,SeriesLabel)               where toOrdinate (s,e,la)     = OrdPoints Lower (Error s (Right (s-e,s+e))) (Just la)
+instance Ordinate (Series,ErrorSeries,SeriesLabel)               where toOrdinate (s,e,la)     = OrdPoints Lower (Error s (Left e)) (Just la)
 instance Ordinate (Series,(ErrorSeries,ErrorSeries),SeriesLabel) where toOrdinate (s,(l,u),la) = OrdPoints Lower (Error s (Right (l,u))) (Just la)
 
 instance Ordinate (Function,AxisSide,SeriesLabel)                          where toOrdinate (f,ax,la)       = OrdFunction ax f (Just la)
 instance Ordinate (Series,AxisSide,SeriesLabel)                            where toOrdinate (s,ax,la)       = OrdPoints ax (Plain s) (Just la)
-instance Ordinate (Series,ErrorSeries,AxisSide,SeriesLabel)                where toOrdinate (s,e,ax,la)     = OrdPoints ax (Error s (Right (s-e,s+e))) (Just la)
+instance Ordinate (Series,ErrorSeries,AxisSide,SeriesLabel)                where toOrdinate (s,e,ax,la)     = OrdPoints ax (Error s (Left e)) (Just la)
 instance Ordinate (Series,(ErrorSeries,ErrorSeries),AxisSide,SeriesLabel)  where toOrdinate (s,(l,u),ax,la) = OrdPoints ax (Error s (Right (l,u))) (Just la)
 instance Ordinate (MinMaxSeries,(ErrorSeries,ErrorSeries),AxisSide,SeriesLabel) where toOrdinate (s,(l,u),ax,la) = OrdPoints ax (MinMax s (Just (l,u))) (Just la)
 
