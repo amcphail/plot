@@ -159,18 +159,20 @@ minorTickLength = 5.0
 majorTickLength = 7.0
 tickLabelScale = 0.75
 
-defaultMinorTicks :: Ticks
-defaultMinorTicks = Ticks NoLine (TickNumber 41)
+defaultMinorTicks :: Maybe Ticks
+defaultMinorTicks = Just $ Ticks NoLine (TickNumber 41)
 
-defaultMajorTicks :: Ticks
-defaultMajorTicks = Ticks NoLine (TickNumber 5)
+defaultMajorTicks :: Maybe Ticks
+defaultMajorTicks = Just $ Ticks NoLine (TickNumber 5)
 
 defaultTickFormat :: TickFormat
 defaultTickFormat = ""
 
 defaultAxis :: AxisType -> AxisPosn -> AxisData
-defaultAxis at axp = Axis at axp defaultLineType defaultMinorTicks defaultMajorTicks
-                          defaultTickFormat NoText
+defaultAxis at axp = Axis at axp 
+  defaultLineType defaultMinorTicks defaultMajorTicks
+  defaultTickFormat 
+  [] NoText
 
 defaultXAxis, defaultYAxis :: AxisData
 defaultXAxis = defaultAxis XAxis (Side Lower)

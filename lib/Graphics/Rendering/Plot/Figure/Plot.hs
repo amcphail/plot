@@ -69,6 +69,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , AX.setTicks
                                            , AX.setGridlines
                                            , AX.setTickLabelFormat
+                                           , AX.setDataLabels
+                                           , AX.withDataLabelFormat
                                            , AX.withAxisLabel
                                            , AX.withAxisLine
                                            , AX.withGridLine
@@ -164,7 +166,7 @@ clearAxes = modify $ \s -> s { _axes = [] }
 clearAxis :: AxisType -> AxisPosn -> Plot ()
 clearAxis at axp = do
                    ax <- gets _axes
-                   modify $ \s -> s { _axes = filter (\(Axis at' axp' _ _ _ _ _) -> not (at == at' && axp == axp')) ax } 
+                   modify $ \s -> s { _axes = filter (\(Axis at' axp' _ _ _ _ _ _) -> not (at == at' && axp == axp')) ax } 
 
 -- | add an axis to the subplot
 addAxis :: AxisType -> AxisPosn -> AX.Axis () -> Plot ()
@@ -179,7 +181,7 @@ withAxis :: AxisType -> AxisPosn -> AX.Axis () -> Plot ()
 withAxis at axp m = do
                     axes' <- gets _axes
                     o <- ask
-                    modify $ \s -> s { _axes = map (\a@(Axis at' ap' _ _ _ _ _) 
+                    modify $ \s -> s { _axes = map (\a@(Axis at' ap' _ _ _ _ _ _) 
                                                     -> if at == at' && axp == ap' then execAxis m o a else a) axes' }
 
 -----------------------------------------------------------------------------

@@ -67,8 +67,8 @@ lineTo x y = do
 addPadding :: Padding -> Padding -> Padding
 addPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = Padding (l0+l1) (r0+r1) (b0+b1) (t0+t1)
 
-maxPadding :: Padding -> Padding -> Padding
-maxPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = Padding (Prelude.max l0 l1) (Prelude.max r0 r1) (Prelude.max b0 b1) (Prelude.max t0 t1)
+--maxPadding :: Padding -> Padding -> Padding
+--maxPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = Padding (Prelude.max l0 l1) (Prelude.max r0 r1) (Prelude.max b0 b1) (Prelude.max t0 t1)
 
 -- first is plot padding, second is calculated padding
 isZeroPadding :: Padding -> Padding -> Render Padding
@@ -115,8 +115,8 @@ renderAxes p r axes = do
                       return p'
 
 shiftForAxisLabel :: Padding -> AxisData -> Render Padding
-shiftForAxisLabel p (Axis _  _   _ _ _ _ NoText) = return p
-shiftForAxisLabel p (Axis ax sd  _ _ _ _ lb) = do
+shiftForAxisLabel p (Axis _  _   _ _ _ _ _ NoText) = return p
+shiftForAxisLabel p (Axis ax sd  _ _ _ _ _ lb) = do
                          (FontText to s) <- formatText lb
                          pc <- asks _pangocontext
                          (w,h) <- cairo $ do
@@ -146,75 +146,61 @@ shiftForAxisLabel p (Axis ax sd  _ _ _ _ lb) = do
 
 --    the padding is the tick padding that has been applied
 renderAxisLabel :: Padding -> AxisData -> Render ()
-renderAxisLabel _ (Axis _     _            _ _ _ _ NoText) = return ()
-renderAxisLabel (Padding _ _ b _) (Axis XAxis (Side Lower) _ _ _ _ la) = do
+renderAxisLabel _ (Axis _     _            _ _ _ _ _ NoText) = return ()
+renderAxisLabel (Padding _ _ b _) (Axis XAxis (Side Lower) _ _ _ _ _ la) = do
                                        lx <- bbCentreWidth
                                        ly <- bbBottomHeight
                                        _ <- renderText la Centre TBottom lx (ly+b-textPad)
                                        return ()
-renderAxisLabel (Padding _ _ _ t) (Axis XAxis (Side Upper) _ _ _ _ la) = do
+renderAxisLabel (Padding _ _ _ t) (Axis XAxis (Side Upper) _ _ _ _ _ la) = do
                                        lx <- bbCentreWidth
                                        ly <- bbTopHeight
                                        _ <- renderText la Centre TTop lx (ly-t+textPad)
                                        return ()
-renderAxisLabel (Padding l _ _ _) (Axis YAxis (Side Lower) _ _ _ _ la) = do
+renderAxisLabel (Padding l _ _ _) (Axis YAxis (Side Lower) _ _ _ _ _ la) = do
                                        lx <- bbLeftWidth
                                        ly <- bbCentreHeight
                                        _ <- renderTextVertical la TRight Middle (lx-l-2*textPad) ly
                                        return ()
-renderAxisLabel (Padding _ r _ _) (Axis YAxis (Side Upper) _ _ _ _ la) = do
+renderAxisLabel (Padding _ r _ _) (Axis YAxis (Side Upper) _ _ _ _ _ la) = do
                                        lx <- bbRightWidth
                                        ly <- bbCentreHeight
                                        _ <- renderTextVertical la TLeft Middle (lx+r+2*textPad) ly
                                        return ()
-renderAxisLabel _ (Axis _     (Value _)    _ _ _ _ _) = return ()
+renderAxisLabel _ (Axis _     (Value _)    _ _ _ _ _ _ ) = return ()
 
 shiftForTicks :: Ranges -> Padding -> AxisData -> Render Padding
 shiftForTicks (Ranges (Left (Range _ xmin xmax)) _)
-                  p (Axis XAxis (Side Lower) _ min maj tf _) 
-   = shiftForTicks' p min maj XAxis (Side Lower) tf (negate $ Prelude.max (abs xmin) (abs xmax))
+                  p (Axis XAxis (Side Lower) _ min maj tf dl _) 
+   = shiftForTicks' p min maj XAxis (Side Lower) tf dl (negate $ Prelude.max (abs xmin) (abs xmax))
 shiftForTicks (Ranges (Left (Range _ xmin xmax)) _)
-                  p (Axis XAxis (Side Upper) _ min maj tf _) 
-   = shiftForTicks' p min maj XAxis (Side Upper) tf (negate $ Prelude.max (abs xmin) (abs xmax))
+                  p (Axis XAxis (Side Upper) _ min maj tf dl _) 
+   = shiftForTicks' p min maj XAxis (Side Upper) tf dl (negate $ Prelude.max (abs xmin) (abs xmax))
 shiftForTicks (Ranges (Right ((Range _ xmin xmax),_)) _)
-                  p (Axis XAxis (Side Lower) _ min maj tf _) 
-   = shiftForTicks' p min maj XAxis (Side Lower) tf (negate $ Prelude.max (abs xmin) (abs xmax))
+                  p (Axis XAxis (Side Lower) _ min maj tf dl _) 
+   = shiftForTicks' p min maj XAxis (Side Lower) tf dl (negate $ Prelude.max (abs xmin) (abs xmax))
 shiftForTicks (Ranges (Right (_,(Range _ xmin xmax))) _)
-                  p (Axis XAxis (Side Upper) _ min maj tf _) 
-   = shiftForTicks' p min maj XAxis (Side Upper) tf (negate $ Prelude.max (abs xmin) (abs xmax))
+                  p (Axis XAxis (Side Upper) _ min maj tf dl _) 
+   = shiftForTicks' p min maj XAxis (Side Upper) tf dl (negate $ Prelude.max (abs xmin) (abs xmax))
 shiftForTicks (Ranges _ (Left (Range _ ymin ymax)))
-                  p (Axis YAxis (Side Lower) _ min maj tf _) 
-   = shiftForTicks' p min maj YAxis (Side Lower) tf (negate $ Prelude.max (abs ymin) (abs ymax))
+                  p (Axis YAxis (Side Lower) _ min maj tf dl _) 
+   = shiftForTicks' p min maj YAxis (Side Lower) tf dl (negate $ Prelude.max (abs ymin) (abs ymax))
 shiftForTicks (Ranges _ (Left (Range _ ymin ymax)))
-                  p (Axis YAxis (Side Upper) _ min maj tf _) 
-   = shiftForTicks' p min maj YAxis (Side Upper) tf (negate $ Prelude.max (abs ymin) (abs ymax))
+                  p (Axis YAxis (Side Upper) _ min maj tf dl _) 
+   = shiftForTicks' p min maj YAxis (Side Upper) tf dl (negate $ Prelude.max (abs ymin) (abs ymax))
 shiftForTicks (Ranges _ (Right ((Range _ ymin ymax),_)))
-                  p (Axis YAxis (Side Lower) _ min maj tf _) 
-   = shiftForTicks' p min maj YAxis (Side Lower) tf (negate $ Prelude.max (abs ymin) (abs ymax))
+                  p (Axis YAxis (Side Lower) _ min maj tf dl _) 
+   = shiftForTicks' p min maj YAxis (Side Lower) tf dl (negate $ Prelude.max (abs ymin) (abs ymax))
 shiftForTicks (Ranges _ (Right (_,(Range _ ymin ymax))))
-                  p (Axis YAxis (Side Upper) _ min maj tf _) 
-   = shiftForTicks' p min maj YAxis (Side Upper) tf (negate $ Prelude.max (abs ymin) (abs ymax))
-shiftForTicks _ p (Axis _ (Value _) _ _ _ _ _) 
+                  p (Axis YAxis (Side Upper) _ min maj tf dl _) 
+   = shiftForTicks' p min maj YAxis (Side Upper) tf dl (negate $ Prelude.max (abs ymin) (abs ymax))
+shiftForTicks _ p (Axis _ (Value _) _ _ _ _ _ _) 
    = return p
 
-shiftForTicks' :: Padding -> Ticks -> Ticks -> AxisType -> AxisPosn -> TickFormat -> Double -> Render Padding
-shiftForTicks' p (Ticks _ (TickNumber 0)) (Ticks _ (TickNumber 0)) _     _            _  _ = return p
-shiftForTicks' p (Ticks _ (TickNumber _)) (Ticks _ (TickNumber 0)) _     _            _  _ = return p
-{-
-shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Lower) _  _ = do
-                 bbRaiseBottom minorTickLength
-                 return $ Padding l r (b+minorTickLength) t
-shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) YAxis (Side Lower) _  _ = do
-                 bbShiftLeft minorTickLength
-                 return $ Padding (l+minorTickLength) r b t
-shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Upper) _  _ = do
-                 bbLowerTop minorTickLength
-                 return $ Padding l r b (t+minorTickLength)
-shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) YAxis (Side Upper) _  _ = do
-                 bbShiftRight minorTickLength
-                 return $ Padding l (r+minorTickLength) b t
--}
-shiftForTicks' p                 (Ticks _ _)        (Ticks _ _)        ax    sd           tf v = do
+shiftForTicks' :: Padding -> Maybe Ticks -> Maybe Ticks -> AxisType -> AxisPosn -> TickFormat -> [TextEntry] -> Double -> Render Padding
+shiftForTicks' p Nothing            Nothing            _     _            _  _  _ = return p
+shiftForTicks' p (Just (Ticks _ _)) Nothing            _     _            _  _  _ = return p
+shiftForTicks' p _                  (Just (Ticks _ _)) ax    sd           tf dl v = do
                          to <- asks (_textoptions . _renderoptions)
                          pc <- asks _pangocontext
                          (tw,th) <- cairo $ do
@@ -238,17 +224,32 @@ shiftForTicks' p                 (Ticks _ _)        (Ticks _ _)        ax    sd 
                return $ Padding l (r+tw+2*textPad) b t
           shiftForTicks'' p' (_,_)  _     (Value _) = return p'
 
+{-
+shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Lower) _  _ = do
+                 bbRaiseBottom minorTickLength
+                 return $ Padding l r (b+minorTickLength) t
+shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) YAxis (Side Lower) _  _ = do
+                 bbShiftLeft minorTickLength
+                 return $ Padding (l+minorTickLength) r b t
+shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) XAxis (Side Upper) _  _ = do
+                 bbLowerTop minorTickLength
+                 return $ Padding l r b (t+minorTickLength)
+shiftForTicks' (Padding l r b t) (Ticks _ (Left _)) (Ticks _ (Left 0)) YAxis (Side Upper) _  _ = do
+                 bbShiftRight minorTickLength
+                 return $ Padding l (r+minorTickLength) b t
+-}
+
 renderAxis :: Ranges -> AxisData -> Render ()
-renderAxis _ (Axis _ _ NoLine _ _ _ _) = return () 
+renderAxis _ (Axis _ _ NoLine _ _ _ _ _) = return () 
 renderAxis r (Axis ax sd 
              (ColourLine c) 
-             min maj tf l) = do
+             min maj tf dl l) = do
                              lo <- asks (_lineoptions . _renderoptions)
-                             renderAxis r (Axis ax sd (TypeLine lo c) min maj tf l)
+                             renderAxis r (Axis ax sd (TypeLine lo c) min maj tf dl l)
 renderAxis r (Axis ax sd lt
-             min maj tf _) = do
+             min maj tf dl _) = do
                              cairo $ setLineStyle lt
-                             renderAxisTicks r ax sd min maj tf
+                             renderAxisTicks r ax sd min maj tf dl
                              renderAxisLine r ax sd
                              return ()
 
@@ -325,9 +326,9 @@ tickPosition min max n = let diff = max - min
             | (round (s*diff)) < n = scaleDiff (10*s) (10*diff) n
             | otherwise            = (s,(round diff) `div` n)
 -}
-renderAxisTicks :: Ranges -> AxisType -> AxisPosn -> Ticks -> Ticks -> TickFormat -> Render ()
+renderAxisTicks :: Ranges -> AxisType -> AxisPosn -> Maybe Ticks -> Maybe Ticks -> TickFormat -> [TextEntry] -> Render ()
 renderAxisTicks (Ranges xrange yrange) ax sd
-                (Ticks gmin (TickNumber tmin)) (Ticks gmaj (TickNumber tmaj)) tf = do
+                (Just (Ticks gmin (TickNumber tmin))) (Just (Ticks gmaj (TickNumber tmaj))) tf dl = do
        (BoundingBox x y w h) <- get
        to <- asks (_textoptions . _renderoptions)
        pc <- asks _pangocontext

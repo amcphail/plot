@@ -188,23 +188,26 @@ data TickValues = TickNumber Int
 
 data Ticks = Ticks LineType TickValues
 
-setTickGridlines :: LineType -> Ticks -> Ticks
-setTickGridlines gl (Ticks _ tv) = Ticks gl tv
+setTickGridlines :: LineType -> Maybe Ticks -> Maybe Ticks
+setTickGridlines gl (Just (Ticks _ tv)) = Just $ Ticks gl tv
+setTickGridlines _  Nothing             = Nothing
 
-setTickValues :: TickValues -> Ticks -> Ticks
-setTickValues tv (Ticks gl _) = Ticks gl tv
+setTickValues :: TickValues -> Maybe Ticks -> Maybe Ticks
+setTickValues tv (Just (Ticks gl _)) = Just $ Ticks gl tv
+setTickValues tv Nothing             = Just $ Ticks NoLine tv
 
 type TickFormat = String
 
 data AxisData = Axis {
-                  _axis_type     :: AxisType
-                  , _position    :: AxisPosn
-                  , _line_type   :: LineType
-                  , _minor_ticks :: Ticks
-                  , _major_ticks :: Ticks
-                  , _tick_format :: TickFormat
-                  , _label       :: TextEntry
-                 }
+      _axis_type     :: AxisType
+    , _position    :: AxisPosn
+    , _line_type   :: LineType
+    , _minor_ticks :: Maybe Ticks
+    , _major_ticks :: Maybe Ticks
+    , _tick_format :: TickFormat
+    , _data_labels :: [TextEntry]
+    , _label       :: TextEntry
+    }
 -- want line styles, so that, e.g., axes in centre of chart are grey or dashed etc.
 
 -----------------------------------------------------------------------------
@@ -226,11 +229,11 @@ data LegendOrientation = Inside | Outside
 
 -- need to have same number of entries as data series
 data LegendData = Legend {
-                      _bounded    :: Bool   -- is there a box around the legend?
-                      , _location :: LegendLocation
-                      , _orient   :: LegendOrientation
-                      , _leg_fmt  :: TextOptions
-                     }
+      _bounded    :: Bool   -- is there a box around the legend?
+    , _location :: LegendLocation
+    , _orient   :: LegendOrientation
+    , _leg_fmt  :: TextOptions
+    }
 -- do we want a toggle for legends so the labels don't get destroyed?
 
 -----------------------------------------------------------------------------
@@ -249,11 +252,11 @@ data Padding = Padding Double Double Double Double
 -----------------------------------------------------------------------------
 
 data Options = Options {
-                        _lineoptions    :: LineOptions
-                        , _pointoptions :: PointOptions 
-                        , _baroptions   :: BarOptions
-                        , _textoptions  :: TextOptions
-                       }
+      _lineoptions    :: LineOptions
+    , _pointoptions :: PointOptions 
+    , _baroptions   :: BarOptions
+    , _textoptions  :: TextOptions
+    }
 
 -----------------------------------------------------------------------------
 
@@ -389,9 +392,9 @@ type Border = Bool
 -----------------------------------------------------------------------------
 
 data SupplyData = SupplyData {
-                      _colours  :: [Color]
-                      , _glyphs :: [Glyph]
-                     }
+      _colours  :: [Color]
+    , _glyphs :: [Glyph]
+    }
 
 instance Supply SupplyData Color where
     nextSupply (SupplyData []     _ ) = error "Empty supply"
@@ -404,15 +407,15 @@ instance Supply SupplyData Glyph where
 
 -- | a plot 
 data PlotData = Plot { 
-                  _border      :: Border
-                  , _plot_pads :: Padding
-                  , _heading   :: TextEntry
-                  , _ranges    :: Ranges
-                  , _axes      :: [AxisData]
-                  , _data      :: DataSeries
-                  , _legend    :: Maybe LegendData
-                  , _annote    :: Annotations
-                 }
+      _border      :: Border
+    , _plot_pads :: Padding
+    , _heading   :: TextEntry
+    , _ranges    :: Ranges
+    , _axes      :: [AxisData]
+    , _data      :: DataSeries
+    , _legend    :: Maybe LegendData
+    , _annote    :: Annotations
+    }
 
 -----------------------------------------------------------------------------
 
@@ -459,19 +462,19 @@ annoteInPlot m = FP $ lift $ (mapReaderT annoteInPlot') (runAnnote m)
 
 -- | a chart has a title and contains one or more plots
 data FigureData = Figure { 
-                        _fig_pads    :: Padding
-                        , _title     :: TextEntry
-                        , _subtitle  :: TextEntry
-                        , _plots     :: Plots
-                       }
+      _fig_pads    :: Padding
+    , _title     :: TextEntry
+    , _subtitle  :: TextEntry
+    , _plots     :: Plots
+    }
 
 -----------------------------------------------------------------------------
 
 data FigureState = FigureState {
-                           _defaults   :: Options
-                           , _supplies :: SupplyData
-                           , _figure   :: FigureData
-                          }
+      _defaults   :: Options
+    , _supplies :: SupplyData
+    , _figure   :: FigureData
+    }
 
 newtype Figure a = FC { runFigure :: State FigureState a }
     deriving(Monad, MonadState FigureState)

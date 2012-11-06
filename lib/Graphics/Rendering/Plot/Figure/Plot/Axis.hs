@@ -19,12 +19,16 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                                 , setTicks
                                                 , setGridlines
                                                 , setTickLabelFormat
+                                                , setDataLabels
+                                                , withDataLabelFormat
                                                 , withAxisLabel
                                                 , withAxisLine
                                                 , withGridLine
                                                 ) where
 
 -----------------------------------------------------------------------------
+
+import Data.Maybe
 
 import Control.Monad.State
 import Control.Monad.Reader
@@ -37,10 +41,10 @@ import Graphics.Rendering.Plot.Defaults
 changeLineType :: LineType -> AxisData -> AxisData
 changeLineType lt ax = ax { _line_type = lt }
 
-changeMinorTicks :: (Ticks -> Ticks) -> AxisData -> AxisData
+changeMinorTicks :: (Maybe Ticks -> Maybe Ticks) -> AxisData -> AxisData
 changeMinorTicks t ax = ax { _minor_ticks = t (_minor_ticks ax) }
 
-changeMajorTicks :: (Ticks -> Ticks) -> AxisData -> AxisData
+changeMajorTicks :: (Maybe Ticks -> Maybe Ticks) -> AxisData -> AxisData
 changeMajorTicks t ax = ax { _major_ticks = t (_major_ticks ax) }
 
 changeTickFormat :: TickFormat -> AxisData -> AxisData
@@ -48,6 +52,9 @@ changeTickFormat tf ax = ax { _tick_format = tf }
 
 changeLabel :: (TextEntry -> TextEntry) -> AxisData -> AxisData
 changeLabel f ax = ax { _label = f (_label ax) }
+
+changeDataLabels :: ([TextEntry] -> [TextEntry]) -> AxisData -> AxisData
+changeDataLabels f ax = ax { _data_labels = f (_data_labels ax) }
 
 -----------------------------------------------------------------------------
 
@@ -65,20 +72,28 @@ withGridLine t m = do
                  lo <- asks _lineoptions
                  (lt',v) <- case t of
                         Minor -> do
-                               (Ticks lt'' v') <- gets _minor_ticks
+                               -- at this point can we guarantee there won't
+                               -- be a Nothing?
+                               (Just (Ticks lt'' v')) <- gets _minor_ticks
                                return (lt'',v')
                         Major -> do
-                               (Ticks lt'' v') <- gets _major_ticks
+                               (Just (Ticks lt'' v')) <- gets _major_ticks
                                return (lt'',v')
                  let lt = execLine m lo lt'
                  case t of
-                   Minor -> modify $ \s -> s { _minor_ticks = Ticks lt v }
-                   Major -> modify $ \s -> s { _major_ticks = Ticks lt v }
+                   Minor -> modify $ \s -> s { _minor_ticks = (Just (Ticks lt v)) }
+                   Major -> modify $ \s -> s { _major_ticks = (Just (Ticks lt v)) }
 
 -- | format the axis ticks
 setTicks :: Tick -> TickValues -> Axis ()
-setTicks Minor ts = modify $ \s -> changeMinorTicks (setTickValues ts) s
-setTicks Major ts = modify $ \s -> changeMajorTicks (setTickValues ts) s
+setTicks Minor (TickNumber 0) = modify $ \s -> 
+  changeMinorTicks (const Nothing) s
+setTicks Minor ts             = modify $ \s -> 
+  changeMajorTicks (setTickValues ts) s
+setTicks Major (TickNumber 0) = modify $ \s -> 
+  changeMajorTicks (const Nothing) s
+setTicks Major ts             = modify $ \s -> 
+  changeMajorTicks (setTickValues ts) s
 
 -- | should gridlines be displayed?
 setGridlines :: Tick -> GridLines -> Axis ()
@@ -88,6 +103,18 @@ setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines (if gl
 -- | printf format that takes one argument, the tick value
 setTickLabelFormat :: String -> Axis ()
 setTickLabelFormat tf = modify $ \s -> changeTickFormat tf s
+
+-- | a list of data labels
+setDataLabels :: [String] -> Axis ()
+setDataLabels dl = modify $ \s -> 
+  changeDataLabels (const (map BareText dl)) s
+
+-- | format the data labels
+withDataLabelFormat :: Text () -> Axis ()
+withDataLabelFormat m = do
+  ax <- get
+  to <- asks _textoptions
+  put $ ax { _data_labels = map (execText m to) (_data_labels ax) }
 
 -- | operate on the axis label
 withAxisLabel :: Text () -> Axis ()

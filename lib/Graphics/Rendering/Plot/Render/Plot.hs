@@ -61,33 +61,34 @@ import Graphics.Rendering.Plot.Render.Plot.Annotation
 -----------------------------------------------------------------------------
 
 bbPlot :: Int -> Int -> (Int,Int) -> Render ()
-bbPlot r c (px,py) = modify (\(BoundingBox x y w h) -> let w' = w/(fromIntegral c)
-                                                           h' = h/(fromIntegral r)
-                                                       in (BoundingBox
-                                                           (x+w'*((fromIntegral py)-1))
-                                                           (y+h'*((fromIntegral px)-1))
-                                                           w' h'))
+bbPlot r c (px,py) = modify (\(BoundingBox x y w h) ->
+  let w' = w/(fromIntegral c)
+      h' = h/(fromIntegral r)
+  in (BoundingBox
+      (x+w'*((fromIntegral py)-1))
+      (y+h'*((fromIntegral px)-1))
+      w' h'))
 
 renderPlots :: Plots -> Render ()
 renderPlots d = do
-                let ((x,y),(x',y')) = A.bounds d
-                    rows = x'-x+1
-                    cols = y'-y+1
-                bb <- get
-                mapM_ (\(i,e) -> do
-                                 case e of
-                                        Nothing -> return ()
-                                        Just e' -> do
-                                                   bbPlot rows cols i
-                                                   renderPlot e'
-                                                   put bb) (A.assocs d)
+  let ((x,y),(x',y')) = A.bounds d
+      rows = x'-x+1
+      cols = y'-y+1
+  bb <- get
+  mapM_ (\(i,e) -> do
+    case e of
+      Nothing -> return ()
+      Just e' -> do
+        bbPlot rows cols i
+        renderPlot e'
+        put bb) (A.assocs d)
 
 renderPlot :: PlotData -> Render ()
 renderPlot (Plot b p hd r a d l an) = do
-      tx <- bbCentreWidth
-      ty <- bbTopHeight
-      (_,th) <- renderText hd Centre TTop tx ty
-      bbLowerTop (th+textPad)
+  tx <- bbCentreWidth
+  ty <- bbTopHeight
+  (_,th) <- renderText hd Centre TTop tx ty
+  bbLowerTop (th+textPad)
 {- attempt to have different colour plot area
       (BoundingBox x y w h) <- get
       cairo $ do
@@ -101,25 +102,24 @@ renderPlot (Plot b p hd r a d l an) = do
              C.fill
              C.paint
 -}
-      
-      legend <- renderLegend l d
-      padding <- renderAxes p r a
-      renderBorder b
-      cairo C.save
-      clipBoundary
-      renderData r d
-      renderAnnotations r an
-      cairo C.restore
-      legend padding
+  legend <- renderLegend l d
+  padding <- renderAxes p r a
+  renderBorder b
+  cairo C.save
+  clipBoundary
+  renderData r d
+  renderAnnotations r an
+  cairo C.restore
+  legend padding
 
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
 renderBorder True  = do
-                     (BoundingBox x y w h) <- get
-                     cairo $ do
-                             C.setLineWidth 0.5
-                             C.rectangle (x+0.5) (y+0.5) w h
-                             C.stroke
+  (BoundingBox x y w h) <- get
+  cairo $ do
+    C.setLineWidth 0.5
+    C.rectangle (x+0.5) (y+0.5) w h
+    C.stroke
                                            
 -----------------------------------------------------------------------------
 
