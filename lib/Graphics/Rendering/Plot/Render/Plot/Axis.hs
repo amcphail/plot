@@ -105,13 +105,13 @@ isZeroPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = do
 
 renderAxes :: Padding -> Ranges -> [AxisData] -> Render Padding
 renderAxes p r axes = do
-                      lp <- foldM shiftForAxisLabel (Padding 0 0 0 0) axes
-                      tp <- foldM (shiftForTicks r) (Padding 0 0 0 0) axes
-                      let apd = addPadding lp tp
-                      p' <- isZeroPadding p apd
-                      mapM_ (renderAxisLabel p') axes
-                      mapM_ (renderAxis r) axes
-                      return p'
+  lp <- foldM shiftForAxisLabel (Padding 0 0 0 0) axes
+  tp <- foldM (shiftForTicks r) (Padding 0 0 0 0) axes
+  let apd = addPadding lp tp
+  p' <- isZeroPadding p apd
+  mapM_ (renderAxisLabel p') axes
+  mapM_ (renderAxis r) axes
+  return p'
 
 shiftForAxisLabel :: Padding -> AxisData -> Render Padding
 shiftForAxisLabel p (Axis _  _   _ _ _ _ _ NoText) = return p
@@ -356,12 +356,12 @@ renderAxisTicks (Ranges xrange yrange) ax sd
                              (Right (Range scl ymin ymax,_)) -> (scl,ymin,ymax)
               -- convert axis position to non-data coordinates
               let sd' = case sd of
-                                (Side _)  -> sd
-                                (Value v) -> case ax of
-                                                     XAxis -> let (Range _ b t) = lowerRange yrange
-                                                              in Value (y+h*(t-v)/(t-b))
-                                                     YAxis -> let (Range _ b t) = lowerRange xrange
-                                                              in Value (x+w*(v-b)/(t-b))
+                          (Side _)  -> sd
+                          (Value v) -> case ax of
+                                        XAxis -> let (Range _ b t) = lowerRange yrange
+                                                in Value (y+h*(t-v)/(t-b))
+                                        YAxis -> let (Range _ b t) = lowerRange xrange
+                                                in Value (x+w*(v-b)/(t-b))
               let (pos,val) = unzip (tickPosition sc min max tmaj)    
               let majpos = let ones = 1.0 : ones
                                ln = length pos
