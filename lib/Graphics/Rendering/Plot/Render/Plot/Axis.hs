@@ -263,8 +263,8 @@ renderAxisLine (Ranges _ yr) XAxis (Value v) = do
   cairo $ do
     lw' <- C.getLineWidth
     let lw = lw'/2
-    moveTo (x-lw)   (y+h*((v-min)/(max-min)))
-    lineTo (x+w+lw) (y+h*((v-min)/(max-min)))
+    moveTo (x-lw)   (y+h*((max-v)/(max-min)))
+    lineTo (x+w+lw) (y+h*((max-v)/(max-min)))
     C.stroke
 renderAxisLine (Ranges xr _) YAxis (Value v) = do
   let (Range _ min max) = lowerRange xr                          

@@ -52,7 +52,7 @@ Tested-with:         GHC==7.0.1
 Cabal-version:       >= 1.8
 Build-type:          Simple
 
-Extra-source-files:  README, CHANGES, LICENSE,
+Extra-source-files:  README, CHANGES, LICENSE, THANKS
                      examples/perturbed-sine.hs,
                      examples/perturbed-sine.png
 
