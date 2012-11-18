@@ -25,6 +25,8 @@ module Graphics.Rendering.Plot.Render.Plot.Axis (
 
 import Data.Either
 
+import Data.List 
+
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
@@ -363,13 +365,16 @@ renderAxisTicks (Ranges xrange yrange) ax sd
                                         YAxis -> let (Range _ b t) = lowerRange xrange
                                                 in Value (x+w*(v-b)/(t-b))
               let (pos,val) = unzip (tickPosition sc min max tmaj)    
+              let ln = length pos
+              let dl' = if null dl then replicate ln Nothing else map Just dl
               let majpos = let ones = 1.0 : ones
-                               ln = length pos
-                               in zip3 pos (take ln ones) val
+                               in zip4 pos (take ln ones) val dl'
                   (pos',val') = unzip (tickPosition sc min max tmin)
-                  minpos' = zip3 pos' (minorTickLengths tmin tmaj) val'
-                  minpos = filter (not . (\(p,_,_) -> elem p pos)) minpos' 
-              let renderAxisTick' = renderAxisTick pc to x y w h sc min max ax sd' tf
+                  ln' = length pos'
+                  minpos' = zip4 pos' (minorTickLengths tmin tmaj) val' 
+                            (replicate ln' Nothing)
+                  minpos = filter (not . (\(p,_,_,_) -> elem p pos)) minpos' 
+              let renderAxisTick' = renderAxisTick pc to x y w h sc min max ax sd' tf 
               mapM_ (renderAxisTick' Minor gmin) minpos 
               mapM_ (renderAxisTick' Major gmaj) majpos
               return ()
@@ -383,8 +388,8 @@ minorTickLengths min maj = let num = (min-1) `div` (maj-1)
 renderAxisTick :: P.PangoContext -> TextOptions 
                -> Double -> Double -> Double -> Double -> Scale -> Double -> Double
                -> AxisType -> AxisPosn -> TickFormat -> Tick -> LineType
-               -> (Double,Double,Double) -> C.Render ()
-renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
+               -> (Double,Double,Double,Maybe TextEntry) -> C.Render ()
+renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v,dl) = do
        let tl' = case t of
                         Minor -> minorTickLength
                         Major -> majorTickLength
@@ -434,7 +439,14 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v) = do
                       (Value _) -> False
        when (t == Major && majlab) $ do
             let s = if sc == Log then formatTick "10e%.1g" v else formatTick tf v
-            lo <- pango $ P.layoutText pc s
+            let s' = case dl of
+                       Nothing -> BareText s
+                       Just d  -> d
+            let s'' = case s' of
+                        BareText t   -> t
+                        SizeText _ _ t -> t
+                        FontText _ t -> t
+            lo <- pango $ P.layoutText pc s''
             setTextOptions (scaleFontSize tickLabelScale to) lo
             case xa of 
               XAxis -> do
