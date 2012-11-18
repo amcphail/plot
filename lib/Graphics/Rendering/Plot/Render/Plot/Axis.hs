@@ -206,7 +206,12 @@ shiftForTicks' p _                  (Just (Ticks _ _)) ax    sd           tf dl 
   pc <- asks _pangocontext
   (tw,th) <- cairo $ do
      let s = formatTick tf v
-     lt <- pango $ P.layoutText pc s
+         s' = if null dl then s else case head dl of
+                                       NoText          -> error "NoText as a datalabel"
+                                       BareText bt     -> bt
+                                       SizeText _ _ st -> st 
+                                       FontText _ ft   -> ft
+     lt <- pango $ P.layoutText pc s'
      setTextOptions (scaleFontSize tickLabelScale to) lt
      (_,twh) <- textSize lt Centre Middle 0 0
      return twh
@@ -443,9 +448,10 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v,dl) = do
                        Nothing -> BareText s
                        Just d  -> d
             let s'' = case s' of
-                        BareText t   -> t
-                        SizeText _ _ t -> t
-                        FontText _ t -> t
+                        NoText -> error "NoText for data label"
+                        BareText bt   -> bt
+                        SizeText _ _ st -> st
+                        FontText _ ft -> ft
             lo <- pango $ P.layoutText pc s''
             setTextOptions (scaleFontSize tickLabelScale to) lo
             case xa of 

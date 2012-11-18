@@ -82,3 +82,4 @@
 		* fixed points with single error series (to under/over)
                 * fixed bug in location of `Value` axis
                 * added data labels to axes
+		* fix some warnings

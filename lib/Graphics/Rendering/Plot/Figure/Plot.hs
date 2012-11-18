@@ -86,7 +86,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
 --import Data.Packed.Matrix
 import Numeric.Container
 
-import Numeric.LinearAlgebra(eps)
+--import Numeric.LinearAlgebra(eps)
 
 import qualified Data.Array.IArray as A
 

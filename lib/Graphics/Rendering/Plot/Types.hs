@@ -285,6 +285,8 @@ getOrdData (Error o _) = o
 getOrdData (MinMax (o,_) _) = o
 
 getMinMaxData :: OrdSeries -> Either MinMaxSeries (MinMaxSeries,(ErrorSeries,ErrorSeries))
+getMinMaxData (Plain _)           = error "Unreachable code, not MinMax"
+getMinMaxData (Error _ _)         = error "Unreachable code, not MinMax"
 getMinMaxData (MinMax o Nothing)  = Left o
 getMinMaxData (MinMax o (Just e)) = Right (o,e)
 

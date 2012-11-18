@@ -28,7 +28,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
 
 -----------------------------------------------------------------------------
 
-import Data.Maybe
+--import Data.Maybe
 
 import Control.Monad.State
 import Control.Monad.Reader

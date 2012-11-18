@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
 -----------------------------------------------------------------------------
@@ -167,6 +168,8 @@ logSeries :: Scale -> Vector Double -> Vector Double
 logSeries Log a = logBase 10 $ mapVector zeroToOne a
 logSeries _   a = a
 
+midpoints :: (Num (Vector t), Container Vector t) 
+            => (t1, Vector t) -> (t1, Vector t)
 midpoints(mi,v) = let v' = subVector 1 (dim v - 1) v
                       w' = subVector 0 (dim v - 1) v
                   in (mi,(v'+w')/2.0)
@@ -367,9 +370,9 @@ renderSamples xscale yscale xmin xmax s f e (mono,t) y = do
                                                 Nothing -> C.moveTo ((t @> xmin_ix)*xscale) ((y @> xmin_ix)*yscale)
                                                 Just s' -> s'
                                          _ <- runMaybeT $ do
-                                               mapVectorWithIndexM_ (\i y' -> do
-                                                 when (i >= xmin_ix && i `mod` diff == 0)
-                                                     (renderSample i xmax_ix t (f xscale yscale) y')
+                                               mapVectorWithIndexM_ (\j y' -> do
+                                                 when (j >= xmin_ix && j `mod` diff == 0)
+                                                     (renderSample j xmax_ix t (f xscale yscale) y')
                                                  return ()) y
                                          (e xscale yscale)
 
@@ -396,9 +399,9 @@ renderMinMaxSamples xscale yscale xmin xmax s f e (mono,t) y = do
                                                 Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
                                                 Just s' -> s'
 
-                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\i t' -> do
-                                            when (i >= xmin_ix && i `mod` diff == 0)
-                                              (renderMinMaxSample i xmax_ix t' (f xscale yscale) (e xscale yscale) y)
+                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\j t' -> do
+                                            when (j >= xmin_ix && j `mod` diff == 0)
+                                              (renderMinMaxSample j xmax_ix t' (f xscale yscale) (e xscale yscale) y)
                                             return ()) t
                                          return ()
 
