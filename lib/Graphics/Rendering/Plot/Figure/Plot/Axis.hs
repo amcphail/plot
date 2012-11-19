@@ -19,8 +19,8 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                                 , setTicks
                                                 , setGridlines
                                                 , setTickLabelFormat
-                                                , setDataLabels
-                                                , withDataLabelFormat
+                                                , setTickLabels
+                                                , withTickLabelFormat
                                                 , withAxisLabel
                                                 , withAxisLine
                                                 , withGridLine
@@ -53,8 +53,8 @@ changeTickFormat tf ax = ax { _tick_format = tf }
 changeLabel :: (TextEntry -> TextEntry) -> AxisData -> AxisData
 changeLabel f ax = ax { _label = f (_label ax) }
 
-changeDataLabels :: ([TextEntry] -> [TextEntry]) -> AxisData -> AxisData
-changeDataLabels f ax = ax { _data_labels = f (_data_labels ax) }
+changeTickLabels :: ([TextEntry] -> [TextEntry]) -> AxisData -> AxisData
+changeTickLabels f ax = ax { _tick_labels = f (_tick_labels ax) }
 
 -----------------------------------------------------------------------------
 
@@ -105,16 +105,16 @@ setTickLabelFormat :: String -> Axis ()
 setTickLabelFormat tf = modify $ \s -> changeTickFormat tf s
 
 -- | a list of data labels
-setDataLabels :: [String] -> Axis ()
-setDataLabels dl = modify $ \s -> 
-  changeDataLabels (const (map BareText dl)) s
+setTickLabels :: [String] -> Axis ()
+setTickLabels dl = modify $ \s -> 
+  changeTickLabels (const (map BareText dl)) s
 
 -- | format the data labels
-withDataLabelFormat :: Text () -> Axis ()
-withDataLabelFormat m = do
+withTickLabelFormat :: Text () -> Axis ()
+withTickLabelFormat m = do
   ax <- get
   to <- asks _textoptions
-  put $ ax { _data_labels = map (execText m to) (_data_labels ax) }
+  put $ ax { _tick_labels = map (execText m to) (_tick_labels ax) }
 
 -- | operate on the axis label
 withAxisLabel :: Text () -> Axis ()

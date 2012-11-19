@@ -205,7 +205,7 @@ data AxisData = Axis {
     , _minor_ticks :: Maybe Ticks
     , _major_ticks :: Maybe Ticks
     , _tick_format :: TickFormat
-    , _data_labels :: [TextEntry]
+    , _tick_labels :: [TextEntry]
     , _label       :: TextEntry
     }
 -- want line styles, so that, e.g., axes in centre of chart are grey or dashed etc.
