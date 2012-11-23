@@ -89,3 +89,6 @@
 
 0.1.6:
 		* added TickValue renderer
+
+0.1.6.1:
+		* refactor tickPositions

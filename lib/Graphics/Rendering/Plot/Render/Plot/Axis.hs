@@ -318,18 +318,12 @@ renderAxisLine _ YAxis (Side Upper) = do
     C.stroke
 
 tickPosition :: Scale -> Double -> Double -> Either Int [Double] -> [(Double,Double)]
-tickPosition sc min max (Left n) = 
-  let ticks = take n [(0::Double)..]
-      l = fromIntegral $ n-1
-      pos = map (\x -> min + (max-min)*(x)/l) ticks
-      val = if sc == Log
-            then map (\x -> logBase 10 min + (x/l) * (logBase 10 max - logBase 10 min)) pos
-            else pos
-  in zip pos val
-tickPosition sc min max (Right vs) = 
-  let ticks = vs
-      l = fromIntegral $ length vs - 1
-      pos = ticks -- map (\x -> min + (max-min)*(x/l)) ticks
+tickPosition sc min max nv = 
+  let ticks = either (\n -> take n [(0::Double)..]) id nv
+      l = fromIntegral $ length ticks - 1
+      pos = case nv of
+              (Left _) -> map (\x -> min + (max-min)*(x)/l) ticks
+              (Right _) -> ticks
       val = if sc == Log
             then map (\x -> logBase 10 min + (x/l) * (logBase 10 max - logBase 10 min)) pos
             else pos
