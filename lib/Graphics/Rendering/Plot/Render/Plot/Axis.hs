@@ -27,6 +27,8 @@ import Data.Either
 
 import Data.List 
 
+import Data.Packed.Vector
+
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
@@ -315,12 +317,21 @@ renderAxisLine _ YAxis (Side Upper) = do
     lineTo (x+w) (y+h+lw)
     C.stroke
 
-tickPosition :: Scale -> Double -> Double -> Int -> [(Double,Double)]
-tickPosition sc min max n = 
-  let pos = map (\x -> min + (max-min)*(x)/(fromIntegral (n-1))) (take n [(0 :: Double)..])
+tickPosition :: Scale -> Double -> Double -> Either Int [Double] -> [(Double,Double)]
+tickPosition sc min max (Left n) = 
+  let ticks = take n [(0::Double)..]
+      l = fromIntegral $ n-1
+      pos = map (\x -> min + (max-min)*(x)/l) ticks
       val = if sc == Log
-            then map (\x -> logBase 10 min + (x/(fromIntegral (n-1))) * (logBase 10 max - logBase 10 min))
-              (take n [(0 :: Double)..])
+            then map (\x -> logBase 10 min + (x/l) * (logBase 10 max - logBase 10 min)) pos
+            else pos
+  in zip pos val
+tickPosition sc min max (Right vs) = 
+  let ticks = vs
+      l = fromIntegral $ length vs - 1
+      pos = ticks -- map (\x -> min + (max-min)*(x/l)) ticks
+      val = if sc == Log
+            then map (\x -> logBase 10 min + (x/l) * (logBase 10 max - logBase 10 min)) pos
             else pos
   in zip pos val
 {-
@@ -333,9 +344,10 @@ tickPosition min max n = let diff = max - min
             | (round (s*diff)) < n = scaleDiff (10*s) (10*diff) n
             | otherwise            = (s,(round diff) `div` n)
 -}
+
+
 renderAxisTicks :: Ranges -> AxisType -> AxisPosn -> Maybe Ticks -> Maybe Ticks -> TickFormat -> [TextEntry] -> Render ()
-renderAxisTicks (Ranges xrange yrange) ax sd
-                (Just (Ticks gmin (TickNumber tmin))) (Just (Ticks gmaj (TickNumber tmaj))) tf dl = do
+renderAxisTicks (Ranges xrange yrange) ax sd tmn tmj tf dl = do
        (BoundingBox x y w h) <- get
        to <- asks (_textoptions . _renderoptions)
        pc <- asks _pangocontext
@@ -369,19 +381,46 @@ renderAxisTicks (Ranges xrange yrange) ax sd
                                                 in Value (y+h*(t-v)/(t-b))
                                         YAxis -> let (Range _ b t) = lowerRange xrange
                                                 in Value (x+w*(v-b)/(t-b))
-              let (pos,val) = unzip (tickPosition sc min max tmaj)    
-              let ln = length pos
-              let dl' = if null dl then replicate ln Nothing else map Just dl
-              let majpos = let ones = 1.0 : ones
-                               in zip4 pos (take ln ones) val dl'
-                  (pos',val') = unzip (tickPosition sc min max tmin)
-                  ln' = length pos'
-                  minpos' = zip4 pos' (minorTickLengths tmin tmaj) val' 
-                            (replicate ln' Nothing)
-                  minpos = filter (not . (\(p,_,_,_) -> elem p pos)) minpos' 
+                
               let renderAxisTick' = renderAxisTick pc to x y w h sc min max ax sd' tf 
-              mapM_ (renderAxisTick' Minor gmin) minpos 
-              mapM_ (renderAxisTick' Major gmaj) majpos
+              (majpos',gmaj',tjpos,tmaj') <- case tmj of
+                (Just (Ticks gmaj (TickNumber tmaj))) -> do
+                    let (pos,val) = unzip (tickPosition sc min max (Left tmaj))    
+                    let ln = length pos
+                    let dl' = if null dl then replicate ln Nothing else map Just dl
+                    let majpos = let ones = 1.0 : ones
+                                 in zip4 pos (take ln ones) val dl'
+                    return $ (Just majpos,Just gmaj,Just pos,Just tmaj)
+                (Just (Ticks gmaj (TickValues tmaj))) -> do
+                    let (pos,val) = unzip (tickPosition sc min max (Right $ toList tmaj))
+                        ln = length pos
+                    let dl' = if null dl then replicate ln Nothing else map Just dl
+                    let majpos = let ones = 1.0 : ones
+                                 in zip4 pos (take ln ones) val dl'
+                    return $ (Just majpos,Just gmaj,Just pos,Nothing)
+                Nothing -> return (Nothing,Nothing,Nothing,Nothing)
+              (minpos',gmin') <- case tmn of
+                (Just (Ticks gmin (TickNumber tmin))) -> do
+                    let (pos',val') = unzip (tickPosition sc min max (Left tmin))
+                        ln' = length pos'
+                        minpos' = zip4 pos' (minorTickLengths tmin (maybe 0 id tmaj')) val' 
+                                   (replicate ln' Nothing)
+                        minpos = filter (not . (\(p,_,_,_) -> elem p (maybe [] id tjpos))) minpos'
+                    return $ (Just minpos,Just gmin)
+                (Just (Ticks gmin (TickValues tmin))) -> do
+                    let (pos,val) = unzip (tickPosition sc min max (Right $ toList tmin))
+                        ln = length pos
+                        minpos' = let halves = 0.7 : halves
+                                 in zip4 pos halves pos (replicate ln Nothing)
+                        minpos = filter (not . (\(p,_,_,_) -> elem p (maybe [] id tjpos))) minpos'
+                    return $ (Just minpos,Just gmin)
+                Nothing -> return (Nothing,Nothing)
+              case majpos' of
+                (Just m) -> mapM_ (renderAxisTick' Major (maybe NoLine id gmaj')) m
+                Nothing  -> return ()
+              case minpos' of
+                (Just m) -> mapM_ (renderAxisTick' Minor (maybe NoLine id gmin')) m
+                Nothing  -> return ()
               return ()
        return ()
 

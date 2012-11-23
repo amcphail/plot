@@ -25,6 +25,8 @@ FEATURES
 
 BUGS
 
+ * Log range crashing
+
  * no ticks for greyscale?
 
  * scale (log/linear) attached to range?
@@ -56,6 +58,8 @@ REFACTOR
 
  * re-refactor renderSeries for slight optimisation
 
+ * re-factor Axis.hs tickPositions and renderAxisTicks
+
 COMPLETE
 
 | * area
@@ -84,7 +88,7 @@ COMPLETE
 | * 0 in log plots should be ignored
 | * candle and whisker use bad width for candle part
 | * text labels for major ticks
-
+| * fixed rendering TickValues
 
  
 

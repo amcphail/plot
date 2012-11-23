@@ -83,3 +83,9 @@
                 * fixed bug in location of `Value` axis
                 * added data labels to axes
 		* fix some warnings
+
+0.1.5.1:
+		* changed _data_label to _tick_label
+
+0.1.6:
+		* added TickValue renderer
