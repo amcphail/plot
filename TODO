@@ -89,6 +89,8 @@ COMPLETE
 | * candle and whisker use bad width for candle part
 | * text labels for major ticks
 | * fixed rendering TickValues
+| * log tick label values
+
 
  
 
