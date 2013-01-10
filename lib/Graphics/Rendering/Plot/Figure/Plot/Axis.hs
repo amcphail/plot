@@ -89,7 +89,7 @@ setTicks :: Tick -> TickValues -> Axis ()
 setTicks Minor (TickNumber 0) = modify $ \s -> 
   changeMinorTicks (const Nothing) s
 setTicks Minor ts             = modify $ \s -> 
-  changeMajorTicks (setTickValues ts) s
+  changeMinorTicks (setTickValues ts) s
 setTicks Major (TickNumber 0) = modify $ \s -> 
   changeMajorTicks (const Nothing) s
 setTicks Major ts             = modify $ \s -> 
