@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.1.7
+Version:             0.1.7.1
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010, 2012
@@ -32,19 +32,6 @@ Description:
      The example in Graphics.Rendering.Plot can be viewed at 
      <http://code.haskell.org/plot/examples/perturbed-sine.png>
      .
-     Changes in plot 0.1.1
-     .
-          * added candle and whisker plots
-     .
-     Changes in plot 0.1.2
-     .
-          * axis join rendering improvement
-     .
-          * added annotations
-     .
-          * grid lines formattable
-     .
-     Changes
      .
 Category:            Graphics
 

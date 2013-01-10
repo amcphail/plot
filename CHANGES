@@ -95,3 +95,6 @@
 
 0.1.7:
 		* fix log labels
+
+0.1.7.1:
+		* small bug fix when setting ticks
