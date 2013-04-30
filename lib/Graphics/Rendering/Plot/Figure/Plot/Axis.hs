@@ -19,6 +19,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                                 , setTicks
                                                 , setGridlines
                                                 , setTickLabelFormat
+                                                , setTickLabelFormatFunction
                                                 , setTickLabels
                                                 , withTickLabelFormat
                                                 , withAxisLabel
@@ -102,7 +103,12 @@ setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines (if gl
 
 -- | printf format that takes one argument, the tick value
 setTickLabelFormat :: String -> Axis ()
-setTickLabelFormat tf = modify $ \s -> changeTickFormat tf s
+setTickLabelFormat tf = modify $ \s -> changeTickFormat (Printf tf) s
+
+-- | a function to format the tick value
+setTickLabelFormatFunction :: (Double -> String) -> Axis ()
+setTickLabelFormatFunction tf =
+    modify $ \s -> changeTickFormat (FormatFunction tf) s
 
 -- | a list of data labels
 setTickLabels :: [String] -> Axis ()

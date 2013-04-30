@@ -100,6 +100,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setTicks
                                       , setGridlines
                                       , setTickLabelFormat
+                                      , setTickLabelFormatFunction
                                       , setTickLabels
                                       , withTickLabelFormat
                                       , withAxisLabel
