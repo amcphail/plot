@@ -476,7 +476,7 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v,dl) = do
                       (Side _)  -> True
                       (Value _) -> False
        when (t == Major && majlab) $ do
-            let s = if sc == Log then formatTick "10e%.1g" (logBase 10 v) else formatTick tf v
+            let s = if sc == Log then formatTick (Printf "10e%.1g") (logBase 10 v) else formatTick tf v
             let s' = case dl of
                        Nothing -> BareText s
                        Just d  -> d
@@ -510,13 +510,15 @@ renderAxisTick pc to x y w h sc min max xa sd tf t gl (p,l,v,dl) = do
 
 -----------------------------------------------------------------------------
 
-formatTick :: String -> Double -> String
-formatTick tf p
-    | tf /= ""      = Printf.printf tf p 
-    | p == 0.0      = "0"
-    | abs p > 1000  = Printf.printf "%1.1e" p
-    | abs p < 0.001 = Printf.printf "%.3e" p
-    | otherwise     = Printf.printf "%.2f" p
--- %g uses "whichever of %f, %e is smaller
+formatTick :: TickFormat -> Double -> String
+formatTick tf p = case tf of
+    DefaultTickFormat
+        | p == 0.0      -> "0"
+        | abs p > 1000  -> Printf.printf "%1.1e" p
+        | abs p < 0.001 -> Printf.printf "%.3e" p
+        | otherwise     -> Printf.printf "%.2f" p
+        -- %g uses "whichever of %f, %e is smaller
+    Printf s -> Printf.printf s p
+    FormatFunction f -> f p
 
 -----------------------------------------------------------------------------

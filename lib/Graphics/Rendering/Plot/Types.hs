@@ -196,7 +196,10 @@ setTickValues :: TickValues -> Maybe Ticks -> Maybe Ticks
 setTickValues tv (Just (Ticks gl _)) = Just $ Ticks gl tv
 setTickValues tv Nothing             = Just $ Ticks NoLine tv
 
-type TickFormat = String
+data TickFormat
+    = DefaultTickFormat
+    | Printf String
+    | FormatFunction (Double -> String)
 
 data AxisData = Axis {
       _axis_type     :: AxisType
