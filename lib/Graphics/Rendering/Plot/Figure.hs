@@ -97,10 +97,10 @@ module Graphics.Rendering.Plot.Figure (
                                       , withLegendFormat
                                       -- ** Formatting
                                       , Tick(..), TickValues(..), GridLines
+                                      , TickFormat(..)
                                       , setTicks
                                       , setGridlines
                                       , setTickLabelFormat
-                                      , setTickLabelFormatFunction
                                       , setTickLabels
                                       , withTickLabelFormat
                                       , withAxisLabel
