@@ -98,3 +98,6 @@
 
 0.1.7.1:
 		* small bug fix when setting ticks
+
+0.1.8:
+		* added `TickFormat` data type
