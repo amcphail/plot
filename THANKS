@@ -1,2 +1,3 @@
  * Nicolas Dudebout for linlog and loglin in Simple.hs
  * uriba for a small bug fix when setting ticks
+ * buecking added the TickFormat data type and resulting code

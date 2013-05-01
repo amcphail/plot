@@ -166,7 +166,7 @@ defaultMajorTicks :: Maybe Ticks
 defaultMajorTicks = Just $ Ticks NoLine (TickNumber 5)
 
 defaultTickFormat :: TickFormat
-defaultTickFormat = ""
+defaultTickFormat = DefaultTickFormat
 
 defaultAxis :: AxisType -> AxisPosn -> AxisData
 defaultAxis at axp = Axis at axp 

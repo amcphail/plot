@@ -66,6 +66,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , withLegendFormat
                                             -- ** Formatting
                                             , Tick(..), TickValues(..), GridLines
+                                           , TickFormat(..)
                                            , AX.setTicks
                                            , AX.setGridlines
                                            , AX.setTickLabelFormat
