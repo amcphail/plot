@@ -81,11 +81,10 @@ greySurfaceFromMatrix s m stride r' c' = do
       mx = maxElement m
       mn = minElement m
   mapM_ (\ri -> mapM_ (\(rj,ci) -> do
-                        let mi = ((rj `div` r')*c) + (ci `div` c')
-                        let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
-                        let si = (rj*stride) + ci
-                        B.unsafeWrite s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
-
+     let mi = ((rj `div` r')*c) + (ci `div` c')
+     let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
+     let si = (rj*stride) + ci
+     B.unsafeWrite s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
 
 ----------------------------------------------------------------------------
 
@@ -183,168 +182,171 @@ renderSeries :: Scale -> Scale
              -> (Abscissae,DecoratedSeries) -> Render ()
 renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
   dat  <- case o of
-          (OrdFunction _ f _)            -> do
-                 (BoundingBox _ _ w _) <- get
-                 let t = logSeries xsc $ linspace (round w) (xmin,xmax)
-                 return $ Left $ Left ((True,t),logSeries ysc $ mapVector f t)
-          (OrdPoints _ (Plain o') _)     -> do
-                 let t = case abs of
-                           AbsFunction      -> if isHist d
-                                              then (True,fromList [0.0..(fromIntegral $ dim o')])
-                                              else (True,fromList [1.0..(fromIntegral $ dim o')])
-                           AbsPoints mi t'  -> (mi,t')
-                 return $ Left $ Left ((fst t,logSeries xsc $ snd t),logSeries ysc $ o')
-          (OrdPoints _ (Error o' (Left e)) _) -> do
-                 let t = case abs of
-                           AbsFunction      -> if isHist d
-                                              then (True,fromList [0.0..(fromIntegral $ dim o')])
-                                              else (True,fromList [1.0..(fromIntegral $ dim o')])
-                           AbsPoints mi t'  -> (mi,t')
-                 let t' = (fst t,logSeries xsc $ snd t)
-                 return $ Left $ Right $ Left ((t',logSeries ysc $ o'),(t',logSeries ysc $ e))
-          (OrdPoints _ (Error o' (Right (l,h))) _) -> do
-                 let t = case abs of
-                           AbsFunction      -> if isHist d
-                                              then (True,fromList [0.0..(fromIntegral $ dim o')])
-                                              else (True,fromList [1.0..(fromIntegral $ dim o')])
-                           AbsPoints mi t'  -> (mi,t') 
-                 let t' = (fst t,logSeries xsc $ snd t)
-                 return $ Left $ Right $ Right ((t',logSeries ysc $ o'),(t',logSeries ysc $ l),(t',logSeries ysc $ h))
-          (OrdPoints _ (MinMax o' Nothing) _) -> do
-                 let t = case abs of
-                           AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim $ fst o')])
-                           AbsPoints mi t'  -> (mi,t')
-                 let t' = (fst t,logSeries xsc $ snd t)
-                 return $ Right $ Left (t',logSeriesMinMax ysc $ o')
-          (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
-                 let t = case abs of
-                           AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim l)])
-                           AbsPoints mi t'  -> (mi,t')
-                 let t' = (fst t,logSeries xsc $ snd t)
-                 return $ Right $ Right ((t',logSeriesMinMax ysc o'),(t',(logSeries ysc l,logSeries ysc h)))
+     (OrdFunction _ f _)            -> do
+        (BoundingBox _ _ w _) <- get
+        let t = logSeries xsc $ linspace (round w) (xmin,xmax)
+        return $ Left $ Left ((True,t),logSeries ysc $ mapVector f t)
+     (OrdPoints _ (Plain o') _)     -> do
+        let t = case abs of
+                  AbsFunction      -> 
+                    if isHist d
+                    then (True,fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                  AbsPoints mi t'  -> (mi,t')
+        return $ Left $ Left ((fst t,logSeries xsc $ snd t),logSeries ysc $ o')
+     (OrdPoints _ (Error o' (Left e)) _) -> do
+        let t = case abs of
+                  AbsFunction      -> 
+                    if isHist d
+                    then (True,fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                  AbsPoints mi t'  -> (mi,t')
+        let t' = (fst t,logSeries xsc $ snd t)
+        return $ Left $ Right $ Left ((t',logSeries ysc $ o'),(t',logSeries ysc $ e))
+     (OrdPoints _ (Error o' (Right (l,h))) _) -> do
+        let t = case abs of
+                  AbsFunction      -> 
+                    if isHist d
+                    then (True,fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                  AbsPoints mi t'  -> (mi,t') 
+        let t' = (fst t,logSeries xsc $ snd t)
+        return $ Left $ Right $ Right ((t',logSeries ysc $ o'),(t',logSeries ysc $ l),(t',logSeries ysc $ h))
+     (OrdPoints _ (MinMax o' Nothing) _) -> do
+        let t = case abs of
+                  AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim $ fst o')])
+                  AbsPoints mi t'  -> (mi,t')
+        let t' = (fst t,logSeries xsc $ snd t)
+        return $ Right $ Left (t',logSeriesMinMax ysc $ o')
+     (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
+        let t = case abs of
+                  AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim l)])
+                  AbsPoints mi t'  -> (mi,t')
+        let t' = (fst t,logSeries xsc $ snd t)
+        return $ Right $ Right ((t',logSeriesMinMax ysc o'),(t',(logSeries ysc l,logSeries ysc h)))
   case d of
     (DecLine lt)   -> do
-           formatLineSeries lt
-           case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
-             _  -> error "Data.hs renderSeries: cannot have error bars with line type"
+        formatLineSeries lt
+        case dat of
+          Left (Left (t',y')) -> do
+            renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
+          _  -> error "Data.hs renderSeries: cannot have error bars with line type"
     (DecPoint pt)  -> do
-           (pz,g) <- formatPointSeries pt
-           case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-             Left (Right (Left ((t',y'),(_,e')))) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
-             Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' l 
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' h 
-             _  -> error "Data.hs renderSeries: cannot have MinMax data series with point type"
+        (pz,g) <- formatPointSeries pt
+        case dat of
+          Left (Left (t',y')) -> do
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+          Left (Right (Left ((t',y'),(_,e')))) -> do
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
+          Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' l 
+            renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' h 
+          _  -> error "Data.hs renderSeries: cannot have MinMax data series with point type"
     (DecLinPt lt pt) -> do
-           formatLineSeries lt
-           (pz,g) <- formatPointSeries pt
-           case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-             Left (Right (Left ((t',y'),(_,e')))) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
-               error "Data.hs renderSeries: cannot have single error value with line-points type"        
-             Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' l 
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' h 
-             _  -> error "Data.hs renderSeries: cannot have MinMax data series with line-point type"
+       formatLineSeries lt
+       (pz,g) <- formatPointSeries pt
+       case dat of
+         Left (Left (t',y')) -> do
+           renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+         Left (Right (Left ((t',y'),(_,e')))) -> do
+           renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
+--               error "Data.hs renderSeries: cannot have single error value with line-points type"        
+         Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
+           renderSamples xscale yscale xmin xmax Nothing renderLineSample endLineSample t' y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz g) endPointSample t' y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Bot) endPointSample t' l 
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample pz Top) endPointSample t' h 
+         _  -> error "Data.hs renderSeries: cannot have MinMax data series with line-point type"
     (DecImpulse lt) -> do
-           formatLineSeries lt
-           case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderImpulseSample endImpulseSample t' y'
-             _  -> error "Data.hs renderSeries: cannot have error bars with impulse type"
+       formatLineSeries lt
+       case dat of
+         Left (Left (t',y')) -> do
+           renderSamples xscale yscale xmin xmax Nothing renderImpulseSample endImpulseSample t' y'
+         _  -> error "Data.hs renderSeries: cannot have error bars with impulse type"
     (DecStep lt) -> do
-           formatLineSeries lt
-           case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing renderStepSample endStepSample t' y'
-             _  -> error "Data.hs renderSeries: cannot have error bars with step type"
+        formatLineSeries lt
+        case dat of
+          Left (Left (t',y')) -> do
+            renderSamples xscale yscale xmin xmax Nothing renderStepSample endStepSample t' y'
+          _  -> error "Data.hs renderSeries: cannot have error bars with step type"
     (DecArea lt) -> do
-           formatLineSeries lt
-           case dat of
-             Left (Left (t',y')) -> do
-                let ln = dim $ snd t'
-                    xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-                    x0 = (snd t') @> xmin_ix
-                    y0 = y' @> xmin_ix
-                renderSamples xscale yscale xmin xmax Nothing renderAreaSample (endAreaSample x0 y0) t' y'
-             _  -> error "Data.hs renderSeries: cannot have error bars with area type"
+       formatLineSeries lt
+       case dat of
+         Left (Left (t',y')) -> do
+           let ln = dim $ snd t'
+               xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
+               x0 = (snd t') @> xmin_ix
+               y0 = y' @> xmin_ix
+           renderSamples xscale yscale xmin xmax Nothing renderAreaSample (endAreaSample x0 y0) t' y'
+         _  -> error "Data.hs renderSeries: cannot have error bars with area type"
     (DecBar bt)   -> do
-         (bw,bc,c) <- formatBarSeries bt
-         (gw,_) <- formatPointSeries defaultPointType 
-         case dat of
-             Left (Left (t',y')) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
-             Left (Right (Left ((t',y'),(_,e')))) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSampleUpDown gw) endPointSample t' e'
-             Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
-               renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Bot) endPointSample t' l'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Top) endPointSample t' h'
-             _  -> error "Data.hs renderSeries: cannot have MinMax data series with bar type"
+       (bw,bc,c) <- formatBarSeries bt
+       (gw,_) <- formatPointSeries defaultPointType 
+       case dat of
+         Left (Left (t',y')) -> do
+           renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
+         Left (Right (Left ((t',y'),(_,e')))) -> do
+           renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSampleUpDown gw) endPointSample t' e'
+         Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
+           renderSamples xscale yscale xmin xmax Nothing (renderBarSample bw bc c) endBarSample t' y' 
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Bot) endPointSample t' l'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Top) endPointSample t' h'
+         _  -> error "Data.hs renderSeries: cannot have MinMax data series with bar type"
     (DecHist bt)  -> do
-         (bw,bc,c) <- formatBarSeries bt
-         (gw,_) <- formatPointSeries defaultPointType 
-         case dat of
-             Left (Left (t',y')) -> do
-               let ln = dim $ snd $ t'
-                   xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-                   rest (m,v) = (m,subVector 1 (dim v - 1) v)
-                   x0 = (snd t') @> xmin_ix
-                   y0 = 0
-               renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
-             Left (Right (Left ((t',y'),(_,e')))) -> do
-               let ln = dim $ snd $ t'
-                   xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-                   rest (m,v) = (m,subVector 1 (dim v - 1) v)
-                   x0 = (snd t') @> xmin_ix
-                   y0 = 0
-               renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSampleUpDown gw) endPointSample (midpoints t') e'
-             Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
-               let ln = dim $ snd $ t'
-                   xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-                   rest (m,v) = (m,subVector 1 (dim v - 1) v)
-                   x0 = (snd t') @> xmin_ix
-                   y0 = 0
-               renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Bot) endPointSample (midpoints t') l'
-               renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Top) endPointSample (midpoints t') h'
-             _  -> error "Data.hs renderSeries: cannot have MinMax data series with histogram type"
+       (bw,bc,c) <- formatBarSeries bt
+       (gw,_) <- formatPointSeries defaultPointType 
+       case dat of
+         Left (Left (t',y')) -> do
+           let ln = dim $ snd $ t'
+               xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
+               rest (m,v) = (m,subVector 1 (dim v - 1) v)
+               x0 = (snd t') @> xmin_ix
+               y0 = 0
+           renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
+         Left (Right (Left ((t',y'),(_,e')))) -> do
+           let ln = dim $ snd $ t'
+               xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
+               rest (m,v) = (m,subVector 1 (dim v - 1) v)
+               x0 = (snd t') @> xmin_ix
+               y0 = 0
+           renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSampleUpDown gw) endPointSample (midpoints t') e'
+         Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
+           let ln = dim $ snd $ t'
+               xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
+               rest (m,v) = (m,subVector 1 (dim v - 1) v)
+               x0 = (snd t') @> xmin_ix
+               y0 = 0
+           renderSamples xscale yscale xmin xmax (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Bot) endPointSample (midpoints t') l'
+           renderSamples xscale yscale xmin xmax Nothing (renderPointSample gw Top) endPointSample (midpoints t') h'
+         _  -> error "Data.hs renderSeries: cannot have MinMax data series with histogram type"
     (DecCand bt)  → do
-      (bw,bc,c) ← formatBarSeries bt
-      case dat of 
-          Left _ -> error "Candles series requires two data series (MinMax series)"
-          Right (Left (t',y')) -> do
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
-          Right (Right ((t',y'),(_,e'))) → do
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderWhiskerSample bw bc c False) endWhiskerSample t' e'
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
+       (bw,bc,c) <- formatBarSeries bt
+       case dat of 
+         Left _ -> error "Candles series requires two data series (MinMax series)"
+         Right (Left (t',y')) -> do
+           renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
+         Right (Right ((t',y'),(_,e'))) -> do
+           renderMinMaxSamples xscale yscale xmin xmax Nothing (renderWhiskerSample bw bc c False) endWhiskerSample t' e'
+           renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
     (DecWhisk bt)  → do
-      (bw,bc,c) ← formatBarSeries bt
+      (bw,bc,c) <- formatBarSeries bt
       case dat of 
-          Left _ -> error "Candles series requires two data series (MinMax series)"
-          Right (Left (t',y')) -> do
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
-          Right (Right ((t',y'),(_,e'))) → do
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderWhiskerSample bw bc c True) endWhiskerSample t' e'
-               renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
+        Left _ -> error "Candles series requires two data series (MinMax series)"
+        Right (Left (t',y')) -> do
+          renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
+        Right (Right ((t',y'),(_,e'))) -> do
+          renderMinMaxSamples xscale yscale xmin xmax Nothing (renderWhiskerSample bw bc c True) endWhiskerSample t' e'
+          renderMinMaxSamples xscale yscale xmin xmax Nothing (renderCandleSample bw bc c) endCandleSample t' y'
   return ()
 
 -----------------------------------------------------------------------------
