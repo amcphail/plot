@@ -355,26 +355,26 @@ renderSamples :: Double -> Double
               -> (Double -> Double -> Double -> Double -> C.Render ()) -> (Double -> Double -> C.Render ())
               -> (Bool,Vector Double) -> Vector Double -> Render ()
 renderSamples xscale yscale xmin xmax s f e (mono,t) y = do
-                                  (BoundingBox _ _ w _) <- get
-                                  let ln = dim t
-                                      (xmin_ix,xmax_ix,num_pts) = if mono
-                                                                     then (findMinIdx t xmin 0 (ln-1)
-                                                                           ,findMaxIdx t xmax (ln-1) 0
-                                                                           ,xmax_ix - xmin_ix + 1)
-                                                                     else (0,ln-1,ln)
-                                      diff'' = floor $ (fromIntegral num_pts)/w
-                                      diff' = if diff'' <= 1 then 1 else diff''
-                                      diff = if mono then diff' else 1
-                                  cairo $ do
-                                         case s of
-                                                Nothing -> C.moveTo ((t @> xmin_ix)*xscale) ((y @> xmin_ix)*yscale)
-                                                Just s' -> s'
-                                         _ <- runMaybeT $ do
-                                               mapVectorWithIndexM_ (\j y' -> do
-                                                 when (j >= xmin_ix && j `mod` diff == 0)
-                                                     (renderSample j xmax_ix t (f xscale yscale) y')
-                                                 return ()) y
-                                         (e xscale yscale)
+  (BoundingBox _ _ w _) <- get
+  let ln = dim t
+      (xmin_ix,xmax_ix,num_pts) = if mono
+                                  then (findMinIdx t xmin 0 (ln-1)
+                                       ,findMaxIdx t xmax (ln-1) 0
+                                       ,xmax_ix - xmin_ix + 1)
+                                  else (0,ln-1,ln)
+      diff'' = floor $ (fromIntegral num_pts)/w
+      diff' = if diff'' <= 1 then 1 else diff''
+      diff = if mono then diff' else 1
+  cairo $ do
+    case s of
+      Nothing -> C.moveTo ((t @> xmin_ix)*xscale) ((y @> xmin_ix)*yscale)
+      Just s' -> s'
+    _ <- runMaybeT $ do
+            mapVectorWithIndexM_ (\j y' -> do
+               when (j >= xmin_ix && j `mod` diff == 0)
+                        (renderSample j xmax_ix t (f xscale yscale) y')
+               return ()) y
+    (e xscale yscale)
 
 -----------------------------------------------------------------------------
 
@@ -384,26 +384,25 @@ renderMinMaxSamples :: Double -> Double
               -> (Double -> Double -> Double -> (Double,Double) -> C.Render ()) -> (Double -> Double -> C.Render ())
               -> (Bool,Vector Double) -> (Vector Double,Vector Double) -> Render ()
 renderMinMaxSamples xscale yscale xmin xmax s f e (mono,t) y = do
-                                  (BoundingBox _ _ w _) <- get
-                                  let ln = dim t
-                                      (xmin_ix,xmax_ix,num_pts) = if mono
-                                                                     then (findMinIdx t xmin 0 (ln-1)
-                                                                           ,findMaxIdx t xmax (ln-1) 0
-                                                                           ,xmax_ix - xmin_ix + 1)
-                                                                     else (0,ln-1,ln)
-                                      diff'' = floor $ (fromIntegral num_pts)/w
-                                      diff' = if diff'' <= 1 then 1 else diff''
-                                      diff = if mono then diff' else 1
-                                  cairo $ do
-                                         case s of
-                                                Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
-                                                Just s' -> s'
-
-                                         _ <- runMaybeT $ mapVectorWithIndexM_ (\j t' -> do
-                                            when (j >= xmin_ix && j `mod` diff == 0)
-                                              (renderMinMaxSample j xmax_ix t' (f xscale yscale) (e xscale yscale) y)
-                                            return ()) t
-                                         return ()
+  (BoundingBox _ _ w _) <- get
+  let ln = dim t
+      (xmin_ix,xmax_ix,num_pts) = if mono
+                                  then (findMinIdx t xmin 0 (ln-1)
+                                       ,findMaxIdx t xmax (ln-1) 0
+                                       ,xmax_ix - xmin_ix + 1)
+                                  else (0,ln-1,ln)
+      diff'' = floor $ (fromIntegral num_pts)/w
+      diff' = if diff'' <= 1 then 1 else diff''
+      diff = if mono then diff' else 1
+  cairo $ do
+    case s of
+      Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
+      Just s' -> s'
+    _ <- runMaybeT $ mapVectorWithIndexM_ (\j t' -> do
+        when (j >= xmin_ix && j `mod` diff == 0)
+           (renderMinMaxSample j xmax_ix t' (f xscale yscale) (e xscale yscale) y)
+        return ()) t
+    return ()
 
 -----------------------------------------------------------------------------
 
