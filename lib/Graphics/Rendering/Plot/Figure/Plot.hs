@@ -272,8 +272,8 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 -----------------------------------------------------------------------------
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
-findMinMax AbsFunction (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
-                                           in (minElement v,maxElement v)
+findMinMax (AbsFunction _) (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
+                                                 in (minElement v,maxElement v)
 findMinMax (AbsPoints _ x) (OrdFunction _ f _) = let v = mapVector f x
                                              in (minElement v,maxElement v)
                                            -- what if errors go beyond plot?
@@ -283,7 +283,7 @@ findMinMax _ (OrdPoints _ (MinMax (o,p) _) _) = (Prelude.min (minElement o) (min
                                                 ,Prelude.max (maxElement o) (maxElement p))
 
 abscMinMax :: Abscissae -> (Double,Double)
-abscMinMax AbsFunction        = defaultXAxisSideLowerRange
+abscMinMax (AbsFunction _)      = defaultXAxisSideLowerRange
 abscMinMax (AbsPoints _ x)      = (minElement x,maxElement x)
 
 
@@ -294,7 +294,7 @@ ordDim (OrdPoints _ o _)    = dim $ getOrdData o
 
 calculateRanges :: DataSeries -> ((Double,Double),(Double,Double))
 calculateRanges (DS_Y ys)      = let xmax = maximum $ map (\(DecSeries o _) -> fromIntegral $ ordDim o) $ A.elems ys
-                                     ym = unzip $ map (\(DecSeries o _) -> findMinMax AbsFunction o) $ A.elems ys
+                                     ym = unzip $ map (\(DecSeries o _) -> findMinMax (AbsFunction id) o) $ A.elems ys
                                      ymm = (minimum $ fst ym,maximum $ snd ym)
                                  in ((0,xmax),ymm)
 calculateRanges (DS_1toN x ys) = let ym = unzip $ map (\(DecSeries o _) -> findMinMax x o) $ A.elems ys

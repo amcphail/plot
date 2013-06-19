@@ -35,7 +35,7 @@ Description:
      .
 Category:            Graphics
 
-Tested-with:         GHC==7.0.1
+Tested-with:         GHC==7.6.3
 Cabal-version:       >= 1.8
 Build-type:          Simple
 

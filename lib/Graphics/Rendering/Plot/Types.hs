@@ -295,7 +295,9 @@ getMinMaxData (MinMax o (Just e)) = Right (o,e)
 
 type MonotoneIncreasing = Bool
 
-data Abscissae = AbsFunction 
+type AbsFunctionModifier = (Double -> Double) 
+
+data Abscissae = AbsFunction AbsFunctionModifier
                | AbsPoints MonotoneIncreasing Series
 
 data Ordinates = OrdFunction AxisSide Function  (Maybe SeriesLabel)

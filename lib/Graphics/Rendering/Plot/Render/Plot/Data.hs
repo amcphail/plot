@@ -5,7 +5,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Data
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2013
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -40,6 +40,7 @@ import qualified Data.Array.Base as B
 
 import Data.Word
 
+import Data.Maybe 
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Cairo.Matrix as CM
 
@@ -125,8 +126,8 @@ renderData _ _  (DS_Surf m) = do
 
 renderData r bc ds = do
   let aos = case ds of
-              (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
-              (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 
+              (DS_Y         os') -> zip (repeat (AbsFunction id)) (A.elems os')
+              (DS_1toN abs' os') -> zip (repeat abs')             (A.elems os') 
               (DS_1to1 aos')     -> A.elems aos'
               _                  -> error "renderData: DataSeries not handled"
   let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
@@ -144,7 +145,8 @@ renderData r bc ds = do
     --C.scale xscale yscalel
     C.translate (-xmin*xscale) (yminl*yscalel)
     flipVertical
-  mapM_ (renderSeries xsc yscl xmin xmax xscale yscalel) los
+  los' <- configureBars xsc yscl xmin xmax xscale yscalel bc los 
+  mapM_ (renderSeries xsc yscl xmin xmax xscale yscalel) los'
   cairo $ C.restore
   when (not $ null ups)
            (do
@@ -158,7 +160,8 @@ renderData r bc ds = do
                --C.scale xscale yscaleu
                C.translate (-xmin*xscale) (yminu*yscaleu)
                flipVertical
-             mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups
+             ups' <- configureBars xsc yscu xmin xmax xscale yscaleu bc ups 
+             mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu) ups'
              cairo $ C.restore)
              -- could filter annotations as well
   return ()
@@ -177,6 +180,64 @@ logSeriesMinMax :: Scale -> (Vector Double,Vector Double) -> (Vector Double,Vect
 logSeriesMinMax Log    (v,w) = (logSeries Log v,logSeries Log w)
 logSeriesMinMax Linear x     = x
 
+getBar :: (Integer,(Abscissae,DecoratedSeries)) 
+        -> Maybe (Integer,(Abscissae,DecoratedSeries,BarType)) 
+getBar (ix,(as,DecSeries os ds)) = let d = decorationGetBarType ds
+   in case d of
+        Just d' -> Just (ix,(as,DecSeries os ds,d'))
+        Nothing -> Nothing
+
+getBarWidth :: (Integer,(Abscissae,DecoratedSeries,BarType)) -> Render Double
+getBarWidth (_,(_,_,(ColourBar _)))                  = do
+  (BarOptions w _ _) <- asks (_baroptions . _renderoptions)
+  return w
+getBarWidth (_,(_,_,(TypeBar (BarOptions w _ _) _))) = return w
+
+replace :: Integer -> a -> [a] -> [a]
+replace n x xs = let (pre,post) = splitAt (fromIntegral n) xs
+                 in pre ++ x:(tail post)
+
+shiftAbscissa :: (Integer,(Abscissae,DecoratedSeries,BarType)) -> Double
+              -> (Integer,(Abscissae,DecoratedSeries))
+shiftAbscissa (i,(AbsFunction f,ds,_)) s  = (i,(AbsFunction ((+) s . f),ds))
+shiftAbscissa (i,(AbsPoints mi t,ds,_)) s = (i,(AbsPoints mi (addConstant s t),ds))
+
+replaceBars :: [(Integer,(Abscissae,DecoratedSeries))] 
+            -> [(Abscissae,DecoratedSeries)] 
+            -> [(Abscissae,DecoratedSeries)] 
+replaceBars [] as = as
+replaceBars ((i,ds):dss) as = replaceBars dss $ replace i ds as
+
+instance Show Abscissae where
+    show (AbsFunction _)  = "<function>"
+    show (AbsPoints mi t) = (show mi) ++ "\n" ++ (show t)
+
+instance Show BarType where
+    show bt = "BarType"
+
+instance Show DecoratedSeries where
+    show ds = "DecoratedSeries"
+
+configureBars :: Scale -> Scale
+             -> Double -> Double -> Double -> Double
+             -> BarSetting
+             -> [(Abscissae,DecoratedSeries)] 
+             -> Render [(Abscissae,DecoratedSeries)] 
+configureBars xsc ysc xmin xmax xscale yscale bs aos = do
+   let bars = mapMaybe getBar $ zip [0..] aos
+   let bln  = length bars
+   case bs of
+     BarNone   -> return aos
+     BarSpread -> do
+        widths <- mapM getBarWidth bars
+        let half_total = (sum widths) / 2
+        let shifts' = init $ scanl (+) 0 widths
+            shifts = map ((/ xscale) . flip (-) half_total) shifts'
+        let shifted = zipWith shiftAbscissa bars shifts
+        let aos' = replaceBars shifted aos
+        return aos'
+     BarStack  -> error "Data:configureBars:BarStack not currently defined"
+
 renderSeries :: Scale -> Scale 
              -> Double -> Double -> Double -> Double 
              -> (Abscissae,DecoratedSeries) -> Render ()
@@ -188,39 +249,39 @@ renderSeries xsc ysc xmin xmax xscale yscale (abs,(DecSeries o d)) = do
         return $ Left $ Left ((True,t),logSeries ysc $ mapVector f t)
      (OrdPoints _ (Plain o') _)     -> do
         let t = case abs of
-                  AbsFunction      -> 
+                  AbsFunction f    -> 
                     if isHist d
-                    then (True,fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
                   AbsPoints mi t'  -> (mi,t')
         return $ Left $ Left ((fst t,logSeries xsc $ snd t),logSeries ysc $ o')
      (OrdPoints _ (Error o' (Left e)) _) -> do
         let t = case abs of
-                  AbsFunction      -> 
+                  AbsFunction f    -> 
                     if isHist d
-                    then (True,fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Left $ Right $ Left ((t',logSeries ysc $ o'),(t',logSeries ysc $ e))
      (OrdPoints _ (Error o' (Right (l,h))) _) -> do
         let t = case abs of
-                  AbsFunction      -> 
+                  AbsFunction f    -> 
                     if isHist d
-                    then (True,fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
+                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
                   AbsPoints mi t'  -> (mi,t') 
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Left $ Right $ Right ((t',logSeries ysc $ o'),(t',logSeries ysc $ l),(t',logSeries ysc $ h))
      (OrdPoints _ (MinMax o' Nothing) _) -> do
         let t = case abs of
-                  AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim $ fst o')])
+                  AbsFunction f    -> (True,mapVector f $ fromList [1.0..(fromIntegral $ dim $ fst o')])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Right $ Left (t',logSeriesMinMax ysc $ o')
      (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
         let t = case abs of
-                  AbsFunction      -> (True,fromList [1.0..(fromIntegral $ dim l)])
+                  AbsFunction f    -> (True,mapVector f $ fromList [1.0..(fromIntegral $ dim l)])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Right $ Right ((t',logSeriesMinMax ysc o'),(t',(logSeries ysc l,logSeries ysc h)))
