@@ -93,8 +93,8 @@ zeroToOne x
     | x == 0.0  = 1.0
     | otherwise = x
 
-renderData :: Ranges -> DataSeries -> Render ()
-renderData _    (DS_Surf m) = do 
+renderData :: Ranges -> BarSetting -> DataSeries -> Render ()
+renderData _ _  (DS_Surf m) = do 
   (BoundingBox x y w h) <- get
   let r = rows m
       c = cols m
@@ -123,7 +123,7 @@ renderData _    (DS_Surf m) = do
     C.restore
     return ()
 
-renderData r ds = do
+renderData r bc ds = do
   let aos = case ds of
               (DS_Y         os') -> zip (repeat AbsFunction) (A.elems os')
               (DS_1toN abs' os') -> zip (repeat abs')        (A.elems os') 

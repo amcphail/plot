@@ -57,6 +57,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , clearAxis
                                            , addAxis
                                            , withAxis
+                                           -- * BarSetting
+                                           , barSetting
                                            -- * Legend
                                            , L.Legend
                                            , LegendBorder
@@ -184,6 +186,11 @@ withAxis at axp m = do
                     o <- ask
                     modify $ \s -> s { _axes = map (\a@(Axis at' ap' _ _ _ _ _ _) 
                                                     -> if at == at' && axp == ap' then execAxis m o a else a) axes' }
+
+-----------------------------------------------------------------------------
+
+barSetting :: BarSetting -> Plot ()
+barSetting bc = modify $ \s -> s { _barconfig = bc }
 
 -----------------------------------------------------------------------------
 

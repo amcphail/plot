@@ -88,6 +88,9 @@ module Graphics.Rendering.Plot.Figure (
                                       , clearAxis
                                       , addAxis
                                       , withAxis
+                                      -- * BarSetting
+                                      , BarSetting(..)
+                                      , barSetting
                                       -- * Legend
                                       , Legend
                                       , LegendBorder

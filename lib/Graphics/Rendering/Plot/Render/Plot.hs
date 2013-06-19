@@ -84,7 +84,7 @@ renderPlots d = do
         put bb) (A.assocs d)
 
 renderPlot :: PlotData -> Render ()
-renderPlot (Plot b p hd r a d l an) = do
+renderPlot (Plot b p hd r a bc d l an) = do
   tx <- bbCentreWidth
   ty <- bbTopHeight
   (_,th) <- renderText hd Centre TTop tx ty
@@ -107,7 +107,7 @@ renderPlot (Plot b p hd r a d l an) = do
   renderBorder b
   cairo C.save
   clipBoundary
-  renderData r d
+  renderData r bc d
   renderAnnotations r an
   cairo C.restore
   legend padding

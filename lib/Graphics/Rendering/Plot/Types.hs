@@ -410,6 +410,10 @@ instance Supply SupplyData Glyph where
 
 -----------------------------------------------------------------------------
 
+data BarSetting = BarNone | BarSpread | BarStack 
+
+-----------------------------------------------------------------------------
+
 -- | a plot 
 data PlotData = Plot { 
       _border      :: Border
@@ -417,6 +421,7 @@ data PlotData = Plot {
     , _heading   :: TextEntry
     , _ranges    :: Ranges
     , _axes      :: [AxisData]
+    , _barconfig :: BarSetting
     , _data      :: DataSeries
     , _legend    :: Maybe LegendData
     , _annote    :: Annotations
