@@ -208,15 +208,30 @@ replaceBars :: [(Integer,(Abscissae,DecoratedSeries))]
 replaceBars [] as = as
 replaceBars ((i,ds):dss) as = replaceBars dss $ replace i ds as
 
-instance Show Abscissae where
-    show (AbsFunction _)  = "<function>"
-    show (AbsPoints mi t) = (show mi) ++ "\n" ++ (show t)
+scanStacked :: Vector Double
+            -> (Integer,(Abscissae,DecoratedSeries,BarType))
+            -> Vector Double
+scanStacked v (i,(_,DecSeries (OrdPoints _ o _) _,_)) = v + (getOrdData o)
 
-instance Show BarType where
-    show bt = "BarType"
+convertBarToCandle :: (Vector Double,Vector Double)
+                   -> OrdSeries
+                   -> OrdSeries
+convertBarToCandle (v,w) os =
+    case os of
+      Plain _                 -> MinMax (v,w) Nothing
+      Error _ (Right (el,eh)) -> MinMax (v,w) (Just (el,eh))
+      _                       -> error "convertBarToCandle: unreachable code"
 
-instance Show DecoratedSeries where
-    show ds = "DecoratedSeries"
+mkCandlesFromBars :: (Vector Double,Vector Double)
+                  -> (Integer,(Abscissae,DecoratedSeries,BarType))
+                  -> (Integer,(Abscissae,DecoratedSeries))
+mkCandlesFromBars (v,w) (i,(a,DecSeries (OrdPoints ax o mb_l) _,bt)) = 
+  (i,(a,DecSeries (OrdPoints ax ordSeries mb_l) (DecCand bt)))
+      where
+        ordSeries = convertBarToCandle (v,w) o
+
+getOrdData' :: DecoratedSeries -> Series
+getOrdData' (DecSeries (OrdPoints _ os _) _) = getOrdData os
 
 configureBars :: Scale -> Scale
              -> Double -> Double -> Double -> Double
@@ -225,7 +240,6 @@ configureBars :: Scale -> Scale
              -> Render [(Abscissae,DecoratedSeries)] 
 configureBars xsc ysc xmin xmax xscale yscale bs aos = do
    let bars = mapMaybe getBar $ zip [0..] aos
-   let bln  = length bars
    case bs of
      BarNone   -> return aos
      BarSpread -> do
@@ -236,7 +250,17 @@ configureBars xsc ysc xmin xmax xscale yscale bs aos = do
         let shifted = zipWith shiftAbscissa bars shifts
         let aos' = replaceBars shifted aos
         return aos'
-     BarStack  -> error "Data:configureBars:BarStack not currently defined"
+     BarStack  -> do
+        let od = (getOrdData' . (\(_,b,_) -> b) . snd . head) bars
+        let ln = dim $ od
+        let zero = constant 0 ln
+        let pairs = pair $ scanl scanStacked zero bars  
+        let candles = zipWith mkCandlesFromBars pairs bars
+        let aos' = replaceBars candles aos
+        return aos'
+            where pair [] = []
+                  pair [x,y] = [(x,y)]
+                  pair (x:y:xs) = (x,y) : pair (y:xs)
 
 renderSeries :: Scale -> Scale 
              -> Double -> Double -> Double -> Double 
