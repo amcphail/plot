@@ -103,4 +103,4 @@
 		* added `TickFormat` data type
 
 0.2:
-		* added `BarSpread`
+		* added `BarSetting` with `BarSpread` and `BarStack` 		
