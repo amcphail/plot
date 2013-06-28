@@ -88,7 +88,7 @@ renderPlot (Plot b p hd r a bc d l an) = do
   tx <- bbCentreWidth
   ty <- bbTopHeight
   (_,th) <- renderText hd Centre TTop tx ty
-  bbLowerTop (th+textPad)
+  bbLowerTop th -- th+textPad
 {- attempt to have different colour plot area
       (BoundingBox x y w h) <- get
       cairo $ do
