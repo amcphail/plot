@@ -62,28 +62,28 @@ changeTickLabels f ax = ax { _tick_labels = f (_tick_labels ax) }
 -- | format the axis line
 withAxisLine :: Line () -> Axis ()
 withAxisLine m = do
-                 l <- gets _line_type
-                 lo <- asks _lineoptions
-                 let lt = execLine m lo l
-                 modify $ \s -> s { _line_type = lt }
+  l <- gets _line_type
+  lo <- asks _lineoptions
+  let lt = execLine m lo l
+  modify $ \s -> s { _line_type = lt }
 
 -- | format the grid lines
 withGridLine :: Tick -> Line () -> Axis ()
 withGridLine t m = do
-                 lo <- asks _lineoptions
-                 (lt',v) <- case t of
-                        Minor -> do
-                               -- at this point can we guarantee there won't
-                               -- be a Nothing?
-                               (Just (Ticks lt'' v')) <- gets _minor_ticks
-                               return (lt'',v')
-                        Major -> do
-                               (Just (Ticks lt'' v')) <- gets _major_ticks
-                               return (lt'',v')
-                 let lt = execLine m lo lt'
-                 case t of
-                   Minor -> modify $ \s -> s { _minor_ticks = (Just (Ticks lt v)) }
-                   Major -> modify $ \s -> s { _major_ticks = (Just (Ticks lt v)) }
+  lo <- asks _lineoptions
+  (lt',v) <- case t of
+      Minor -> do
+        -- at this point can we guarantee there won't
+        -- be a Nothing?
+        (Just (Ticks lt'' v')) <- gets _minor_ticks
+        return (lt'',v')
+      Major -> do
+        (Just (Ticks lt'' v')) <- gets _major_ticks
+        return (lt'',v')
+  let lt = execLine m lo lt'
+  case t of
+    Minor -> modify $ \s -> s { _minor_ticks = (Just (Ticks lt v)) }
+    Major -> modify $ \s -> s { _major_ticks = (Just (Ticks lt v)) }
 
 -- | format the axis ticks
 setTicks :: Tick -> TickValues -> Axis ()
@@ -98,8 +98,10 @@ setTicks Major ts             = modify $ \s ->
 
 -- | should gridlines be displayed?
 setGridlines :: Tick -> GridLines -> Axis ()
-setGridlines Minor gl = modify $ \s -> changeMinorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
-setGridlines Major gl = modify $ \s -> changeMajorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
+setGridlines Minor gl = modify $ \s -> 
+  changeMinorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
+setGridlines Major gl = modify $ \s -> 
+  changeMajorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
 
 -- | set the tick label format
 setTickLabelFormat :: TickFormat -> Axis ()
@@ -120,9 +122,9 @@ withTickLabelsFormat m = do
 -- | operate on the axis label
 withAxisLabel :: Text () -> Axis ()
 withAxisLabel m = do
-                  ax <- get
-                  to <- asks _textoptions
-                  put $ ax { _label = execText m to (_label ax) } 
+  ax <- get
+  to <- asks _textoptions
+  put $ ax { _label = execText m to (_label ax) } 
 
 -----------------------------------------------------------------------------
 
