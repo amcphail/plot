@@ -12,6 +12,7 @@ FEATURES
  * columns
 
  * adjustable elements ((x,y) adjustments/offsets)
+
  * settable plot sizes (so we can have same plot areas with only bottom one with x axis)
 
  * Simple interface: nice bars, histograms (see next line)
@@ -90,7 +91,7 @@ COMPLETE
 | * fixed rendering TickValues
 | * log tick label values
 | * bars/columns adjust for multiple data series (data creation)
-
+| * configurable plot and figure background colour
 
  
 

@@ -104,3 +104,7 @@
 
 0.2:
 		* added `BarSetting` with `BarSpread` and `BarStack` 		
+
+0.2.1:
+		* don't use textPad when plot title is empty
+		* add background colours for figure and plot
