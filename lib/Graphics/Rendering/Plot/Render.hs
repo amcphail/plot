@@ -150,10 +150,10 @@ writeSurfaceFS rw fn (w,h) f = rw fn (fromIntegral w) (fromIntegral h) (flip C.r
 -----------------------------------------------------------------------------
 
 renderFigure :: FigureData -> Render ()
-renderFigure (Figure p t s d) = do
+renderFigure (Figure b p t s d) = do
       cairo $ do
              C.save 
-             C.setSourceRGBA 1 1 1 1
+             setColour b
              C.paint
              C.restore
 

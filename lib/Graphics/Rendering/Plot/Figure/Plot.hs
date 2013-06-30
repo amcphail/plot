@@ -17,6 +17,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            -- * Plot elements 
                                            , Border
                                            , setBorder
+                                           , setPlotBackgroundColour
                                            , setPlotPadding
                                            , withHeading
                                            -- * Series data
@@ -113,6 +114,10 @@ import qualified Graphics.Rendering.Plot.Figure.Plot.Annotation as AN
 -- | whether to draw a boundary around the plot area
 setBorder :: Border -> Plot ()
 setBorder b = modify $ \s -> s { _border = b }
+
+-- | set the plot background colour
+setPlotBackgroundColour :: Color -> Plot ()
+setPlotBackgroundColour c = modify $ \s -> s { _back_colr = c }
 
 -- | set the padding of the subplot
 setPlotPadding :: Double -> Double -> Double -> Double -> Plot ()

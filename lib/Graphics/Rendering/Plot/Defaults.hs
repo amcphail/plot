@@ -75,6 +75,17 @@ defaultGridLine = ColourLine grey
 
 -----------------------------------------------------------------------------
 
+defaultFigureBackgroundColour :: Color
+defaultFigureBackgroundColour = white
+
+defaultFigureForegroundColour :: Color
+defaultFigureForegroundColour = black
+
+defaultPlotBackgroundColour :: Color
+defaultPlotBackgroundColour = white
+
+-----------------------------------------------------------------------------
+
 defaultBarWidth :: Double
 defaultBarWidth = 5
 
@@ -197,7 +208,7 @@ defaultSupply = SupplyData defaultColourList defaultGlyphList
 -----------------------------------------------------------------------------
 
 emptyPlot :: PlotData
-emptyPlot = Plot False defaultPlotPadding NoText (Ranges (Left (Range Linear (-1) 1)) (Left (Range Linear (-1) 1)))
+emptyPlot = Plot False defaultPlotBackgroundColour defaultPlotPadding NoText (Ranges (Left (Range Linear (-1) 1)) (Left (Range Linear (-1) 1)))
                  [] BarSpread undefined Nothing []
 
 -----------------------------------------------------------------------------
@@ -208,7 +219,7 @@ emptyPlots = (A.listArray ((0,0),(0,0)) [])
 -----------------------------------------------------------------------------
 
 emptyFigure :: FigureData
-emptyFigure = Figure defaultFigurePadding NoText NoText emptyPlots
+emptyFigure = Figure defaultFigureBackgroundColour defaultFigurePadding NoText NoText emptyPlots
 
 -----------------------------------------------------------------------------
 

@@ -107,15 +107,16 @@ isZeroPadding (Padding l0 r0 b0 t0) (Padding l1 r1 b1 t1) = do
            else return t1
   return $ Padding l r b t
 
-renderAxes :: Padding -> Ranges -> [AxisData] -> Render Padding
+renderAxes :: Padding -> Ranges -> [AxisData] -> Render (Render (),Padding)
 renderAxes p r axes = do
   lp <- foldM shiftForAxisLabel (Padding 0 0 0 0) axes
   tp <- foldM (shiftForTicks r) (Padding 0 0 0 0) axes
   let apd = addPadding lp tp
   p' <- isZeroPadding p apd
-  mapM_ (renderAxisLabel p') axes
-  mapM_ (renderAxis r) axes
-  return p'
+  return ((do
+           mapM_ (renderAxisLabel p') axes
+           mapM_ (renderAxis r) axes
+         ),p')
 
 shiftForAxisLabel :: Padding -> AxisData -> Render Padding
 shiftForAxisLabel p (Axis _  _   _ _ _ _ _ NoText) = return p

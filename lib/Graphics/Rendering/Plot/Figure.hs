@@ -35,6 +35,7 @@ module Graphics.Rendering.Plot.Figure (
                                       -- * Figures
                                       , newFigure
                                       -- ** Formatting
+                                      , setBackgroundColour
                                       , setFigurePadding
                                       , withTitle
                                       , withSubTitle
@@ -42,6 +43,8 @@ module Graphics.Rendering.Plot.Figure (
                                       , withPlot, withPlots  
                                       -- * Sub-plots
                                       ,  Plot()
+                                      -- ** Colour
+                                      , setPlotBackgroundColour
                                       -- ** Plot elements 
                                       , Border
                                       , setBorder
@@ -212,7 +215,7 @@ withBarDefaults m = do
 
 -- | create a new blank 'Figure'
 newFigure :: Figure ()
-newFigure = putFigure $ Figure defaultFigurePadding NoText NoText
+newFigure = putFigure $ Figure defaultFigureBackgroundColour defaultFigurePadding NoText NoText
                                (A.listArray ((1,1),(1,1)) [Nothing]) 
 {-
 newLineFigure :: DataSeries                      -- ^ the y series
@@ -234,6 +237,10 @@ newFigure Line   d@(DS_1toN _ _) = putFigure $ newLineFigure d
 
 
 -----------------------------------------------------------------------------
+
+-- | set the background colour of the figure
+setBackgroundColour :: Color -> Figure ()
+setBackgroundColour c = modifyFigure $ \s -> s { _back_clr = c }
 
 -- | set the padding of the figure
 setFigurePadding :: Double -> Double -> Double -> Double -> Figure ()

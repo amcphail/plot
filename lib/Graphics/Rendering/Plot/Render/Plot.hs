@@ -33,6 +33,8 @@ module Graphics.Rendering.Plot.Render.Plot (
 
 import qualified Data.Array.IArray as A
 
+import Data.Colour.Names
+
 import qualified Graphics.Rendering.Cairo as C
 --import qualified Graphics.Rendering.Pango as P
 
@@ -84,34 +86,25 @@ renderPlots d = do
         put bb) (A.assocs d)
 
 renderPlot :: PlotData -> Render ()
-renderPlot (Plot b p hd r a bc d l an) = do
+renderPlot (Plot b c p hd r a bc d l an) = do
   tx <- bbCentreWidth
   ty <- bbTopHeight
   (_,th) <- renderText hd Centre TTop tx ty
-  if th == 0 then return () else bbLowerTop (th+textPad)
-{- attempt to have different colour plot area
-      (BoundingBox x y w h) <- get
-      cairo $ do
-             setColour white
-             C.moveTo x     y
-             C.lineTo (x+w) y
-             C.lineTo (x+w) (y+h)
-             C.lineTo x     (y+h)
-             C.stroke
-             C.clip
-             C.fill
-             C.paint
--}
+  when (th /= 0) $ bbLowerTop (th+textPad)
   legend <- renderLegend l d
-  padding <- renderAxes p r a
+  (axes,padding) <- renderAxes p r a
   renderBorder b
   cairo C.save
   clipBoundary
+  when (c /= white) (do
+    cairo $ do
+      setColour c
+      C.paint)
   renderData r bc d
   renderAnnotations r an
   cairo C.restore
   legend padding
-
+  axes
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
 renderBorder True  = do

@@ -419,6 +419,7 @@ data BarSetting = BarNone | BarSpread | BarStack
 -- | a plot 
 data PlotData = Plot { 
       _border      :: Border
+    , _back_colr :: Color
     , _plot_pads :: Padding
     , _heading   :: TextEntry
     , _ranges    :: Ranges
@@ -474,7 +475,8 @@ annoteInPlot m = FP $ lift $ (mapReaderT annoteInPlot') (runAnnote m)
 
 -- | a chart has a title and contains one or more plots
 data FigureData = Figure { 
-      _fig_pads    :: Padding
+      _back_clr  :: Color
+    , _fig_pads  :: Padding
     , _title     :: TextEntry
     , _subtitle  :: TextEntry
     , _plots     :: Plots
