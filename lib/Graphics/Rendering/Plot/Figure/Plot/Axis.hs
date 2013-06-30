@@ -21,7 +21,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
                                                 , setGridlines
                                                 , setTickLabelFormat
                                                 , setTickLabels
-                                                , withTickLabelFormat
+                                                , withTickLabelsFormat
                                                 , withAxisLabel
                                                 , withAxisLine
                                                 , withGridLine
@@ -110,9 +110,9 @@ setTickLabels :: [String] -> Axis ()
 setTickLabels dl = modify $ \s -> 
   changeTickLabels (const (map BareText dl)) s
 
--- | format the data labels
-withTickLabelFormat :: Text () -> Axis ()
-withTickLabelFormat m = do
+-- | format the tick labels
+withTickLabelsFormat :: Text () -> Axis ()
+withTickLabelsFormat m = do
   ax <- get
   to <- asks _textoptions
   put $ ax { _tick_labels = map (execText m to) (_tick_labels ax) }
@@ -123,6 +123,16 @@ withAxisLabel m = do
                   ax <- get
                   to <- asks _textoptions
                   put $ ax { _label = execText m to (_label ax) } 
+
+-----------------------------------------------------------------------------
+
+-- | format the tick labels
+{- DEPRECATED "use `withTickLabelsFormat`" -}
+withTickLabelFormat :: Text () -> Axis ()
+withTickLabelFormat m = do
+  ax <- get
+  to <- asks _textoptions
+  put $ ax { _tick_labels = map (execText m to) (_tick_labels ax) }
 
 -----------------------------------------------------------------------------
 

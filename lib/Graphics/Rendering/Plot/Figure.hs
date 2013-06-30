@@ -108,7 +108,7 @@ module Graphics.Rendering.Plot.Figure (
                                       , setGridlines
                                       , setTickLabelFormat
                                       , setTickLabels
-                                      , withTickLabelFormat
+                                      , withTickLabelsFormat
                                       , withAxisLabel
                                       , withAxisLine
                                       , withGridLine

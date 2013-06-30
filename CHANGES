@@ -108,3 +108,6 @@
 0.2.1:
 		* don't use textPad when plot title is empty
 		* add background colours for figure and plot
+
+0.2.2:
+		* deprecate `withTickLabelFormat` for `withTickLabelsFormat`

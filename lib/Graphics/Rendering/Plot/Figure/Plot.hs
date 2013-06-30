@@ -74,7 +74,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , AX.setGridlines
                                            , AX.setTickLabelFormat
                                            , AX.setTickLabels
-                                           , AX.withTickLabelFormat
+                                           , AX.withTickLabelsFormat
                                            , AX.withAxisLabel
                                            , AX.withAxisLine
                                            , AX.withGridLine
