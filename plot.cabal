@@ -41,7 +41,10 @@ Build-type:          Simple
 
 Extra-source-files:  README, CHANGES, LICENSE, THANKS
                      examples/perturbed-sine.hs,
-                     examples/perturbed-sine.png
+                     examples/perturbed-sine.png,
+                     examples/Test.hs,
+                     examples/Test2.hs,
+		     examples/Test3.hs
 
 library
 
