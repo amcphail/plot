@@ -199,19 +199,20 @@ replace n x xs = let (pre,post) = splitAt (fromIntegral n) xs
 
 shiftAbscissa :: (Integer,(Abscissae,DecoratedSeries,BarType)) -> Double
               -> (Integer,(Abscissae,DecoratedSeries))
-shiftAbscissa (i,(AbsFunction f,ds,_)) s  = (i,(AbsFunction ((+) s . f),ds))
-shiftAbscissa (i,(AbsPoints mi t,ds,_)) s = (i,(AbsPoints mi (addConstant s t),ds))
+shiftAbscissa (j,(AbsFunction f,ds,_)) s  = (j,(AbsFunction ((+) s . f),ds))
+shiftAbscissa (j,(AbsPoints mi t,ds,_)) s = (j,(AbsPoints mi (addConstant s t),ds))
 
 replaceBars :: [(Integer,(Abscissae,DecoratedSeries))] 
             -> [(Abscissae,DecoratedSeries)] 
             -> [(Abscissae,DecoratedSeries)] 
 replaceBars [] as = as
-replaceBars ((i,ds):dss) as = replaceBars dss $ replace i ds as
+replaceBars ((j,ds):dss) as = replaceBars dss $ replace j ds as
 
 scanStacked :: Vector Double
             -> (Integer,(Abscissae,DecoratedSeries,BarType))
             -> Vector Double
-scanStacked v (i,(_,DecSeries (OrdPoints _ o _) _,_)) = v + (getOrdData o)
+scanStacked v (_,(_,DecSeries (OrdPoints _ o _) _,_)) = v + (getOrdData o)
+scanStacked _ _                                       = error "Data.hs:scanStacked: unreachable code"
 
 convertBarToCandle :: (Vector Double,Vector Double)
                    -> OrdSeries
@@ -225,20 +226,22 @@ convertBarToCandle (v,w) os =
 mkCandlesFromBars :: (Vector Double,Vector Double)
                   -> (Integer,(Abscissae,DecoratedSeries,BarType))
                   -> (Integer,(Abscissae,DecoratedSeries))
-mkCandlesFromBars (v,w) (i,(a,DecSeries (OrdPoints ax o mb_l) _,bt)) = 
-  (i,(a,DecSeries (OrdPoints ax ordSeries mb_l) (DecCand bt)))
+mkCandlesFromBars (v,w) (j,(a,DecSeries (OrdPoints ax o mb_l) _,bt)) = 
+  (j,(a,DecSeries (OrdPoints ax ordSeries mb_l) (DecCand bt)))
       where
         ordSeries = convertBarToCandle (v,w) o
+mkCandlesFromBars _     _                                            = error "Data.hs:mkCandlesFromBars: unreachable code"
 
 getOrdData' :: DecoratedSeries -> Series
 getOrdData' (DecSeries (OrdPoints _ os _) _) = getOrdData os
+getOrdData' _                                = error "Data.hs:getOrdData': unreachable code"
 
 configureBars :: Scale -> Scale
              -> Double -> Double -> Double -> Double
              -> BarSetting
              -> [(Abscissae,DecoratedSeries)] 
              -> Render [(Abscissae,DecoratedSeries)] 
-configureBars xsc ysc xmin xmax xscale yscale bs aos = do
+configureBars _ _ _ _ xscale _ bs aos = do
    let bars = mapMaybe getBar $ zip [0..] aos
    case bs of
      BarNone   -> return aos
@@ -259,6 +262,7 @@ configureBars xsc ysc xmin xmax xscale yscale bs aos = do
         let aos' = replaceBars candles aos
         return aos'
             where pair [] = []
+                  pair [_] = error "Data.hs:configureBars:pair: unreachable code"
                   pair [x,y] = [(x,y)]
                   pair (x:y:xs) = (x,y) : pair (y:xs)
 

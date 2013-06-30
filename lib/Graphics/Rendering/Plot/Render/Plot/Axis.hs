@@ -319,7 +319,7 @@ renderAxisLine _ YAxis (Side Upper) = do
     C.stroke
 
 tickPosition :: Tick -> Scale -> Double -> Double -> Either Int [Double] -> [(Double,Double)]
-tickPosition tk sc min max nv = 
+tickPosition _ sc min max nv = 
   let ticks = either (\n -> take n [(0::Double)..]) id nv
       l = fromIntegral $ length ticks - 1
       pos = case nv of

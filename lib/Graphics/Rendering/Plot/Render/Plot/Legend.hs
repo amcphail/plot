@@ -184,6 +184,7 @@ renderLegendOutside b l w h to ln ls
             (textPad + legendSampleWidth + legendSampleWidth + textPad 
                      + w + textPad) 0 0 h to ls 
           return ()
+renderLegendOutside _ _ _ _ _ _ _ = return (\_ -> return ())
 
 renderBorder :: Double -> Color -> Double -> Double -> Double -> Double -> C.Render ()
 renderBorder lw c x y w h = do
