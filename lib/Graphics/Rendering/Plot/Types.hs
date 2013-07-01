@@ -157,19 +157,29 @@ execAnnote m r = execState (runReaderT (runAnnote m) r)
 
 data Scale = Linear | Log deriving(Eq)
 
-data Range = Range { _range_scale :: Scale, _range_min :: Double, _range_max :: Double }
+data Range = Range { _range_scale :: Scale, 
+                     _range_min :: Double, 
+                     _range_max :: Double }
 
 data Ranges = Ranges (Either Range (Range,Range)) (Either Range (Range,Range))
 
 getRanges :: AxisType -> AxisSide -> Ranges -> (Scale,Double,Double)
-getRanges XAxis Lower (Ranges (Left (Range scale xmin xmax)) _)    = (scale,xmin,xmax)
-getRanges XAxis Lower (Ranges (Right (Range scale xmin xmax,_)) _) = (scale,xmin,xmax)
-getRanges XAxis Upper (Ranges (Right (_,Range scale xmin xmax)) _) = (scale,xmin,xmax)
-getRanges XAxis Upper (Ranges (Left _) _)                          = error "no upper range defined"
-getRanges YAxis Lower (Ranges _ (Left (Range scale ymin ymax)))    = (scale,ymin,ymax)
-getRanges YAxis Lower (Ranges _ (Right (Range scale ymin ymax,_))) = (scale,ymin,ymax)
-getRanges YAxis Upper (Ranges _ (Right (_,Range scale ymin ymax))) = (scale,ymin,ymax)
-getRanges YAxis Upper (Ranges _ (Left _))                          = error "no upper range defined"
+getRanges XAxis Lower (Ranges (Left (Range scale xmin xmax)) _)    = 
+    (scale,xmin,xmax)
+getRanges XAxis Lower (Ranges (Right (Range scale xmin xmax,_)) _) = 
+    (scale,xmin,xmax)
+getRanges XAxis Upper (Ranges (Right (_,Range scale xmin xmax)) _) = 
+    (scale,xmin,xmax)
+getRanges XAxis Upper (Ranges (Left _) _)                          = 
+    error "no upper range defined"
+getRanges YAxis Lower (Ranges _ (Left (Range scale ymin ymax)))    = 
+    (scale,ymin,ymax)
+getRanges YAxis Lower (Ranges _ (Right (Range scale ymin ymax,_))) = 
+    (scale,ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Right (_,Range scale ymin ymax))) = 
+    (scale,ymin,ymax)
+getRanges YAxis Upper (Ranges _ (Left _))                          = 
+    error "no upper range defined"
 
 -----------------------------------------------------------------------------
 
