@@ -173,24 +173,27 @@ clearAxes = modify $ \s -> s { _axes = [] }
 -- | clear an axis of a subplot
 clearAxis :: AxisType -> AxisPosn -> Plot ()
 clearAxis at axp = do
-                   ax <- gets _axes
-                   modify $ \s -> s { _axes = filter (\(Axis at' axp' _ _ _ _ _ _) -> not (at == at' && axp == axp')) ax } 
+  ax <- gets _axes
+  modify $ \s -> s { _axes = 
+    filter (\(Axis at' axp' _ _ _ _ _ _) -> not (at == at' && axp == axp')) ax } 
 
 -- | add an axis to the subplot
 addAxis :: AxisType -> AxisPosn -> AX.Axis () -> Plot ()
 addAxis at axp m  = do
-                    ax' <- gets _axes
-                    o <- ask
-                    let ax = execAxis m o (defaultAxis at axp)
-                    modify $ \s -> s { _axes = ax : ax' }
+  ax' <- gets _axes
+  o <- ask
+  let ax = execAxis m o (defaultAxis at axp)
+  modify $ \s -> s { _axes = ax : ax' }
 
 -- | operate on the given axis
 withAxis :: AxisType -> AxisPosn -> AX.Axis () -> Plot ()
 withAxis at axp m = do
-                    axes' <- gets _axes
-                    o <- ask
-                    modify $ \s -> s { _axes = map (\a@(Axis at' ap' _ _ _ _ _ _) 
-                                                    -> if at == at' && axp == ap' then execAxis m o a else a) axes' }
+  axes' <- gets _axes
+  o <- ask
+  modify $ \s -> s { _axes = 
+    map (\a@(Axis at' ap' _ _ _ _ _ _) -> if at == at' && axp == ap' 
+                                         then execAxis m o a 
+                                         else a) axes' }
 
 -----------------------------------------------------------------------------
 
@@ -277,19 +280,22 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 -----------------------------------------------------------------------------
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
-findMinMax (AbsFunction _) (OrdFunction _ f _) = let v = mapVector f (linspace 100 (-1,1))
-                                                 in (minElement v,maxElement v)
-findMinMax (AbsPoints _ x) (OrdFunction _ f _) = let v = mapVector f x
-                                             in (minElement v,maxElement v)
-                                           -- what if errors go beyond plot?
+findMinMax (AbsFunction _) (OrdFunction _ f _) = 
+    let v = mapVector f (linspace 100 (-1,1))
+    in (minElement v,maxElement v)
+findMinMax (AbsPoints _ x) (OrdFunction _ f _) = 
+    let v = mapVector f x
+    in (minElement v,maxElement v)
+-- what if errors go beyond plot?
 findMinMax _ (OrdPoints _ (Plain o) _)    = (minElement o,maxElement o)
 findMinMax _ (OrdPoints _ (Error o _) _)  = (minElement o,maxElement o)
-findMinMax _ (OrdPoints _ (MinMax (o,p) _) _) = (Prelude.min (minElement o) (minElement p)
-                                                ,Prelude.max (maxElement o) (maxElement p))
+findMinMax _ (OrdPoints _ (MinMax (o,p) _) _) = 
+  (Prelude.min (minElement o) (minElement p)
+  ,Prelude.max (maxElement o) (maxElement p))
 
 abscMinMax :: Abscissae -> (Double,Double)
-abscMinMax (AbsFunction _)      = defaultXAxisSideLowerRange
-abscMinMax (AbsPoints _ x)      = (minElement x,maxElement x)
+abscMinMax (AbsFunction _) = defaultXAxisSideLowerRange
+abscMinMax (AbsPoints _ x) = (minElement x,maxElement x)
 
 
 ordDim :: Ordinates -> Int
@@ -298,21 +304,27 @@ ordDim (OrdPoints _ o _)    = dim $ getOrdData o
 
 
 calculateRanges :: DataSeries -> ((Double,Double),(Double,Double))
-calculateRanges (DS_Y ys)      = let xmax = maximum $ map (\(DecSeries o _) -> fromIntegral $ ordDim o) $ A.elems ys
-                                     ym = unzip $ map (\(DecSeries o _) -> findMinMax (AbsFunction id) o) $ A.elems ys
-                                     ymm = (minimum $ fst ym,maximum $ snd ym)
-                                 in ((0,xmax),ymm)
-calculateRanges (DS_1toN x ys) = let ym = unzip $ map (\(DecSeries o _) -> findMinMax x o) $ A.elems ys
-                                     ymm = (minimum $ fst ym,maximum $ snd ym)
-                                     xmm = abscMinMax x
-                                 in (xmm,ymm)
-calculateRanges (DS_1to1 ys)   = let (xm',ym') = unzip $ A.elems ys
-                                     ym = unzip $ map (\(x,(DecSeries o _)) -> findMinMax x o) (zip xm' ym')
-                                     ymm = (minimum $ fst ym,maximum $ snd ym)
-                                     xm = unzip $ map abscMinMax xm'
-                                     xmm = (minimum $ fst xm,maximum $ snd xm) 
-                                 in (xmm,ymm)
-calculateRanges (DS_Surf m)     = ((0,fromIntegral $ cols m),(fromIntegral $ rows m,0))
+calculateRanges (DS_Y ys)      = 
+  let xmax = maximum $ map (\(DecSeries o _) -> 
+        fromIntegral $ ordDim o) $ A.elems ys
+      ym = unzip $ map (\(DecSeries o _) -> 
+        findMinMax (AbsFunction id) o) $ A.elems ys
+      ymm = (minimum $ fst ym,maximum $ snd ym)
+  in ((0,xmax),ymm)
+calculateRanges (DS_1toN x ys) = 
+  let ym = unzip $ map (\(DecSeries o _) -> findMinMax x o) $ A.elems ys
+      ymm = (minimum $ fst ym,maximum $ snd ym)
+      xmm = abscMinMax x
+  in (xmm,ymm)
+calculateRanges (DS_1to1 ys)   = 
+  let (xm',ym') = unzip $ A.elems ys
+      ym = unzip $ map (\(x,(DecSeries o _)) -> findMinMax x o) (zip xm' ym')
+      ymm = (minimum $ fst ym,maximum $ snd ym)
+      xm = unzip $ map abscMinMax xm'
+      xmm = (minimum $ fst xm,maximum $ snd xm) 
+  in (xmm,ymm)
+calculateRanges (DS_Surf m)     = 
+    ((0,fromIntegral $ cols m),(fromIntegral $ rows m,0))
 
 -----------------------------------------------------------------------------
                           

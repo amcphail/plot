@@ -105,6 +105,7 @@ renderPlot (Plot b c p hd r a bc d l an) = do
   cairo C.restore
   legend padding
   axes
+
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
 renderBorder True  = do
