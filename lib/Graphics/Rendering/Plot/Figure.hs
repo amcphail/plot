@@ -182,41 +182,42 @@ import Graphics.Rendering.Plot.Defaults
 -- | perform some actions on the text defaults, must be run before other text element modifications
 withTextDefaults :: Text () -> Figure ()
 withTextDefaults m = do
-                     o <- getDefaults
-                     let to' = _textoptions o
-                     let (FontText to _) = execText m to' (FontText to' "")    
-                     modifyDefaults $ \s -> s { _textoptions = to }
+  o <- getDefaults
+  let to' = _textoptions o
+  let (FontText to _) = execText m to' (FontText to' "")    
+  modifyDefaults $ \s -> s { _textoptions = to }
 
 -- | perform some actions on the line defaults, must be run before other line element modifications
 withLineDefaults :: Line () -> Figure ()
 withLineDefaults m = do
-                     o <- getDefaults
-                     let lo' = _lineoptions o
-                     let (TypeLine lo _) = execLine m lo' (TypeLine lo' black)
-                     modifyDefaults $ \s -> s { _lineoptions = lo }
+  o <- getDefaults
+  let lo' = _lineoptions o
+  let (TypeLine lo _) = execLine m lo' (TypeLine lo' black)
+  modifyDefaults $ \s -> s { _lineoptions = lo }
                      
 -- | perform some actions on the point defaults, must be run before other point modifications
 withPointDefaults :: Point () -> Figure ()
 withPointDefaults m = do
-                     o <- getDefaults
-                     let po' = _pointoptions o
-                     let (FullPoint po _) = execPoint m po' (FullPoint po' defaultGlyph)
-                     modifyDefaults $ \s -> s { _pointoptions = po }
+  o <- getDefaults
+  let po' = _pointoptions o
+  let (FullPoint po _) = execPoint m po' (FullPoint po' defaultGlyph)
+  modifyDefaults $ \s -> s { _pointoptions = po }
 
 -- | perform some actions on the bar defaults, must be run before other point modifications
 withBarDefaults :: Bar () -> Figure ()
 withBarDefaults m = do
-                    o <- getDefaults
-                    let bo' = _baroptions o
-                    let (TypeBar bo _) = execBar m bo' (TypeBar bo' black)
-                    modifyDefaults $ \s -> s { _baroptions = bo }
+  o <- getDefaults
+  let bo' = _baroptions o
+  let (TypeBar bo _) = execBar m bo' (TypeBar bo' black)
+  modifyDefaults $ \s -> s { _baroptions = bo }
                      
 -----------------------------------------------------------------------------
 
 -- | create a new blank 'Figure'
 newFigure :: Figure ()
-newFigure = putFigure $ Figure defaultFigureBackgroundColour defaultFigurePadding NoText NoText
-                               (A.listArray ((1,1),(1,1)) [Nothing]) 
+newFigure = putFigure $ Figure defaultFigureBackgroundColour 
+                          defaultFigurePadding NoText NoText
+                          (A.listArray ((1,1),(1,1)) [Nothing]) 
 {-
 newLineFigure :: DataSeries                      -- ^ the y series
               -> FigureData
@@ -244,52 +245,60 @@ setBackgroundColour c = modifyFigure $ \s -> s { _back_clr = c }
 
 -- | set the padding of the figure
 setFigurePadding :: Double -> Double -> Double -> Double -> Figure ()
-setFigurePadding l r b t = modifyFigure $ \s -> s { _fig_pads = Padding l r b t }
+setFigurePadding l r b t = modifyFigure $ \s -> 
+                             s { _fig_pads = Padding l r b t }
 
 -- | operate on the title
 withTitle :: Text () -> Figure ()
 withTitle m = do
-              o <- getDefaults
-              modifyFigure $ \s -> s { _title = execText m (_textoptions o) (_title s) }
+  o <- getDefaults
+  modifyFigure $ \s -> 
+    s { _title = execText m (_textoptions o) (_title s) }
 
 -- | operate on the sub-title
 withSubTitle :: Text () -> Figure ()
 withSubTitle m = do
-              o <- getDefaults
-              modifyFigure $ \s -> s { _subtitle = execText m (_textoptions o) (_title s) }
+  o <- getDefaults
+  modifyFigure $ \s -> 
+    s { _subtitle = execText m (_textoptions o) (_title s) }
 
 -- | set the shape of the plots, losing all current plots
 setPlots :: Int      -- ^ rows
          -> Int      -- ^ columns
          -> Figure ()
-setPlots r c = modifyFigure $ \s -> s { _plots = A.listArray ((1,1),(r,c)) (replicate (r*c) Nothing) }
+setPlots r c = modifyFigure $ \s -> 
+                 s { _plots = A.listArray ((1,1),(r,c)) 
+                      (replicate (r*c) Nothing) }
 
 -- | perform some actions on the specified subplot
 withPlot :: (Int,Int) -> Plot () -> Figure ()
 withPlot i m = do
-                  o <- getDefaults
-                  s <- getSupplies
-                  modifyFigure $ \p -> p { _plots = let plots = _plots p
-                                                        plot' = plots A.! i
-                                                        plot = case plot' of
-                                                                          Nothing -> emptyPlot
-                                                                          Just p' -> p'
+  o <- getDefaults
+  s <- getSupplies
+  modifyFigure $ \p -> 
+    p { _plots = let plots = _plots p
+                     plot' = plots A.! i
+                     plot = case plot' of
+                              Nothing -> emptyPlot
+                              Just p' -> p'
                                                     -- we revert supplies to the original here
                                                     -- since we might want the same colour
                                                     -- order for all plots 
                                                     -- HOWEVER: need a better execPlot group
-                                                    in plots A.// [(i,Just $ execPlot m s o plot)] }
+                 in plots A.// [(i,Just $ execPlot m s o plot)] }
                
 -- | perform some actions all subplots
 withPlots :: Plot () -> Figure ()
 withPlots m = do
-                 o <- getDefaults
-                 s <- getSupplies
-                 modifyFigure $ \p -> p { _plots = let plots = _plots p
-                                                       plot p' = case p' of
-                                                                         Nothing  -> emptyPlot
-                                                                         Just p'' -> p''
-                                                   in plots A.// map (\(i,e) -> (i,Just $ execPlot m s o (plot e))) (A.assocs plots) }
+  o <- getDefaults
+  s <- getSupplies
+  modifyFigure $ \p -> 
+    p { _plots = let plots = _plots p
+                     plot p' = case p' of
+                                 Nothing  -> emptyPlot
+                                 Just p'' -> p''
+                 in plots A.// map (\(i,e) -> 
+                          (i,Just $ execPlot m s o (plot e))) (A.assocs plots) }
                
 -----------------------------------------------------------------------------
 
