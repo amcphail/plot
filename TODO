@@ -23,6 +23,8 @@ FEATURES
 
  * ticks separate x axis groups for bar plots (rather than centre)
 
+ * alternating shaded/transparent by major tick
+
 BUGS
 
  * Log range crashing
@@ -59,6 +61,9 @@ REFACTOR
  * re-refactor renderSeries for slight optimisation
 
  * re-factor Axis.hs tickPositions and renderAxisTicks
+
+ * MVar data series for continuous update
+ * autorefresh (plot-gtk?)
 
 COMPLETE
 

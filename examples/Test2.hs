@@ -96,11 +96,11 @@ figure = do
         setPlots 1 1
 
         withPlot (1,1) $ do
-                         setDataset (Bar, lx, [hx,hy,he])
-                         barSetting BarStack
+--                         setDataset (Bar, lx, [hx,hy,he])
+--                         barSetting BarStack
 --                         setDataset (Line, mx, [rx])
 --                         setDataset (Line, ts, [ds])
---                         setDataset (ts,[line ds blue])
+                         setDataset (ts,[line ds blue])
 --                         setDataset (ts,[impulse fs blue])
 --                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
 --                         setDataset (ts,[bar (ds,ds+es,"Sampled data") green
@@ -121,8 +121,8 @@ figure = do
                            withAxisLabel $ setText "time (s)"
                            --setTicks Major (TickValues $ fromList [1,2,5,10])
                            setTicks Major (TickNumber 12)
-                           setTicks Minor (TickNumber 0)
-                           setTickLabelFormat $ Printf "%.0f"
+                           setTicks Minor (TickNumber 100)
+                           setTickLabelFormat $ Printf "%.2f"
                            --setTickLabels ["Jan","Feb","Mar","Apr","May"]
                            --withTickLabelFormat $ setFontSize 8
                          addAxis YAxis (Side Lower) $ do
@@ -130,9 +130,9 @@ figure = do
                            withAxisLabel $ setText "amplitude (α)"
                            setTicks Minor (TickNumber 0)
                         -- addAxis XAxis (Value 0) $ return ()
-                         --setRangeFromData XAxis Lower Linear
+--                         setRangeFromData XAxis Lower Linear
                          setRangeFromData YAxis Lower Linear
-                         setRange XAxis Lower Linear 0 11
+--                         setRange XAxis Lower Linear 0 11
 {-                         withAnnotations $ do
                            arrow True (pi/2,0.5) (0,0) (return ())
                            --oval True (0.5,1) (1,3) $ setBarColour blue

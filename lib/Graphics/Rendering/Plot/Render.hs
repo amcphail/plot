@@ -165,18 +165,18 @@ renderFigure (Figure b p t s d) = do
     C.paint
     C.restore
 
-    applyPads p
+  applyPads p
 
-    tx <- bbCentreWidth
-    ty <- bbTopHeight
-    (_,th) <- renderText t Centre TTop tx ty
-    bbLowerTop (th+textPad)
+  tx <- bbCentreWidth
+  ty <- bbTopHeight
+  (_,th) <- renderText t Centre TTop tx ty
+  bbLowerTop (th+textPad)
 
-    sx <- bbCentreWidth
-    sy <- bbTopHeight
-    (_,sh) <- renderText s Centre TTop sx sy
-    bbLowerTop (sh+textPad)
+  sx <- bbCentreWidth
+  sy <- bbTopHeight
+  (_,sh) <- renderText s Centre TTop sx sy
+  bbLowerTop (sh+textPad)
 
-    renderPlots d
+  renderPlots d
                                                       
 -----------------------------------------------------------------------------

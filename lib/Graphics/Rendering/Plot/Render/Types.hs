@@ -177,7 +177,7 @@ setTextOptionsFD (TextOptions (FontOptions ff fs fv fw fc) fz c) fd = do
     P.fontDescriptionSetWeight fd fw
     P.fontDescriptionSetStretch fd fc
     P.fontDescriptionSetSize fd fz
-    setColour c
+  setColour c
 
 -----------------------------------------------------------------------------
 
