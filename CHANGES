@@ -111,3 +111,5 @@
 
 0.2.2:
 		* deprecate `withTickLabelFormat` for `withTickLabelsFormat`
+		* fix issue #5, interaction of setPointSize and Legends
+

@@ -1,3 +1,5 @@
  * Nicolas Dudebout for linlog and loglin in Simple.hs
  * uriba for a small bug fix when setting ticks
  * buecking added the TickFormat data type and resulting code
+ * takano-akio pointed out bug in interaction between 
+     non-default point size and legend placement/scaling

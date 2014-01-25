@@ -207,7 +207,7 @@ clearLegend :: Plot ()
 clearLegend = withLegend $ L.clearLegend
 
 -- | set the legend location and orientation
-setLegend :: L.LegendBorder -> L.LegendLocation -> L.LegendOrientation -> Plot()
+setLegend :: L.LegendBorder -> L.LegendLocation -> L.LegendOrientation -> Plot ()
 setLegend b l o = withLegend $ L.setLegend b l o
 
 -- | format the legend text

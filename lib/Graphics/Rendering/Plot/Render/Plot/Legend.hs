@@ -280,9 +280,11 @@ renderLegendSample x y w h d = do
     Nothing -> return ()
     Just p' -> do
       cairo $ do
-        g <- setPointStyle p'
+        C.save   
         C.moveTo (x+w/2) (y+h/2)
+        g <- setPointStyle p'
         renderGlyph 1 g
+        C.restore
 
 -----------------------------------------------------------------------------
 

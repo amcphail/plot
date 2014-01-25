@@ -103,9 +103,13 @@ renderPlot (Plot b c p hd r a bc d l an) = do
   renderData r bc d
   renderAnnotations r an
   cairo C.restore
+  cairo C.save
   legend padding
+  cairo C.restore
+  cairo C.save
   axes
-
+  cairo C.restore
+  
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
 renderBorder True  = do
