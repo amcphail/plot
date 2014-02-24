@@ -100,7 +100,8 @@ figure = do
 --                         barSetting BarStack
 --                         setDataset (Line, mx, [rx])
 --                         setDataset (Line, ts, [ds])
-                         setDataset (ts,[line ds blue])
+                         sampleData False
+                         setDataset (ts,[line ds red])
 --                         setDataset (ts,[impulse fs blue])
 --                         setDataset (ts,[point (ds,es,"Sampled data") (Bullet,green)
 --                         setDataset (ts,[bar (ds,ds+es,"Sampled data") green
@@ -130,7 +131,7 @@ figure = do
                            withAxisLabel $ setText "amplitude (α)"
                            setTicks Minor (TickNumber 0)
                         -- addAxis XAxis (Value 0) $ return ()
---                         setRangeFromData XAxis Lower Linear
+                         setRangeFromData XAxis Lower Linear
                          setRangeFromData YAxis Lower Linear
 --                         setRange XAxis Lower Linear 0 11
 {-                         withAnnotations $ do

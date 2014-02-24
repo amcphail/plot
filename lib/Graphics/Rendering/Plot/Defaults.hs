@@ -209,7 +209,7 @@ defaultSupply = SupplyData defaultColourList defaultGlyphList
 
 emptyPlot :: PlotData
 emptyPlot = Plot False defaultPlotBackgroundColour defaultPlotPadding NoText (Ranges (Left (Range Linear (-1) 1)) (Left (Range Linear (-1) 1)))
-                 [] BarSpread undefined Nothing []
+                 [] BarSpread True undefined Nothing []
 
 -----------------------------------------------------------------------------
 

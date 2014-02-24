@@ -426,18 +426,23 @@ data BarSetting = BarNone | BarSpread | BarStack
 
 -----------------------------------------------------------------------------
 
+type SampleData = Bool
+
+-----------------------------------------------------------------------------
+
 -- | a plot 
 data PlotData = Plot { 
-      _border      :: Border
-    , _back_colr :: Color
-    , _plot_pads :: Padding
-    , _heading   :: TextEntry
-    , _ranges    :: Ranges
-    , _axes      :: [AxisData]
-    , _barconfig :: BarSetting
-    , _data      :: DataSeries
-    , _legend    :: Maybe LegendData
-    , _annote    :: Annotations
+      _border     :: Border
+    , _back_colr  :: Color
+    , _plot_pads  :: Padding
+    , _heading    :: TextEntry
+    , _ranges     :: Ranges
+    , _axes       :: [AxisData]
+    , _barconfig  :: BarSetting
+    , _sampledata :: SampleData
+    , _data       :: DataSeries
+    , _legend     :: Maybe LegendData
+    , _annote     :: Annotations
     }
 
 -----------------------------------------------------------------------------

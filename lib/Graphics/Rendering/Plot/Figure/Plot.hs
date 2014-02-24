@@ -60,6 +60,8 @@ module Graphics.Rendering.Plot.Figure.Plot (
                                            , withAxis
                                            -- * BarSetting
                                            , barSetting
+                                           -- * SampleData
+                                           , sampleData
                                            -- * Legend
                                            , L.Legend
                                            , LegendBorder
@@ -199,6 +201,11 @@ withAxis at axp m = do
 
 barSetting :: BarSetting -> Plot ()
 barSetting bc = modify $ \s -> s { _barconfig = bc }
+
+-----------------------------------------------------------------------------
+
+sampleData :: SampleData -> Plot ()
+sampleData sd = modify $ \s -> s { _sampledata = sd }
 
 -----------------------------------------------------------------------------
 

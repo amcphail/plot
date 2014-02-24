@@ -86,7 +86,7 @@ renderPlots d = do
         put bb) (A.assocs d)
 
 renderPlot :: PlotData -> Render ()
-renderPlot (Plot b c p hd r a bc d l an) = do
+renderPlot (Plot b c p hd r a bc sd d l an) = do
   tx <- bbCentreWidth
   ty <- bbTopHeight
   (_,th) <- renderText hd Centre TTop tx ty
@@ -100,7 +100,7 @@ renderPlot (Plot b c p hd r a bc d l an) = do
     cairo $ do
       setColour c
       C.paint)
-  renderData r bc d
+  renderData r bc sd d
   renderAnnotations r an
   cairo C.restore
   cairo C.save

@@ -113,3 +113,5 @@
 		* deprecate `withTickLabelFormat` for `withTickLabelsFormat`
 		* fix issue #5, interaction of setPointSize and Legends
 
+0.2.3:
+		* add sampleData action to a plot

@@ -94,6 +94,9 @@ module Graphics.Rendering.Plot.Figure (
                                       -- * BarSetting
                                       , BarSetting(..)
                                       , barSetting
+                                      -- * Data Sampling
+                                      , SampleData
+                                      , sampleData
                                       -- * Legend
                                       , Legend
                                       , LegendBorder
