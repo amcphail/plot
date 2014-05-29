@@ -99,8 +99,8 @@ renderAnnotation xscale yscale (AnnOval f b (x1',y1') (x2',y2')) = do
   cairo $ do
     C.save
     setColour c
-    C.translate  (x + width / 2) (y + height / 2)
-    C.scale (1 / (height / 2)) (1 / (width / 2))
+    C.translate x y
+    C.scale (yscale/2) (xscale/2)
     C.arc 0 0 1 0 (2 * pi)
     C.restore
     C.strokePreserve
@@ -110,12 +110,13 @@ renderAnnotation xscale yscale (AnnOval f b (x1',y1') (x2',y2')) = do
     C.newPath
 renderAnnotation xscale yscale (AnnRect f b (x1',y1') (x2',y2')) = do
   (_,bc,c) <- formatBarSeries b
-  let (x1,y1) = (x1'*xscale,y1'*yscale)
-  let (x2,y2) = (x2'*xscale,y2'*yscale)
+  let (x1,y1) = (x1'*xscale,-y1'*yscale)
+  let (x2,y2) = (x2'*xscale,-y2'*yscale)
   cairo $ do
     C.save
     setColour c
-    C.rectangle x1 y1 x2 y2
+    flipVertical
+    C.rectangle x1 y1 (x2-x1) (y2-y1)
     C.restore
     C.strokePreserve
     when f (do
@@ -130,19 +131,22 @@ renderAnnotation xscale yscale (AnnGlyph pt (x1',y1')) = do
     renderGlyph pw g
 renderAnnotation xscale yscale (AnnText te (x1',y1')) = do
 --  (x,y) <- cairo $ C.userToDevice x1 y1
-  let (x1,y1) = (x1'*xscale,y1'*yscale)
+  let (x1,y1) = (x1'*xscale,-y1'*yscale)
   cairo $ do
     C.save
-    --C.scale (recip xscale) (recip (-yscale))
     flipVertical
---  _ <- renderText te TRight TTop (x1') (y1')
   _ <- renderText te TRight TTop (x1) (y1)
   cairo $ C.restore
   return ()
-renderAnnotation _   _   (AnnCairo r) = do
+renderAnnotation xscale yscale (AnnCairo r) = do
   (BoundingBox x y w h) <- get
   cairo $ do
     C.save
+    --let (x,y) = (x'*xscale,y'*yscale)
+    --let (w,h) = (w'*xscale,h'*yscale)
+    --flipVertical
+    --C.translate x y
+    --C.scale (xscale) (yscale)
     r x y w h
     C.restore
 

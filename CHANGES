@@ -115,3 +115,6 @@
 
 0.2.3:
 		* add sampleData action to a plot
+
+0.2.3.1:
+		* fix bugs (-y) in rendering annotations. Issue #7
