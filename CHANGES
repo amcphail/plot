@@ -118,3 +118,6 @@
 
 0.2.3.1:
 		* fix bugs (-y) in rendering annotations. Issue #7
+
+0.2.3.2:
+		* allow v0.13 of pango/cairo
