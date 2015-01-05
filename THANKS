@@ -3,3 +3,4 @@
  * buecking added the TickFormat data type and resulting code
  * takano-akio pointed out bug in interaction between 
      non-default point size and legend placement/scaling
+ * pacak updated for AMP for ghc 7.10
