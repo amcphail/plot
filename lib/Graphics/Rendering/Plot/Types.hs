@@ -32,6 +32,7 @@ import qualified Data.Array.IArray as A
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
+import Control.Applicative
 import Control.Monad.State
 import Control.Monad.Reader
 
@@ -63,7 +64,7 @@ data TextEntry = NoText
 -----------------------------------------------------------------------------
 
 newtype Text a = FT { runText :: ReaderT TextOptions (State TextEntry) a}
-    deriving(Monad, MonadReader TextOptions, MonadState TextEntry)
+    deriving(Monad, Functor, Applicative, MonadReader TextOptions, MonadState TextEntry)
 
 execText :: Text a -> TextOptions -> TextEntry -> TextEntry
 execText m r = execState (runReaderT (runText m) r) 
@@ -81,7 +82,7 @@ data PointType = FullPoint PointOptions Glyph
 -----------------------------------------------------------------------------
 
 newtype Point a = FG { runPoint :: ReaderT PointOptions (State PointType) a}
-    deriving(Monad, MonadReader PointOptions, MonadState PointType)
+    deriving(Monad, Functor, Applicative, MonadReader PointOptions, MonadState PointType)
 
 execPoint :: Point a -> PointOptions -> PointType -> PointType
 execPoint m r = execState (runReaderT (runPoint m) r)
@@ -105,7 +106,7 @@ data LineType = NoLine
 -----------------------------------------------------------------------------
 
 newtype Line a = FL { runLine :: ReaderT LineOptions (State LineType) a}
-    deriving(Monad, MonadReader LineOptions, MonadState LineType)
+    deriving(Monad, Functor, Applicative, MonadReader LineOptions, MonadState LineType)
 
 execLine :: Line a -> LineOptions -> LineType -> LineType
 execLine m r = execState (runReaderT (runLine m) r) 
@@ -121,7 +122,7 @@ data BarType = ColourBar Color
 -----------------------------------------------------------------------------
 
 newtype Bar a = FB { runBar :: ReaderT BarOptions (State BarType) a}
-    deriving(Monad, MonadReader BarOptions, MonadState BarType)
+    deriving(Monad, Functor, Applicative, MonadReader BarOptions, MonadState BarType)
 
 execBar :: Bar a -> BarOptions -> BarType -> BarType
 execBar m r = execState (runReaderT (runBar m) r) 
@@ -148,7 +149,7 @@ type Annotations = [Annotation]
 -----------------------------------------------------------------------------
 
 newtype Annote a = FN { runAnnote :: ReaderT Options (State Annotations) a}
-    deriving(Monad, MonadReader Options, MonadState Annotations)
+    deriving(Monad, Functor, Applicative, MonadReader Options, MonadState Annotations)
 
 execAnnote :: Annote a -> Options -> Annotations -> Annotations
 execAnnote m r = execState (runReaderT (runAnnote m) r) 
@@ -226,7 +227,7 @@ data AxisData = Axis {
 -----------------------------------------------------------------------------
 
 newtype Axis a = FA { runAxis :: ReaderT Options (State AxisData) a}
-    deriving(Monad, MonadReader Options, MonadState AxisData)
+    deriving(Monad, Functor, Applicative, MonadReader Options, MonadState AxisData)
 
 execAxis :: Axis a -> Options -> AxisData -> AxisData
 execAxis m r = execState (runReaderT (runAxis m) r) 
@@ -252,7 +253,7 @@ data LegendData = Legend {
 -----------------------------------------------------------------------------
 
 newtype Legend a = FE { runLegend :: ReaderT TextOptions (State (Maybe LegendData)) a}
-    deriving(Monad, MonadReader TextOptions, MonadState (Maybe LegendData))
+    deriving(Monad, Functor, Applicative, MonadReader TextOptions, MonadState (Maybe LegendData))
 
 execLegend :: Legend a -> TextOptions -> (Maybe LegendData) -> (Maybe LegendData)
 execLegend m r = execState (runReaderT (runLegend m) r) 
@@ -395,7 +396,7 @@ data DataSeries = DS_Y    (A.Array Int DecoratedSeries)
 -----------------------------------------------------------------------------
 
 newtype Data a = FD { runData :: SupplyT SupplyData (ReaderT Options (State DataSeries)) a }
-    deriving(Monad, MonadSupply SupplyData, MonadReader Options, MonadState DataSeries)
+    deriving(Monad, Functor, Applicative, MonadSupply SupplyData, MonadReader Options, MonadState DataSeries)
 
 execData :: Data a -> SupplyData -> Options -> DataSeries -> DataSeries
 execData m r s = execState (runReaderT (runSupplyT (runData m) r) s)
@@ -452,7 +453,7 @@ type Plots = A.Array (Int,Int) (Maybe PlotData)
 -----------------------------------------------------------------------------
 
 newtype Plot a = FP { runPlot :: SupplyT SupplyData (ReaderT Options (State PlotData)) a }
-    deriving(Monad, MonadReader Options, MonadSupply SupplyData, MonadState PlotData)
+    deriving(Monad, Functor, Applicative, MonadReader Options, MonadSupply SupplyData, MonadState PlotData)
 
 execPlot :: Plot a -> SupplyData -> Options -> PlotData -> PlotData
 execPlot m s r = execState (runReaderT (runSupplyT (runPlot m) s) r)
@@ -506,7 +507,7 @@ data FigureState = FigureState {
     }
 
 newtype Figure a = FC { runFigure :: State FigureState a }
-    deriving(Monad, MonadState FigureState)
+    deriving(Monad, Functor, Applicative, MonadState FigureState)
 
 -----------------------------------------------------------------------------
 

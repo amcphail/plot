@@ -35,6 +35,7 @@ import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Cairo.Matrix as CM
 import qualified Graphics.Rendering.Pango as P
 
+import Control.Applicative
 import Control.Monad.Reader
 import Control.Monad.State
 --import Control.Monad.Trans
@@ -52,7 +53,7 @@ import Graphics.Rendering.Plot.Defaults
 -----------------------------------------------------------------------------
 {-
 newtype Render a = FR { runRender :: StateT BoundingBox C.Render a }
-    deriving(Monad, MonadState BoundingBox, MonadTrans (StateT BoundingBox))
+    deriving(Monad, Functor, Applicative, MonadState BoundingBox, MonadTrans (StateT BoundingBox))
 -}
 
 data RenderEnv = RenderEnv {
@@ -61,7 +62,7 @@ data RenderEnv = RenderEnv {
                  }
 
 newtype BoundedT m a = BT { runRender :: ReaderT RenderEnv (StateT BoundingBox m) a }
-    deriving(Monad, MonadState BoundingBox, MonadReader RenderEnv)
+    deriving(Monad, Functor, Applicative, MonadState BoundingBox, MonadReader RenderEnv)
 
 instance MonadTrans BoundedT where
     lift m = BT $ lift $ lift m
