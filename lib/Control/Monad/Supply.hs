@@ -25,7 +25,8 @@ module Control.Monad.Supply (
                             ) where
 
 -----------------------------------------------------------------------------
-
+import Control.Applicative
+import Control.Monad (ap)
 import Control.Monad.Writer
 import Control.Monad.Reader
 import Control.Monad.State
@@ -72,6 +73,9 @@ instance Monad m => Functor (SupplyT s m) where
     fmap f m = SupplyT $ \s -> do
                                ~(x, s') <- runSupplyT m s
                                return (f x,s')
+instance Monad m => Applicative (SupplyT s m) where
+    pure = return
+    (<*>) = ap
 
 instance Monad m => Monad (SupplyT s m) where
     return a  = SupplyT $ \s -> return (a, s) 
