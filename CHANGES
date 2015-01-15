@@ -121,3 +121,6 @@
 
 0.2.3.2:
 		* allow v0.13 of pango/cairo
+
+0.2.3.3:
+		* Update AMP Changes for ghc 7.10
