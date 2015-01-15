@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Types
@@ -32,7 +33,9 @@ import qualified Data.Array.IArray as A
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P
 
+#if !(MIN_VERSION_base(4,8,0))
 import Control.Applicative
+#endif
 import Control.Monad.State
 import Control.Monad.Reader
 

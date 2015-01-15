@@ -2,6 +2,7 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Supply
@@ -25,8 +26,9 @@ module Control.Monad.Supply (
                             ) where
 
 -----------------------------------------------------------------------------
+#if !(MIN_VERSION_base(4,8,0))
 import Control.Applicative
-import Control.Monad (ap)
+#endif
 import Control.Monad.Writer
 import Control.Monad.Reader
 import Control.Monad.State

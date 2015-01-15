@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.2.3.3
+Version:             0.2.3.4
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010, 2012, 2013, 2014
@@ -50,7 +50,7 @@ library
 
   Build-Depends:     base >= 4 && < 5,
                      mtl > 2, array,
-                     MaybeT,
+                     transformers > 0.2 && < 0.5,
                      pango >= 0.11.2 && < 0.14, cairo >= 0.11.1 && < 0.14,
                      colour >= 2.2.1 && < 2.4,
                      hmatrix >= 0.10

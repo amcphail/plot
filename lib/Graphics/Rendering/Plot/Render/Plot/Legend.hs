@@ -255,7 +255,7 @@ renderLegendEntries x y wa ha w h to ls = do
   return ()
 
 renderLegendEntry :: Double -> Double -> Double -> Double -> TextOptions -> (Double,Double) -> (SeriesLabel,Decoration) -> Render (Double,Double)
-renderLegendEntry wa ha w h to (x,y) (l,d) = do
+renderLegendEntry wa ha _w h to (x,y) (l,d) = do
   renderLegendSample x y legendSampleWidth h d
   pc <- asks _pangocontext
   cairo $ do

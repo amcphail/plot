@@ -123,4 +123,8 @@
 		* allow v0.13 of pango/cairo
 
 0.2.3.3:
-		* Update AMP Changes for ghc 7.10
+	    * Update AMP Changes for ghc 7.10
+
+0.2.3.4:
+        * clean up warnings
+        * use transformers instead of MaybeT
