@@ -46,7 +46,7 @@ import qualified Graphics.Rendering.Cairo.Matrix as CM
 
 import Control.Monad.Reader
 import Control.Monad.State
-import Control.Monad.Maybe
+import Control.Monad.Trans.Maybe
 
 import Graphics.Rendering.Plot.Types
 

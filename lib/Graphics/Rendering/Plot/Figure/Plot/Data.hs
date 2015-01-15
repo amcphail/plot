@@ -49,7 +49,7 @@ import qualified Data.Array.IArray as A
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Supply
-import Control.Monad.Maybe
+import Control.Monad.Trans.Maybe
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Figure.Line
