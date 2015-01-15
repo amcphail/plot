@@ -121,3 +121,7 @@
 
 0.2.3.2:
 		* allow v0.13 of pango/cairo
+
+0.2.3.4:
+        * clean up warnings
+        * use transformers instead of MaybeT
