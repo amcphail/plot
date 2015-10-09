@@ -40,7 +40,8 @@ module Graphics.Rendering.Plot.Figure.Plot.Data (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
+import Numeric.LinearAlgebra.Data hiding (format,step)
+import Numeric.LinearAlgebra.Devel
 
 import Data.Maybe
 
@@ -903,7 +904,7 @@ monoStep d = do
 {-# INLINE monoStep #-}
 
 isMonotoneIncreasing :: Vector Double -> Bool
-isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep (subVector 1 (dim v -1) v))) (v @> 0)
+isMonotoneIncreasing v = maybe False (\_ -> True) $ evalState (runMaybeT $ (mapVectorM_ monoStep (subVector 1 (size v -1) v))) (v `atIndex` 0)
 
 -----------------------------------------------------------------------------
 

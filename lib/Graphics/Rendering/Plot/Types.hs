@@ -7,7 +7,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Types
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -22,8 +22,7 @@ module Graphics.Rendering.Plot.Types where
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
-import Data.Packed.Matrix
+import Numeric.LinearAlgebra.Data hiding(Range)
 
 import Data.Colour.SRGB
 import Data.Colour()

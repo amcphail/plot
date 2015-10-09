@@ -5,7 +5,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Data
--- Copyright   :  (c) A. V. H. McPhail 2010, 2013
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2013, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -29,10 +29,9 @@ import Data.List(partition)
 --import Foreign.Storable 
 --import Foreign.Ptr
 
---import Data.Packed.Vector
---import Data.Packed.Matrix
---import Data.Packed()
 import Numeric.LinearAlgebra
+--import Numeric.LinearAlgebra.Data
+import Numeric.LinearAlgebra.Devel
 
 import qualified Data.Array.IArray as A
 --import qualified Data.Array.MArray as M
@@ -64,12 +63,12 @@ import qualified Prelude
 findMinIdx, findMaxIdx :: Vector Double -> Double -> Int -> Int -> Int
 findMinIdx v x n max
     | n >= max       = error "findMinIdx: data not in range"
-    | v @> n >= x    = n
+    | v `atIndex` n >= x    = n
     | otherwise     = findMinIdx v x (n+1) max
 
 findMaxIdx v x n min
     | n < 0          = error "findMaxIdx: data not in range"
-    | v @> n <= x     = n
+    | v `atIndex` n <= x     = n
     | otherwise      = findMaxIdx v x (n-1) min
 
 -----------------------------------------------------------------------------
@@ -83,7 +82,7 @@ greySurfaceFromMatrix s m stride r' c' = do
       mn = minElement m
   mapM_ (\ri -> mapM_ (\(rj,ci) -> do
      let mi = ((rj `div` r')*c) + (ci `div` c')
-     let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm @> mi)
+     let e = round . (* 255) . (/ (mx-mn)) . (\x -> x - mn) $ (fm `atIndex` mi)
      let si = (rj*stride) + ci
      B.unsafeWrite s si e) $ zip (repeat ri) [0..((c*c')-1)]) [0..((r*r')-1)]
 
@@ -167,13 +166,13 @@ renderData r bc sd ds = do
   return ()
 
 logSeries :: Scale -> Vector Double -> Vector Double
-logSeries Log a = logBase 10 $ mapVector zeroToOne a
+logSeries Log a = logBase 10 $ cmap zeroToOne a
 logSeries _   a = a
 
-midpoints :: (Num (Vector t), Container Vector t) 
+midpoints :: (Fractional t, Num (Vector t), Container Vector t) 
             => (t1, Vector t) -> (t1, Vector t)
-midpoints(mi,v) = let v' = subVector 1 (dim v - 1) v
-                      w' = subVector 0 (dim v - 1) v
+midpoints(mi,v) = let v' = subVector 1 (size v - 1) v
+                      w' = subVector 0 (size v - 1) v
                   in (mi,(v'+w')/2.0)
 
 logSeriesMinMax :: Scale -> (Vector Double,Vector Double) -> (Vector Double,Vector Double)
@@ -200,7 +199,7 @@ replace n x xs = let (pre,post) = splitAt (fromIntegral n) xs
 shiftAbscissa :: (Integer,(Abscissae,DecoratedSeries,BarType)) -> Double
               -> (Integer,(Abscissae,DecoratedSeries))
 shiftAbscissa (j,(AbsFunction f,ds,_)) s  = (j,(AbsFunction ((+) s . f),ds))
-shiftAbscissa (j,(AbsPoints mi t,ds,_)) s = (j,(AbsPoints mi (addConstant s t),ds))
+shiftAbscissa (j,(AbsPoints mi t,ds,_)) s = (j,(AbsPoints mi ((+) (vector [s]) t),ds))
 
 replaceBars :: [(Integer,(Abscissae,DecoratedSeries))] 
             -> [(Abscissae,DecoratedSeries)] 
@@ -255,8 +254,8 @@ configureBars _ _ _ _ xscale _ bs aos = do
         return aos'
      BarStack  -> do
         let od = (getOrdData' . (\(_,b,_) -> b) . snd . head) bars
-        let ln = dim $ od
-        let zero = constant 0 ln
+        let ln = size $ od
+        let zero = konst 0 ln
         let pairs = pair $ scanl scanStacked zero bars  
         let candles = zipWith mkCandlesFromBars pairs bars
         let aos' = replaceBars candles aos
@@ -274,21 +273,21 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
      (OrdFunction _ f _)            -> do
         (BoundingBox _ _ w _) <- get
         let t = logSeries xsc $ linspace (round w) (xmin,xmax)
-        return $ Left $ Left ((True,t),logSeries ysc $ mapVector f t)
+        return $ Left $ Left ((True,t),logSeries ysc $ cmap f t)
      (OrdPoints _ (Plain o') _)     -> do
         let t = case abs of
                   AbsFunction f    -> 
                     if isHist d
-                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
+                    else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
                   AbsPoints mi t'  -> (mi,t')
         return $ Left $ Left ((fst t,logSeries xsc $ snd t),logSeries ysc $ o')
      (OrdPoints _ (Error o' (Left e)) _) -> do
         let t = case abs of
                   AbsFunction f    -> 
                     if isHist d
-                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
+                    else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Left $ Right $ Left ((t',logSeries ysc $ o'),(t',logSeries ysc $ e))
@@ -296,20 +295,20 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
         let t = case abs of
                   AbsFunction f    -> 
                     if isHist d
-                    then (True,mapVector f $ fromList [0.0..(fromIntegral $ dim o')])
-                    else (True,mapVector f $ fromList [1.0..(fromIntegral $ dim o')])
+                    then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
+                    else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
                   AbsPoints mi t'  -> (mi,t') 
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Left $ Right $ Right ((t',logSeries ysc $ o'),(t',logSeries ysc $ l),(t',logSeries ysc $ h))
      (OrdPoints _ (MinMax o' Nothing) _) -> do
         let t = case abs of
-                  AbsFunction f    -> (True,mapVector f $ fromList [1.0..(fromIntegral $ dim $ fst o')])
+                  AbsFunction f    -> (True,cmap f $ fromList [1.0..(fromIntegral $ size $ fst o')])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Right $ Left (t',logSeriesMinMax ysc $ o')
      (OrdPoints _ (MinMax o' (Just (l,h))) _) -> do
         let t = case abs of
-                  AbsFunction f    -> (True,mapVector f $ fromList [1.0..(fromIntegral $ dim l)])
+                  AbsFunction f    -> (True,cmap f $ fromList [1.0..(fromIntegral $ size l)])
                   AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Right $ Right ((t',logSeriesMinMax ysc o'),(t',(logSeries ysc l,logSeries ysc h)))
@@ -369,10 +368,10 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
        formatLineSeries lt
        case dat of
          Left (Left (t',y')) -> do
-           let ln = dim $ snd t'
+           let ln = size $ snd t'
                xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-               x0 = (snd t') @> xmin_ix
-               y0 = y' @> xmin_ix
+               x0 = (snd t') `atIndex` xmin_ix
+               y0 = y' `atIndex` xmin_ix
            renderSamples xscale yscale xmin xmax sd Nothing renderAreaSample (endAreaSample x0 y0) t' y'
          _  -> error "Data.hs renderSeries: cannot have error bars with area type"
     (DecBar bt)   -> do
@@ -394,25 +393,25 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
        (gw,_) <- formatPointSeries defaultPointType 
        case dat of
          Left (Left (t',y')) -> do
-           let ln = dim $ snd $ t'
+           let ln = size $ snd $ t'
                xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-               rest (m,v) = (m,subVector 1 (dim v - 1) v)
-               x0 = (snd t') @> xmin_ix
+               rest (m,v) = (m,subVector 1 (size v - 1) v)
+               x0 = (snd t') `atIndex` xmin_ix
                y0 = 0
            renderSamples xscale yscale xmin xmax sd (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
          Left (Right (Left ((t',y'),(_,e')))) -> do
-           let ln = dim $ snd $ t'
+           let ln = size $ snd $ t'
                xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-               rest (m,v) = (m,subVector 1 (dim v - 1) v)
-               x0 = (snd t') @> xmin_ix
+               rest (m,v) = (m,subVector 1 (size v - 1) v)
+               x0 = (snd t') `atIndex` xmin_ix
                y0 = 0
            renderSamples xscale yscale xmin xmax sd (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSampleUpDown gw) endPointSample (midpoints t') e'
          Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
-           let ln = dim $ snd $ t'
+           let ln = size $ snd $ t'
                xmin_ix = findMinIdx (snd t') xmin 0 (ln-1)
-               rest (m,v) = (m,subVector 1 (dim v - 1) v)
-               x0 = (snd t') @> xmin_ix
+               rest (m,v) = (m,subVector 1 (size v - 1) v)
+               x0 = (snd t') `atIndex` xmin_ix
                y0 = 0
            renderSamples xscale yscale xmin xmax sd (Just $ C.moveTo x0 y0) (renderHistSample bw bc c) endHistSample (rest t') y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample gw Bot) endPointSample (midpoints t') l'
@@ -448,7 +447,7 @@ renderSamples :: Double -> Double
               -> (Bool,Vector Double) -> Vector Double -> Render ()
 renderSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
   (BoundingBox _ _ w _) <- get
-  let ln = dim t
+  let ln = size t
       (xmin_ix,xmax_ix,num_pts) = if mono
                                   then (findMinIdx t xmin 0 (ln-1)
                                        ,findMaxIdx t xmax (ln-1) 0
@@ -459,7 +458,7 @@ renderSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
       diff = if mono then if sd then diff' else 1 else 1
   cairo $ do
     case s of
-      Nothing -> C.moveTo ((t @> xmin_ix)*xscale) ((y @> xmin_ix)*yscale)
+      Nothing -> C.moveTo ((t `atIndex` xmin_ix)*xscale) ((y `atIndex` xmin_ix)*yscale)
       Just s' -> s'
     _ <- runMaybeT $ do
             mapVectorWithIndexM_ (\j y' -> do
@@ -478,7 +477,7 @@ renderMinMaxSamples :: Double -> Double
               -> (Bool,Vector Double) -> (Vector Double,Vector Double) -> Render ()
 renderMinMaxSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
   (BoundingBox _ _ w _) <- get
-  let ln = dim t
+  let ln = size t
       (xmin_ix,xmax_ix,num_pts) = if mono
                                   then (findMinIdx t xmin 0 (ln-1)
                                        ,findMaxIdx t xmax (ln-1) 0
@@ -489,7 +488,7 @@ renderMinMaxSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
       diff = if mono then if sd then diff' else 1 else 1
   cairo $ do
     case s of
-      Nothing -> C.moveTo ((t @> xmin_ix)*xscale) (((fst $ y) @> xmin_ix)*yscale)
+      Nothing -> C.moveTo ((t `atIndex` xmin_ix)*xscale) (((fst $ y) `atIndex` xmin_ix)*yscale)
       Just s' -> s'
     _ <- runMaybeT $ mapVectorWithIndexM_ (\j t' -> do
         when (j >= xmin_ix && j `mod` diff == 0)
@@ -504,10 +503,10 @@ renderSample :: Int -> Int -> Vector Double
              -> Double -> MaybeT C.Render ()
 renderSample ix xmax_ix t f y
     | ix >= xmax_ix            = do
-                                lift $ f (t @> ix) y
+                                lift $ f (t `atIndex` ix) y
                                 fail "end of bounded area"
     | otherwise               = do
-                                lift $ f (t @> ix) y
+                                lift $ f (t `atIndex` ix) y
 
 renderMinMaxSample :: Int -> Int -> Double 
              -> (Double -> (Double,Double) -> C.Render ()) -> C.Render () 
@@ -515,11 +514,11 @@ renderMinMaxSample :: Int -> Int -> Double
 renderMinMaxSample ix xmax_ix t f e (yl,yu)
     | ix >= xmax_ix            = do
                                 lift $ do
-                                       f t (yl @> ix,yu @> ix)
+                                       f t (yl `atIndex` ix,yu `atIndex` ix)
                                        e
                                 fail "end of bounded area"
     | otherwise               = do
-                                lift $ f t (yl @> ix,yu @> ix)
+                                lift $ f t (yl `atIndex` ix,yu `atIndex` ix)
 
 -----------------------------------------------------------------------------
 

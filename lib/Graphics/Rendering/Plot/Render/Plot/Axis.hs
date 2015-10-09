@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Axis
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -27,7 +27,7 @@ import Data.Either
 
 import Data.List 
 
-import Data.Packed.Vector
+import Numeric.LinearAlgebra.Data hiding (Range)
 
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Pango as P

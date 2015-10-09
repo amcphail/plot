@@ -88,11 +88,7 @@ module Graphics.Rendering.Plot.Figure.Plot (
 --import Data.Bool.Unicode
 --import Data.Ord.Unicode
 
---import Data.Packed.Vector
---import Data.Packed.Matrix
-import Numeric.Container
-
---import Numeric.LinearAlgebra(eps)
+import Numeric.LinearAlgebra.Data hiding(Range)
 
 import qualified Data.Array.IArray as A
 
@@ -288,10 +284,10 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
 findMinMax (AbsFunction _) (OrdFunction _ f _) = 
-    let v = mapVector f (linspace 100 (-1,1))
+    let v = cmap f (linspace 100 (-1,1))
     in (minElement v,maxElement v)
 findMinMax (AbsPoints _ x) (OrdFunction _ f _) = 
-    let v = mapVector f x
+    let v = cmap f x
     in (minElement v,maxElement v)
 -- what if errors go beyond plot?
 findMinMax _ (OrdPoints _ (Plain o) _)    = (minElement o,maxElement o)
@@ -307,7 +303,7 @@ abscMinMax (AbsPoints _ x) = (minElement x,maxElement x)
 
 ordDim :: Ordinates -> Int
 ordDim (OrdFunction _ _ _)  = 1
-ordDim (OrdPoints _ o _)    = dim $ getOrdData o
+ordDim (OrdPoints _ o _)    = size $ getOrdData o
 
 
 calculateRanges :: DataSeries -> ((Double,Double),(Double,Double))

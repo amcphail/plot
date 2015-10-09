@@ -138,15 +138,12 @@ renderAnnotation xscale yscale (AnnText te (x1',y1')) = do
   _ <- renderText te TRight TTop (x1) (y1)
   cairo $ C.restore
   return ()
-renderAnnotation _xscale _yscale (AnnCairo r) = do
+renderAnnotation xscale yscale (AnnCairo r) = do
   (BoundingBox x y w h) <- get
   cairo $ do
     C.save
-    --let (x,y) = (x'*xscale,y'*yscale)
-    --let (w,h) = (w'*xscale,h'*yscale)
-    --flipVertical
-    --C.translate x y
-    --C.scale (xscale) (yscale)
+    --C.translate (x) (y)
+    C.scale (xscale) (yscale)
     r x y w h
     C.restore
 

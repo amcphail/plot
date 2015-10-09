@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -34,7 +34,7 @@ module Graphics.Rendering.Plot.Figure.Simple (
 
 -----------------------------------------------------------------------------
 
-import Numeric.Container
+import Numeric.LinearAlgebra.Data
 
 import Graphics.Rendering.Plot.Figure
 
@@ -101,7 +101,7 @@ parametric (fx,fy) (l,h) n = do
                              setPlots 1 1
                              withPlot (1,1) $ do
                                               let t = linspace n (l,h)
-                                              setDataset (Line,mapVector fx t,[mapVector fy t])
+                                              setDataset (Line,cmap fx t,[cmap fy t])
                                               addAxis XAxis (Side Lower) $ return ()
                                               addAxis YAxis (Side Lower) $ return ()
                                               setRangeFromData XAxis Lower Linear

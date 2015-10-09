@@ -1,8 +1,8 @@
 Name:                plot
-Version:             0.2.3.4
+Version:             0.2.3.5
 License:             BSD3
 License-file:        LICENSE
-Copyright:           (c) A.V.H. McPhail 2010, 2012, 2013, 2014
+Copyright:           (c) A.V.H. McPhail 2010, 2012, 2013, 2014, 2015
 Author:              Vivian McPhail
 Maintainer:          haskell.vivian.mcphail <at> gmail <dot> com
 Stability:           experimental
@@ -35,7 +35,7 @@ Description:
      .
 Category:            Graphics
 
-Tested-with:         GHC==7.8.3
+Tested-with:         GHC==7.10.2
 Cabal-version:       >= 1.8
 Build-type:          Simple
 
@@ -53,7 +53,7 @@ library
                      transformers > 0.2 && < 0.5,
                      pango >= 0.11.2 && < 0.14, cairo >= 0.11.1 && < 0.14,
                      colour >= 2.2.1 && < 2.4,
-                     hmatrix >= 0.10
+                     hmatrix >= 0.17
 
   Extensions:        MultiParamTypeClasses
                      GeneralizedNewtypeDeriving
