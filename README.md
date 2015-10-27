@@ -7,7 +7,7 @@ For some examples of use, see [Plot examples on Haskell.org](http://code.haskell
 
 # Installing Plots with Stack
 
-## Ubuntu
+## Ubuntu 14.04 LTS
 
 ```
 sudo apt-get install libblas-dev libgsl0-dev liblapack-dev libatlas-base-dev
