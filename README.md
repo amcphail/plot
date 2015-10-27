@@ -3,9 +3,21 @@ THIS README COPIED FROM THE diagrams PACKAGE
 Graphics.Rendering.Plot provides an embedded domain-specific
 language (EDSL) for creating plots rendered with Cairo
 
-For some examples of use, see http://code.haskell.org/plot/examples .
+For some examples of use, see [Plot examples on Haskell.org](http://code.haskell.org/plot/examples).
 
-------------------------------------------------------------------------
+# Installing Plots with Stack
+
+## Ubuntu
+
+```
+sudo apt-get install libblas-dev libgsl0-dev liblapack-dev libatlas-base-dev
+sudo apt-get install libghc-gtk-dev
+stack install plot
+```
+
+If you're using a different operating system, key off these package names to figure out what you need (roughly, blas, lapack, cairo, and GTK) and add instructions back here when you figure it out please.
+
+# Old install instructions
 
 To install the Plots library:
 
