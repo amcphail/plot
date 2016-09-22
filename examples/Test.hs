@@ -16,15 +16,12 @@ import qualified Graphics.Rendering.Pango as P
 
 import Data.Colour.Names
 
-import Data.Packed.Vector
---import Data.Packed.Random
-import Data.Packed()
-
 --import Prelude.Unicode
 
 import qualified Data.Array.IArray as A
 
 import Numeric.LinearAlgebra
+import Numeric.LinearAlgebra.Data
 
 import Numeric.GSL.Statistics
 
@@ -38,13 +35,13 @@ rs = ln |> take ln [0.306399512330476,-0.4243863460546792,-0.20454667402138094,-
 
 ss = sin (15*2*pi*ts)
 ds = 0.25*rs + ss
-es = constant (0.25*(stddev rs)) ln
+es = konst (0.25*(stddev rs)) ln
 
 fs :: Double -> Double
 fs = sin . (15*2*pi*)
 
 ms :: Matrix Double
-ms = buildMatrix 64 64 (\(x,y) -> sin (2*2*pi*(fromIntegral x)/64) * cos (5*2*pi*(fromIntegral y)/64))
+ms = build (64,64) (\x y -> sin (2*2*pi*x/64) * cos (5*2*pi*y/64))
 
 pts = linspace 1000 (0 :: Double,10*pi)
 fx = (\t -> t * sin t) pts

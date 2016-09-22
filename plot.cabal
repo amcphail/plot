@@ -1,5 +1,5 @@
 Name:                plot
-Version:             0.2.3.5
+Version:             0.2.3.6
 License:             BSD3
 License-file:        LICENSE
 Copyright:           (c) A.V.H. McPhail 2010, 2012, 2013, 2014, 2015
@@ -35,7 +35,7 @@ Description:
      .
 Category:            Graphics
 
-Tested-with:         GHC==7.10.2
+Tested-with:         GHC==8.0.1
 Cabal-version:       >= 1.8
 Build-type:          Simple
 
@@ -48,10 +48,10 @@ Extra-source-files:  README, CHANGES, LICENSE, THANKS
 
 library
 
-  Build-Depends:     base >= 4 && < 5,
+  Build-Depends:     base >= 4 && < 6,
                      mtl > 2, array,
-                     transformers > 0.2 && < 0.5,
-                     pango >= 0.11.2 && < 0.14, cairo >= 0.11.1 && < 0.14,
+                     transformers > 0.5 && < 0.7,
+                     pango >= 0.13 && < 0.14, cairo >= 0.13 && < 0.14,
                      colour >= 2.2.1 && < 2.4,
                      hmatrix >= 0.17
 
