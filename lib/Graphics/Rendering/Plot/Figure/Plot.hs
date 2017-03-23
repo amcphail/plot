@@ -284,10 +284,10 @@ withAllSeriesFormats f = withData $ D.withAllSeriesFormats f
 
 findMinMax :: Abscissae -> Ordinates -> (Double,Double)
 findMinMax (AbsFunction _) (OrdFunction _ f _) = 
-    let v = cmap f (linspace 100 (-1,1))
+    let v = f (linspace 100 (-1,1))
     in (minElement v,maxElement v)
 findMinMax (AbsPoints _ x) (OrdFunction _ f _) = 
-    let v = cmap f x
+    let v = f x
     in (minElement v,maxElement v)
 -- what if errors go beyond plot?
 findMinMax _ (OrdPoints _ (Plain o) _)    = (minElement o,maxElement o)

@@ -273,7 +273,7 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
      (OrdFunction _ f _)            -> do
         (BoundingBox _ _ w _) <- get
         let t = logSeries xsc $ linspace (round w) (xmin,xmax)
-        return $ Left $ Left ((True,t),logSeries ysc $ cmap f t)
+        return $ Left $ Left ((True,t),logSeries ysc $ f t)
      (OrdPoints _ (Plain o') _)     -> do
         let t = case abs of
                   AbsFunction f    -> 
