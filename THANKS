@@ -5,3 +5,4 @@
      non-default point size and legend placement/scaling
  * pacak updated for AMP for ghc 7.10
  * pacak - clean up warnings and simplify dependencies
+ * alang9 - implement vector functions

@@ -132,3 +132,5 @@
 0.2.3.5:
 		* update for hmatrix 0.17
 
+0.2.3.7:
+		* implement vector functions thanks to alang9 on github
