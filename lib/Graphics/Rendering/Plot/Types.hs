@@ -285,7 +285,8 @@ type Series = Vector Double
 type Surface = Matrix Double
 type ErrorSeries = Series
 type MinMaxSeries = (Series,Series)
-type Function = (Double -> Double)
+type Function = Double -> Double
+type VectorFunction = Vector Double -> Vector Double
 
 type SeriesLabel = String
 
@@ -313,7 +314,7 @@ type AbsFunctionModifier = (Double -> Double)
 data Abscissae = AbsFunction AbsFunctionModifier
                | AbsPoints MonotoneIncreasing Series
 
-data Ordinates = OrdFunction AxisSide Function  (Maybe SeriesLabel)
+data Ordinates = OrdFunction AxisSide VectorFunction (Maybe SeriesLabel)
                | OrdPoints   AxisSide OrdSeries (Maybe SeriesLabel)
 
 getOrdLabel :: Ordinates -> (Maybe SeriesLabel)
