@@ -29,7 +29,7 @@ import Data.List(partition)
 --import Foreign.Storable 
 --import Foreign.Ptr
 
-import Numeric.LinearAlgebra
+import Numeric.LinearAlgebra hiding (Upper, Lower)
 --import Numeric.LinearAlgebra.Data
 import Numeric.LinearAlgebra.Devel
 
