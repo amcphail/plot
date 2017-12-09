@@ -134,3 +134,6 @@
 
 0.2.3.7:
 		* implement vector functions thanks to alang9 on github
+
+0.2.3.8:
+		* resolve ambiguity in Upper and Lower types from HMatrix

@@ -114,12 +114,13 @@ figure = do
                            glyph (4,0.2) (return ())
                            text (3,0.0) (setText "from the α to the Ω")
                            cairo (\_ _ _ _ -> do
-                                    C.newPath
-                                    C.moveTo 3 0.75
-                                    C.lineTo 4 (-0.5)
+                                    --C.stroke
+                                    --C.newPath
+                                    C.moveTo 1 0.75
+                                    C.lineTo 2 (-0.5)
                                     C.stroke
-                                    C.rectangle (pi/2) (-1) (pi/2) 1
-                                    C.fill
+                                    --C.rectangle (pi/2) (-0.75) (pi/2) 1
+                                    --C.fill
                                  )
 --                         setRange YAxis Lower Log (-1.25) 1.25
 --                         setLegend True NorthEast Inside
