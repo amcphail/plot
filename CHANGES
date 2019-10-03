@@ -137,3 +137,8 @@
 
 0.2.3.8:
 		* resolve ambiguity in Upper and Lower types from HMatrix
+
+0.2.3.9:
+
+0.2.3.10:
+		* adapt to new MonadFail by vaibhavsagar
