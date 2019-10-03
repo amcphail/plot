@@ -29,7 +29,7 @@ module Graphics.Rendering.Plot.Figure.Plot.Axis (
 
 -----------------------------------------------------------------------------
 
---import Data.Maybe
+import Data.Maybe (fromMaybe)
 
 import Control.Monad.State
 import Control.Monad.Reader
@@ -75,10 +75,10 @@ withGridLine t m = do
       Minor -> do
         -- at this point can we guarantee there won't
         -- be a Nothing?
-        (Just (Ticks lt'' v')) <- gets _minor_ticks
+        (Ticks lt'' v') <- fromMaybe (error "Minor ticks was Nothing") <$> gets _minor_ticks
         return (lt'',v')
       Major -> do
-        (Just (Ticks lt'' v')) <- gets _major_ticks
+        (Ticks lt'' v') <- fromMaybe (error "Major ticks was Nothing") <$> gets _major_ticks
         return (lt'',v')
   let lt = execLine m lo lt'
   case t of

@@ -121,7 +121,9 @@ renderAxes p r axes = do
 shiftForAxisLabel :: Padding -> AxisData -> Render Padding
 shiftForAxisLabel p (Axis _  _   _ _ _ _ _ NoText) = return p
 shiftForAxisLabel p (Axis ax sd  _ _ _ _ _ lb) = do
-  (FontText to s) <- formatText lb
+  (to, s) <- flip fmap (formatText lb) $ \ft -> case ft of
+    (FontText to s) -> (to, s)
+    _ -> error "not FontText"
   pc <- asks _pangocontext
   (w,h) <- cairo $ do
     lo <- pango $ P.layoutText pc s
