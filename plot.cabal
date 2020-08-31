@@ -57,7 +57,7 @@ library
                      colour >= 2.2.1 && < 2.4,
                      hmatrix >= 0.17
 
-  default-xtensions: MultiParamTypeClasses
+  default-extensions: MultiParamTypeClasses
                      GeneralizedNewtypeDeriving
                      TypeSynonymInstances
                      FlexibleInstances
