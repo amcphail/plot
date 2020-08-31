@@ -36,7 +36,7 @@ Description:
 Category:            Graphics
 
 Tested-with:         GHC==8.8.3
-Cabal-version:       >= 1.8
+Cabal-version:       >= 1.10
 Build-type:          Simple
 
 Extra-source-files:  README, CHANGES, LICENSE, THANKS
