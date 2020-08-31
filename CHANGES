@@ -142,3 +142,6 @@
 
 0.2.3.10:
 		* adapt to new MonadFail by vaibhavsagar
+0.2.3.11:
+		* enabled compilation on ghc 8.8.3, fixing Monad fail.
+		  (by hasufell)

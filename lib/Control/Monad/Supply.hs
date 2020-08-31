@@ -29,10 +29,14 @@ module Control.Monad.Supply (
 #if !(MIN_VERSION_base(4,8,0))
 import Control.Applicative
 #endif
-import Control.Monad.Writer
-import Control.Monad.Reader
-import Control.Monad.State
+import Control.Monad.Writer hiding ( fail )
+import Control.Monad.Reader hiding ( fail )
+import Control.Monad.State hiding ( fail )
 import Control.Monad.Trans()
+#if !MIN_VERSION_base(4,13,0)
+import Control.Monad.Fail ( MonadFail, fail )
+import Prelude hiding ( fail )
+#endif
 
 -----------------------------------------------------------------------------
 
@@ -84,6 +88,8 @@ instance Monad m => Monad (SupplyT s m) where
     m >>= f   = SupplyT $ \s -> do
                                 ~(a,s') <- runSupplyT m s
                                 runSupplyT (f a) s'
+
+instance (MonadFail m, Monad m) => MonadFail (SupplyT s m) where
     fail str  = SupplyT $ \_ -> fail str
  
 instance MonadTrans (SupplyT s) where
