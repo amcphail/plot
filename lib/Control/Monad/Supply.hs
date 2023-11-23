@@ -37,7 +37,9 @@ import Control.Monad.Trans()
 import Control.Monad.Fail ( MonadFail, fail )
 import Prelude hiding ( fail )
 #endif
-
+#if MIN_VERSION_mtl(2,3,0)
+import Control.Monad
+#endif
 -----------------------------------------------------------------------------
 
 class Supply a b where
@@ -59,7 +61,7 @@ supplyN n = replicateM n supply
 -----------------------------------------------------------------------------
 
 newtype SupplyT s m a = SupplyT { runSupplyT :: s -> m (a, s) }
-    
+
 evalSupplyT :: Monad m => SupplyT s m a -> s -> m a
 evalSupplyT st s = do
                    ~(a,_) <- runSupplyT st s
@@ -84,14 +86,14 @@ instance Monad m => Applicative (SupplyT s m) where
     (<*>) = ap
 
 instance Monad m => Monad (SupplyT s m) where
-    return a  = SupplyT $ \s -> return (a, s) 
+    return a  = SupplyT $ \s -> return (a, s)
     m >>= f   = SupplyT $ \s -> do
                                 ~(a,s') <- runSupplyT m s
                                 runSupplyT (f a) s'
 
 instance (MonadFail m, Monad m) => MonadFail (SupplyT s m) where
     fail str  = SupplyT $ \_ -> fail str
- 
+
 instance MonadTrans (SupplyT s) where
     lift m = SupplyT $ \s -> do
                              a <- m
@@ -125,4 +127,3 @@ instance MonadWriter w m => MonadWriter w (SupplyT s m) where
                                        return ((a,s'),f)
 
 -----------------------------------------------------------------------------
-
