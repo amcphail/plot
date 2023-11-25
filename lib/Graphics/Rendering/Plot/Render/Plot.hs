@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot
@@ -60,6 +61,10 @@ import Graphics.Rendering.Plot.Render.Plot.Annotation
 --import Prelude hiding(min,max)
 --import qualified Prelude(max)
 
+#if MIN_VERSION_mtl(2,3,0)
+import Control.Monad
+#endif
+
 -----------------------------------------------------------------------------
 
 bbPlot :: Int -> Int -> (Int,Int) -> Render ()
@@ -109,7 +114,7 @@ renderPlot (Plot b c p hd r a bc sd d l an) = do
   cairo C.save
   axes
   cairo C.restore
-  
+
 renderBorder :: Border -> Render ()
 renderBorder False = return ()
 renderBorder True  = do
@@ -118,7 +123,5 @@ renderBorder True  = do
     C.setLineWidth 0.5
     C.rectangle (x+0.5) (y+0.5) w h
     C.stroke
-                                           
+
 -----------------------------------------------------------------------------
-
-

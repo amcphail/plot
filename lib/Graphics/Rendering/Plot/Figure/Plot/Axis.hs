@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Figure.Plot.Axis
@@ -33,6 +34,9 @@ import Data.Maybe (fromMaybe)
 
 import Control.Monad.State
 import Control.Monad.Reader
+#if MIN_VERSION_mtl(2,3,0)
+import Control.Monad
+#endif
 
 import Graphics.Rendering.Plot.Types
 import Graphics.Rendering.Plot.Defaults
@@ -87,20 +91,20 @@ withGridLine t m = do
 
 -- | format the axis ticks
 setTicks :: Tick -> TickValues -> Axis ()
-setTicks Minor (TickNumber 0) = modify $ \s -> 
+setTicks Minor (TickNumber 0) = modify $ \s ->
   changeMinorTicks (const Nothing) s
-setTicks Minor ts             = modify $ \s -> 
+setTicks Minor ts             = modify $ \s ->
   changeMinorTicks (setTickValues ts) s
-setTicks Major (TickNumber 0) = modify $ \s -> 
+setTicks Major (TickNumber 0) = modify $ \s ->
   changeMajorTicks (const Nothing) s
-setTicks Major ts             = modify $ \s -> 
+setTicks Major ts             = modify $ \s ->
   changeMajorTicks (setTickValues ts) s
 
 -- | should gridlines be displayed?
 setGridlines :: Tick -> GridLines -> Axis ()
-setGridlines Minor gl = modify $ \s -> 
+setGridlines Minor gl = modify $ \s ->
   changeMinorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
-setGridlines Major gl = modify $ \s -> 
+setGridlines Major gl = modify $ \s ->
   changeMajorTicks (setTickGridlines (if gl then defaultGridLine else NoLine)) s
 
 -- | set the tick label format
@@ -109,7 +113,7 @@ setTickLabelFormat tf = modify $ \s -> changeTickFormat tf s
 
 -- | a list of data labels
 setTickLabels :: [String] -> Axis ()
-setTickLabels dl = modify $ \s -> 
+setTickLabels dl = modify $ \s ->
   changeTickLabels (const (map BareText dl)) s
 
 -- | format the tick labels
@@ -124,7 +128,7 @@ withAxisLabel :: Text () -> Axis ()
 withAxisLabel m = do
   ax <- get
   to <- asks _textoptions
-  put $ ax { _label = execText m to (_label ax) } 
+  put $ ax { _label = execText m to (_label ax) }
 
 -----------------------------------------------------------------------------
 
@@ -137,4 +141,3 @@ withTickLabelFormat m = do
   put $ ax { _tick_labels = map (execText m to) (_tick_labels ax) }
 
 -----------------------------------------------------------------------------
-

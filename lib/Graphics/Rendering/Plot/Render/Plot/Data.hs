@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE CPP #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -26,7 +27,7 @@ module Graphics.Rendering.Plot.Render.Plot.Data (
 import Data.List(partition)
 --import Prelude.Unicode
 
---import Foreign.Storable 
+--import Foreign.Storable
 --import Foreign.Ptr
 
 import Numeric.LinearAlgebra hiding (Upper, Lower)
@@ -39,7 +40,7 @@ import qualified Data.Array.Base as B
 
 import Data.Word
 
-import Data.Maybe 
+import Data.Maybe
 import qualified Graphics.Rendering.Cairo as C
 import qualified Graphics.Rendering.Cairo.Matrix as CM
 
@@ -57,6 +58,10 @@ import Graphics.Rendering.Plot.Defaults
 
 import Prelude hiding(min,max,abs)
 import qualified Prelude
+
+#if MIN_VERSION_mtl(2,3,0)
+import Control.Monad
+#endif
 
 -----------------------------------------------------------------------------
 
@@ -94,7 +99,7 @@ zeroToOne x
     | otherwise = x
 
 renderData :: Ranges -> BarSetting -> SampleData -> DataSeries -> Render ()
-renderData _ _ _ (DS_Surf m) = do 
+renderData _ _ _ (DS_Surf m) = do
   (BoundingBox x y w h) <- get
   let r = rows m
       c = cols m
@@ -126,25 +131,25 @@ renderData _ _ _ (DS_Surf m) = do
 renderData r bc sd ds = do
   let aos = case ds of
               (DS_Y         os') -> zip (repeat (AbsFunction id)) (A.elems os')
-              (DS_1toN abs' os') -> zip (repeat abs')             (A.elems os') 
+              (DS_1toN abs' os') -> zip (repeat abs')             (A.elems os')
               (DS_1to1 aos')     -> A.elems aos'
               _                  -> error "renderData: DataSeries not handled"
   let (los,ups) = partition (\(_,DecSeries o _) -> isLower o) aos
   (BoundingBox x y w h) <- get
   let (xsc,xmin',xmax') = getRanges XAxis Lower r
   let (xmin,xmax) = if xsc == Log then (logBase 10 $ zeroToOne xmin',logBase 10 $ zeroToOne xmax') else (xmin',xmax')
-  let xscale = w/(xmax-xmin) 
+  let xscale = w/(xmax-xmin)
   cairo $ C.save
   let (yscl,yminl',ymaxl') = getRanges YAxis Lower r
   let (yminl,ymaxl) = if yscl == Log then (logBase 10 $ zeroToOne yminl',logBase 10 $ zeroToOne ymaxl') else (yminl',ymaxl')
-  let yscalel = h/(ymaxl-yminl) 
+  let yscalel = h/(ymaxl-yminl)
   -- transform to data coordinates
-  cairo $ do 
+  cairo $ do
     C.translate x (y+h)
     --C.scale xscale yscalel
     C.translate (-xmin*xscale) (yminl*yscalel)
     flipVertical
-  los' <- configureBars xsc yscl xmin xmax xscale yscalel bc los 
+  los' <- configureBars xsc yscl xmin xmax xscale yscalel bc los
   mapM_ (renderSeries xsc yscl xmin xmax xscale yscalel sd) los'
   cairo $ C.restore
   when (not $ null ups)
@@ -152,14 +157,14 @@ renderData r bc sd ds = do
              cairo $ C.save
              let (yscu,yminu',ymaxu') = getRanges YAxis Upper r
              let (yminu,ymaxu) = if yscu == Log then (logBase 10 $ zeroToOne yminu',logBase 10 $ zeroToOne ymaxu') else (yminu',ymaxu')
-             let yscaleu = h/(ymaxu-yminu) 
+             let yscaleu = h/(ymaxu-yminu)
              -- transform to data coordinates
-             cairo $ do 
+             cairo $ do
                C.translate x (y+h)
                --C.scale xscale yscaleu
                C.translate (-xmin*xscale) (yminu*yscaleu)
                flipVertical
-             ups' <- configureBars xsc yscu xmin xmax xscale yscaleu bc ups 
+             ups' <- configureBars xsc yscu xmin xmax xscale yscaleu bc ups
              mapM_ (renderSeries xsc yscu xmin xmax xscale yscaleu sd) ups'
              cairo $ C.restore)
              -- could filter annotations as well
@@ -169,7 +174,7 @@ logSeries :: Scale -> Vector Double -> Vector Double
 logSeries Log a = logBase 10 $ cmap zeroToOne a
 logSeries _   a = a
 
-midpoints :: (Fractional t, Num (Vector t), Container Vector t) 
+midpoints :: (Fractional t, Num (Vector t), Container Vector t)
             => (t1, Vector t) -> (t1, Vector t)
 midpoints(mi,v) = let v' = subVector 1 (size v - 1) v
                       w' = subVector 0 (size v - 1) v
@@ -179,8 +184,8 @@ logSeriesMinMax :: Scale -> (Vector Double,Vector Double) -> (Vector Double,Vect
 logSeriesMinMax Log    (v,w) = (logSeries Log v,logSeries Log w)
 logSeriesMinMax Linear x     = x
 
-getBar :: (Integer,(Abscissae,DecoratedSeries)) 
-        -> Maybe (Integer,(Abscissae,DecoratedSeries,BarType)) 
+getBar :: (Integer,(Abscissae,DecoratedSeries))
+        -> Maybe (Integer,(Abscissae,DecoratedSeries,BarType))
 getBar (ix,(as,DecSeries os ds)) = let d = decorationGetBarType ds
    in case d of
         Just d' -> Just (ix,(as,DecSeries os ds,d'))
@@ -201,9 +206,9 @@ shiftAbscissa :: (Integer,(Abscissae,DecoratedSeries,BarType)) -> Double
 shiftAbscissa (j,(AbsFunction f,ds,_)) s  = (j,(AbsFunction ((+) s . f),ds))
 shiftAbscissa (j,(AbsPoints mi t,ds,_)) s = (j,(AbsPoints mi ((+) (vector [s]) t),ds))
 
-replaceBars :: [(Integer,(Abscissae,DecoratedSeries))] 
-            -> [(Abscissae,DecoratedSeries)] 
-            -> [(Abscissae,DecoratedSeries)] 
+replaceBars :: [(Integer,(Abscissae,DecoratedSeries))]
+            -> [(Abscissae,DecoratedSeries)]
+            -> [(Abscissae,DecoratedSeries)]
 replaceBars [] as = as
 replaceBars ((j,ds):dss) as = replaceBars dss $ replace j ds as
 
@@ -225,7 +230,7 @@ convertBarToCandle (v,w) os =
 mkCandlesFromBars :: (Vector Double,Vector Double)
                   -> (Integer,(Abscissae,DecoratedSeries,BarType))
                   -> (Integer,(Abscissae,DecoratedSeries))
-mkCandlesFromBars (v,w) (j,(a,DecSeries (OrdPoints ax o mb_l) _,bt)) = 
+mkCandlesFromBars (v,w) (j,(a,DecSeries (OrdPoints ax o mb_l) _,bt)) =
   (j,(a,DecSeries (OrdPoints ax ordSeries mb_l) (DecCand bt)))
       where
         ordSeries = convertBarToCandle (v,w) o
@@ -238,8 +243,8 @@ getOrdData' _                                = error "Data.hs:getOrdData': unrea
 configureBars :: Scale -> Scale
              -> Double -> Double -> Double -> Double
              -> BarSetting
-             -> [(Abscissae,DecoratedSeries)] 
-             -> Render [(Abscissae,DecoratedSeries)] 
+             -> [(Abscissae,DecoratedSeries)]
+             -> Render [(Abscissae,DecoratedSeries)]
 configureBars _ _ _ _ xscale _ bs aos = do
    let bars = mapMaybe getBar $ zip [0..] aos
    case bs of
@@ -256,7 +261,7 @@ configureBars _ _ _ _ xscale _ bs aos = do
         let od = (getOrdData' . (\(_,b,_) -> b) . snd . head) bars
         let ln = size $ od
         let zero = konst 0 ln
-        let pairs = pair $ scanl scanStacked zero bars  
+        let pairs = pair $ scanl scanStacked zero bars
         let candles = zipWith mkCandlesFromBars pairs bars
         let aos' = replaceBars candles aos
         return aos'
@@ -265,8 +270,8 @@ configureBars _ _ _ _ xscale _ bs aos = do
                   pair [x,y] = [(x,y)]
                   pair (x:y:xs) = (x,y) : pair (y:xs)
 
-renderSeries :: Scale -> Scale 
-             -> Double -> Double -> Double -> Double -> SampleData 
+renderSeries :: Scale -> Scale
+             -> Double -> Double -> Double -> Double -> SampleData
              -> (Abscissae,DecoratedSeries) -> Render ()
 renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
   dat  <- case o of
@@ -276,7 +281,7 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
         return $ Left $ Left ((True,t),logSeries ysc $ f t)
      (OrdPoints _ (Plain o') _)     -> do
         let t = case abs of
-                  AbsFunction f    -> 
+                  AbsFunction f    ->
                     if isHist d
                     then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
                     else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
@@ -284,7 +289,7 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
         return $ Left $ Left ((fst t,logSeries xsc $ snd t),logSeries ysc $ o')
      (OrdPoints _ (Error o' (Left e)) _) -> do
         let t = case abs of
-                  AbsFunction f    -> 
+                  AbsFunction f    ->
                     if isHist d
                     then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
                     else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
@@ -293,11 +298,11 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
         return $ Left $ Right $ Left ((t',logSeries ysc $ o'),(t',logSeries ysc $ e))
      (OrdPoints _ (Error o' (Right (l,h))) _) -> do
         let t = case abs of
-                  AbsFunction f    -> 
+                  AbsFunction f    ->
                     if isHist d
                     then (True,cmap f $ fromList [0.0..(fromIntegral $ size o')])
                     else (True,cmap f $ fromList [1.0..(fromIntegral $ size o')])
-                  AbsPoints mi t'  -> (mi,t') 
+                  AbsPoints mi t'  -> (mi,t')
         let t' = (fst t,logSeries xsc $ snd t)
         return $ Left $ Right $ Right ((t',logSeries ysc $ o'),(t',logSeries ysc $ l),(t',logSeries ysc $ h))
      (OrdPoints _ (MinMax o' Nothing) _) -> do
@@ -330,8 +335,8 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
             renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
           Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
             renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz g) endPointSample t' y'
-            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Bot) endPointSample t' l 
-            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' h 
+            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Bot) endPointSample t' l
+            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' h
           _  -> error "Data.hs renderSeries: cannot have MinMax data series with point type"
     (DecLinPt lt pt) -> do
        formatLineSeries lt
@@ -345,12 +350,12 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz g) endPointSample t' y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Bot) endPointSample t' (y'-e')
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' (y'+e')
---               error "Data.hs renderSeries: cannot have single error value with line-points type"        
+--               error "Data.hs renderSeries: cannot have single error value with line-points type"
          Left (Right (Right ((t',y'),(_,l),(_,h)))) -> do
            renderSamples xscale yscale xmin xmax sd Nothing renderLineSample endLineSample t' y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz g) endPointSample t' y'
-           renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Bot) endPointSample t' l 
-           renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' h 
+           renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Bot) endPointSample t' l
+           renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample pz Top) endPointSample t' h
          _  -> error "Data.hs renderSeries: cannot have MinMax data series with line-point type"
     (DecImpulse lt) -> do
        formatLineSeries lt
@@ -376,21 +381,21 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
          _  -> error "Data.hs renderSeries: cannot have error bars with area type"
     (DecBar bt)   -> do
        (bw,bc,c) <- formatBarSeries bt
-       (gw,_) <- formatPointSeries defaultPointType 
+       (gw,_) <- formatPointSeries defaultPointType
        case dat of
          Left (Left (t',y')) -> do
-           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y' 
+           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y'
          Left (Right (Left ((t',y'),(_,e')))) -> do
-           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y' 
+           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSampleUpDown gw) endPointSample t' e'
          Left (Right (Right ((t',y'),(_,l'),(_,h')))) -> do
-           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y' 
+           renderSamples xscale yscale xmin xmax sd Nothing (renderBarSample bw bc c) endBarSample t' y'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample gw Bot) endPointSample t' l'
            renderSamples xscale yscale xmin xmax sd Nothing (renderPointSample gw Top) endPointSample t' h'
          _  -> error "Data.hs renderSeries: cannot have MinMax data series with bar type"
     (DecHist bt)  -> do
        (bw,bc,c) <- formatBarSeries bt
-       (gw,_) <- formatPointSeries defaultPointType 
+       (gw,_) <- formatPointSeries defaultPointType
        case dat of
          Left (Left (t',y')) -> do
            let ln = size $ snd $ t'
@@ -419,7 +424,7 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
          _  -> error "Data.hs renderSeries: cannot have MinMax data series with histogram type"
     (DecCand bt)  → do
        (bw,bc,c) <- formatBarSeries bt
-       case dat of 
+       case dat of
          Left _ -> error "Candles series requires two data series (MinMax series)"
          Right (Left (t',y')) -> do
            renderMinMaxSamples xscale yscale xmin xmax sd Nothing (renderCandleSample bw bc c) endCandleSample t' y'
@@ -428,7 +433,7 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
            renderMinMaxSamples xscale yscale xmin xmax sd Nothing (renderCandleSample bw bc c) endCandleSample t' y'
     (DecWhisk bt)  → do
       (bw,bc,c) <- formatBarSeries bt
-      case dat of 
+      case dat of
         Left _ -> error "Candles series requires two data series (MinMax series)"
         Right (Left (t',y')) -> do
           renderMinMaxSamples xscale yscale xmin xmax sd Nothing (renderCandleSample bw bc c) endCandleSample t' y'
@@ -439,8 +444,8 @@ renderSeries xsc ysc xmin xmax xscale yscale sd (abs,(DecSeries o d)) = do
 
 -----------------------------------------------------------------------------
 
-renderSamples :: Double -> Double 
-              -> Double -> Double 
+renderSamples :: Double -> Double
+              -> Double -> Double
               -> SampleData
               -> Maybe (C.Render ())
               -> (Double -> Double -> Double -> Double -> C.Render ()) -> (Double -> Double -> C.Render ())
@@ -469,8 +474,8 @@ renderSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
 
 -----------------------------------------------------------------------------
 
-renderMinMaxSamples :: Double -> Double 
-              -> Double -> Double 
+renderMinMaxSamples :: Double -> Double
+              -> Double -> Double
               -> SampleData
               -> Maybe (C.Render ())
               -> (Double -> Double -> Double -> (Double,Double) -> C.Render ()) -> (Double -> Double -> C.Render ())
@@ -498,7 +503,7 @@ renderMinMaxSamples xscale yscale xmin xmax sd s f e (mono,t) y = do
 
 -----------------------------------------------------------------------------
 
-renderSample :: Int -> Int -> Vector Double 
+renderSample :: Int -> Int -> Vector Double
              -> (Double -> Double -> C.Render ())
              -> Double -> MaybeT C.Render ()
 renderSample ix xmax_ix t f y
@@ -508,8 +513,8 @@ renderSample ix xmax_ix t f y
     | otherwise               = do
                                 lift $ f (t `atIndex` ix) y
 
-renderMinMaxSample :: Int -> Int -> Double 
-             -> (Double -> (Double,Double) -> C.Render ()) -> C.Render () 
+renderMinMaxSample :: Int -> Int -> Double
+             -> (Double -> (Double,Double) -> C.Render ()) -> C.Render ()
              -> (Vector Double,Vector Double) -> MaybeT C.Render ()
 renderMinMaxSample ix xmax_ix t f e (yl,yu)
     | ix >= xmax_ix            = do
@@ -582,7 +587,7 @@ renderBarSample bw c bc xscale yscale x y = do
   C.strokePreserve
   setColour c
   C.fill
-                                 
+
 endBarSample :: Double -> Double -> C.Render ()
 endBarSample _ _ = return ()
 
@@ -636,5 +641,3 @@ endWhiskerSample :: Double -> Double -> C.Render ()
 endWhiskerSample _ _ = return ()
 
 -----------------------------------------------------------------------------
-
-

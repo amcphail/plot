@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.Plot.Render.Plot.Annotation
@@ -37,6 +38,10 @@ import Graphics.Rendering.Plot.Render.Plot.Format
 --import Prelude hiding(min,max)
 --import qualified Prelude(max)
 
+#if MIN_VERSION_mtl(2,3,0)
+import Control.Monad
+#endif
+
 -----------------------------------------------------------------------------
 
 renderAnnotations :: Ranges -> Annotations -> Render ()
@@ -44,13 +49,13 @@ renderAnnotations r an = do
   (BoundingBox x y w h) <- get
   let (xsc,xmin',xmax') = getRanges XAxis Lower r
   let (xmin,xmax) = if xsc == Log then (logBase 10 xmin',logBase 10 xmax') else (xmin',xmax')
-  let xscale = w/(xmax-xmin) 
+  let xscale = w/(xmax-xmin)
   cairo $ C.save
   let (yscl,yminl',ymaxl') = getRanges YAxis Lower r
   let (yminl,ymaxl) = if yscl == Log then (logBase 10 yminl',logBase 10 ymaxl') else (yminl',ymaxl')
-  let yscalel = h/(ymaxl-yminl) 
+  let yscalel = h/(ymaxl-yminl)
   -- transform to data coordinates
-  cairo $ do 
+  cairo $ do
     C.translate x (y+h)
     --C.scale xscale yscalel
     C.translate (-xmin*xscale) (yminl*yscalel)
