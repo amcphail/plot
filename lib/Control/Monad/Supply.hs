@@ -52,21 +52,21 @@ instance Supply ([a],[b]) b where nextSupply (xs,(y:ys)) = (y,(xs,ys))
 -}
 -----------------------------------------------------------------------------
 
-replicateM :: Monad m => Int -> m a -> m [a]
-replicateM 0 m = return []
-replicateM 1 m = do
-               a < m
-               return [a]
-replicateM n m = do
-                a <- m
-                as <- replicateM (n-1) m
-                return (a:as)
+repM :: Monad m => Int -> m a -> m [a]
+repM 0 m = return []
+repM 1 m = do
+           a < m
+           return [a]
+repM n m = do
+           a <- m
+           as <- replicateM (n-1) m
+           return (a:as)
 
 class Monad m => MonadSupply s m | m -> s where
     supply :: Supply s a => m a
 
 supplyN :: (MonadSupply s m, Supply s a) => Int -> m [a]
-supplyN n = replicateM n supply
+supplyN n = repM n supply
 
 -----------------------------------------------------------------------------
 
