@@ -145,3 +145,7 @@
 0.2.3.11:
 		* enabled compilation on ghc 8.8.3, fixing Monad fail.
 		  (by hasufell)
+
+0.2.4.1:
+                * updated to be compatible with ghc 9.8
+
