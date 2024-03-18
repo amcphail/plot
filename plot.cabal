@@ -51,11 +51,11 @@ library
   default-language:  Haskell2010
         
   Build-Depends:     base >= 4.9.0.0 && < 5,
-                     mtl > 2, array,
+                     mtl > 2 && < 3, array < 0.5 && > 0.6,
                      transformers > 0.5 && < 0.7,
                      pango >= 0.13 && < 0.14, cairo >= 0.13 && < 0.14,
                      colour >= 2.2.1 && < 2.4,
-                     hmatrix >= 0.17
+                     hmatrix >= 0.17 && < 0.21
 
   default-extensions: MultiParamTypeClasses
                      GeneralizedNewtypeDeriving
@@ -93,9 +93,8 @@ library
                      Control.Monad.Supply
 
   ghc-options:       -Wall -fno-warn-unused-binds
-                     -O2
 
-  ghc-prof-options:  -auto
+  ghc-prof-options:
 
 source-repository head
   type:     git
