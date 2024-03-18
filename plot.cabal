@@ -51,7 +51,7 @@ library
   default-language:  Haskell2010
         
   Build-Depends:     base >= 4.9.0.0 && < 5,
-                     mtl > 2 && < 3, array < 0.5 && > 0.6,
+                     mtl > 2 && < 3, array > 0.5 && < 0.6,
                      transformers > 0.5 && < 0.7,
                      pango >= 0.13 && < 0.14, cairo >= 0.13 && < 0.14,
                      colour >= 2.2.1 && < 2.4,
