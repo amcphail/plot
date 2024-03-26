@@ -53,7 +53,7 @@ instance Supply ([a],[b]) b where nextSupply (xs,(y:ys)) = (y,(xs,ys))
 -----------------------------------------------------------------------------
 
 repM :: Monad m => Int -> m a -> m [a]
-repM 0 m = return []
+repM 0 _ = return []
 repM 1 m = do
            a <- m
            return [a]
